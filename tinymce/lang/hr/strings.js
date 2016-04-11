@@ -1,5 +1,5 @@
 var strings = new Array();
 strings['cancel'] = 'Poništi';
 strings['accept'] = 'U redu';
-strings['manual'] = 'Priručnik';
+strings['manual'] = 'Priru�?nik';
 strings['latex'] = 'LaTeX';

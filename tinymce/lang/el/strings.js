@@ -1,5 +1,5 @@
 var strings = new Array();
-strings['cancel'] = 'Άκυρο';
+strings['cancel'] = 'Άκυ�?ο';
 strings['accept'] = 'ΟΚ';
-strings['manual'] = 'Χειροκίνητα';
+strings['manual'] = 'Χει�?οκίνητα';
 strings['latex'] = 'LaTeX';
