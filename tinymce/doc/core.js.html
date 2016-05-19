@@ -1,7 +1,35 @@
-var _wrs_popupWindow;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: core.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: core.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>var _wrs_popupWindow;
 
 wrs_addEvent(window, 'message', function (e) {
-    if (e.source = _wrs_popupWindow && typeof e.wrs_processed == 'undefined') {
+    if (e.source = _wrs_popupWindow &amp;&amp; typeof e.wrs_processed == 'undefined') {
         e.wrs_processed = true;
         var postVariable = {};
         postVariable.id = e.data.id;
@@ -39,10 +67,10 @@ var _wrs_dragObject;
 var _wrs_int_LatexCache = {};
 
 var _wrs_xmlCharacters = {
-    'tagOpener': '<',       // Hex: \x3C.
+    'tagOpener': '&lt;',       // Hex: \x3C.
     'tagCloser': '>',       // Hex: \x3E.
     'doubleQuote': '"',     // Hex: \x22.
-    'ampersand': '&',       // Hex: \x26.
+    'ampersand': '&amp;',       // Hex: \x26.
     'quote': '\''           // Hex: \x27.
 };
 
@@ -56,16 +84,16 @@ var _wrs_safeXmlCharacters = {
 };
 
 var _wrs_safeXmlCharactersEntities = {
-    'tagOpener': '&laquo;',
-    'tagCloser': '&raquo;',
-    'doubleQuote': '&uml;',
-    'realDoubleQuote': '&quot;'
+    'tagOpener': '&amp;laquo;',
+    'tagCloser': '&amp;raquo;',
+    'doubleQuote': '&amp;uml;',
+    'realDoubleQuote': '&amp;quot;'
 }
 
 var _wrs_safeBadBlackboardCharacters = {
-    'ltElement': '«mo»<«/mo»',
+    'ltElement': '«mo»&lt;«/mo»',
     'gtElement': '«mo»>«/mo»',
-    'ampElement': '«mo»&«/mo»'
+    'ampElement': '«mo»&amp;«/mo»'
 }
 
 var _wrs_safeGoodBlackboardCharacters = {
@@ -93,7 +121,7 @@ if (!(window._wrs_conf_CASClassName)) {
 if (typeof MutationObserver != 'undefined') {
     var wrs_observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
-            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1 ) {
+            if (mutation.oldValue == _wrs_conf_imageClassName &amp;&amp; mutation.attributeName == 'class' &amp;&amp; mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1 ) {
                 mutation.target.className = _wrs_conf_imageClassName;
             }
         });
@@ -280,7 +308,7 @@ function wrs_convertOldXmlinitialtextAttribute(text){
 
     var newvalue = value.split('«').join('§lt;');
     newvalue = newvalue.split('»').join('§gt;');
-    newvalue = newvalue.split('&').join('§');
+    newvalue = newvalue.split('&amp;').join('§');
     newvalue = newvalue.split('¨').join('§quot;');
 
     text = text.split(value).join(newvalue);
@@ -317,7 +345,7 @@ function wrs_createElement(elementName, attributes, creator) {
      */
 
     try {
-        var html = '<' + elementName;
+        var html = '&lt;' + elementName;
 
         for (var attributeName in attributes) {
             html += ' ' + attributeName + '="' + wrs_htmlentities(attributes[attributeName]) + '"';
@@ -389,8 +417,8 @@ function wrs_createImageCASSrc(image, appletCode) {
  */
 function wrs_createImageSrc(mathml, data) {
 
-    // Full base64 method (edit & save).
-    if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default') {
+    // Full base64 method (edit &amp; save).
+    if (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'default') {
         data['base64'] = true;
     }
 
@@ -418,20 +446,20 @@ function wrs_createObject(objectCode, creator) {
     }
 
     // Internet Explorer can't include "param" tag when is setting an innerHTML property.
-    objectCode = objectCode.split('<applet ').join('<span wirisObject="WirisApplet" ').split('<APPLET ').join('<span wirisObject="WirisApplet" ');  // It is a 'span' because 'span' objects can contain 'br' nodes.
-    objectCode = objectCode.split('</applet>').join('</span>').split('</APPLET>').join('</span>');
+    objectCode = objectCode.split('&lt;applet ').join('&lt;span wirisObject="WirisApplet" ').split('&lt;APPLET ').join('&lt;span wirisObject="WirisApplet" ');  // It is a 'span' because 'span' objects can contain 'br' nodes.
+    objectCode = objectCode.split('&lt;/applet>').join('&lt;/span>').split('&lt;/APPLET>').join('&lt;/span>');
 
-    objectCode = objectCode.split('<param ').join('<br wirisObject="WirisParam" ').split('<PARAM ').join('<br wirisObject="WirisParam" ');          // It is a 'br' because 'br' can't contain nodes.
-    objectCode = objectCode.split('</param>').join('</br>').split('</PARAM>').join('</br>');
+    objectCode = objectCode.split('&lt;param ').join('&lt;br wirisObject="WirisParam" ').split('&lt;PARAM ').join('&lt;br wirisObject="WirisParam" ');          // It is a 'br' because 'br' can't contain nodes.
+    objectCode = objectCode.split('&lt;/param>').join('&lt;/br>').split('&lt;/PARAM>').join('&lt;/br>');
 
     var container = wrs_createElement('div', {}, creator);
     container.innerHTML = objectCode;
 
     function recursiveParamsFix(object) {
-        if (object.getAttribute && object.getAttribute('wirisObject') == 'WirisParam') {
+        if (object.getAttribute &amp;&amp; object.getAttribute('wirisObject') == 'WirisParam') {
             var attributesParsed = {};
 
-            for (var i = 0; i < object.attributes.length; ++i) {
+            for (var i = 0; i &lt; object.attributes.length; ++i) {
                 if (object.attributes[i].nodeValue !== null) {
                     attributesParsed[object.attributes[i].nodeName] = object.attributes[i].nodeValue;
                 }
@@ -448,10 +476,10 @@ function wrs_createObject(objectCode, creator) {
             param.removeAttribute('wirisObject');
             object.parentNode.replaceChild(param, object);
         }
-        else if (object.getAttribute && object.getAttribute('wirisObject') == 'WirisApplet') {
+        else if (object.getAttribute &amp;&amp; object.getAttribute('wirisObject') == 'WirisApplet') {
             var attributesParsed = {};
 
-            for (var i = 0; i < object.attributes.length; ++i) {
+            for (var i = 0; i &lt; object.attributes.length; ++i) {
                 if (object.attributes[i].nodeValue !== null) {
                     attributesParsed[object.attributes[i].nodeName] = object.attributes[i].nodeValue;
                 }
@@ -460,7 +488,7 @@ function wrs_createObject(objectCode, creator) {
             var applet = wrs_createElement('applet', attributesParsed, creator);
             applet.removeAttribute('wirisObject');
 
-            for (var i = 0; i < object.childNodes.length; ++i) {
+            for (var i = 0; i &lt; object.childNodes.length; ++i) {
                 recursiveParamsFix(object.childNodes[i]);
 
                 if (object.childNodes[i].nodeName.toLowerCase() == 'param') {
@@ -472,7 +500,7 @@ function wrs_createObject(objectCode, creator) {
             object.parentNode.replaceChild(applet, object);
         }
         else {
-            for (var i = 0; i < object.childNodes.length; ++i) {
+            for (var i = 0; i &lt; object.childNodes.length; ++i) {
                 recursiveParamsFix(object.childNodes[i]);
             }
         }
@@ -490,9 +518,9 @@ function wrs_createObject(objectCode, creator) {
  */
 function wrs_createObjectCode(object) {
     if (object.nodeType == 1) { // ELEMENT_NODE.
-        var output = '<' + object.tagName;
+        var output = '&lt;' + object.tagName;
 
-        for (var i = 0; i < object.attributes.length; ++i) {
+        for (var i = 0; i &lt; object.attributes.length; ++i) {
             if (object.attributes[i].specified) {
                 output += ' ' + object.attributes[i].name + '="' + wrs_htmlentities(object.attributes[i].value) + '"';
             }
@@ -501,14 +529,14 @@ function wrs_createObjectCode(object) {
         if (object.childNodes.length > 0) {
             output += '>';
 
-            for (var i = 0; i < object.childNodes.length; ++i) {
+            for (var i = 0; i &lt; object.childNodes.length; ++i) {
                 output += wrs_createObjectCode(object.childNodes[i]);
             }
 
-            output += '</' + object.tagName + '>';
+            output += '&lt;/' + object.tagName + '>';
         }
         else if (object.nodeName == 'DIV' || object.nodeName == 'SCRIPT') {
-            output += '></' + object.tagName + '>';
+            output += '>&lt;/' + object.tagName + '>';
         }
         else {
             output += '/>';
@@ -525,8 +553,8 @@ function wrs_createObjectCode(object) {
 }
 
 /**
- * Parses end HTML code. The end HTML code is HTML code with embedded images or LaTeX formulas created with the WIRIS editor. <br>
- * By default this method converts the formula images and LaTeX strings in MathML. <br>
+ * Parses end HTML code. The end HTML code is HTML code with embedded images or LaTeX formulas created with the WIRIS editor. &lt;br>
+ * By default this method converts the formula images and LaTeX strings in MathML. &lt;br>
  * If image mode is enabled the images will not be converted into MathML. For further information see {@link http://www.wiris.com/plugins/docs/full-mathml-mode}.
  * @param {string} code String to be parsed.
  * @param {object} wirisProperties Extra attributes for the formula.
@@ -554,7 +582,7 @@ function wrs_regexpIndexOf(input, regexp, start) {
 function wrs_endParseEditMode(code, wirisProperties, language) {
     // Converting LaTeX to images.
 
-    if (window._wrs_conf_parseModes !== undefined && wrs_arrayContains(_wrs_conf_parseModes, 'latex') != -1) {
+    if (window._wrs_conf_parseModes !== undefined &amp;&amp; wrs_arrayContains(_wrs_conf_parseModes, 'latex') != -1) {
         var output = '';
         var endPosition = 0;
         var startPosition = code.indexOf('$$');
@@ -566,7 +594,7 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
             if (endPosition != -1) {
                 var latex = code.substring(startPosition + 2, endPosition);
 
-                if (latex.indexOf('<') == -1) {
+                if (latex.indexOf('&lt;') == -1) {
                     latex = wrs_htmlentitiesDecode(latex);
                     var mathml = wrs_getMathMLFromLatex(latex, true);
                     var imgObject = wrs_mathmlToImgObject(document, mathml, wirisProperties, language);
@@ -590,7 +618,7 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
         code = output;
     }
 
-    if (window._wrs_conf_defaultEditMode && _wrs_conf_defaultEditMode == 'iframes') {
+    if (window._wrs_conf_defaultEditMode &amp;&amp; _wrs_conf_defaultEditMode == 'iframes') {
         // Converting iframes to images.
         var output = '';
         var pattern = ' class="' + _wrs_conf_imageClassName + '"';
@@ -603,14 +631,14 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
             var i = formulaPosition;
             var startTagFound = false;
 
-            while (i >= 0 && !startTagFound) {      // Going backwards until the start tag '<' is found.
+            while (i >= 0 &amp;&amp; !startTagFound) {      // Going backwards until the start tag '&lt;' is found.
                 var character = code.charAt(i);
 
                 if (character == '"' || character == '\'') {
                     var characterNextPosition = code.lastIndexOf(character, i);
                     i = (characterNextPosition == -1) ? -1 : characterNextPosition;
                 }
-                else if (character == '<') {
+                else if (character == '&lt;') {
                     startPosition = i;
                     startTagFound = true;
                 }
@@ -630,15 +658,15 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
                 i = formulaPosition;
                 var counter = 1;
 
-                while (i < code.length && counter > 0) {
+                while (i &lt; code.length &amp;&amp; counter > 0) {
                     var character = code.charAt(i);
 
                     if (character == '"' || character == '\'') {
                         var characterNextPosition = code.indexOf(character, i);
                         i = (characterNextPosition == -1) ? code.length : characterNextPosition;
                     }
-                    else if (character == '<') {
-                        if (i + 1 < code.length && code.charAt(i + 1) == '/') {
+                    else if (character == '&lt;') {
+                        if (i + 1 &lt; code.length &amp;&amp; code.charAt(i + 1) == '/') {
                             --counter;
 
                             if (counter == 0) {
@@ -654,7 +682,7 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
                             ++counter;
                         }
                     }
-                    else if (character == '>' && code.charAt(i - 1) == '/') {
+                    else if (character == '>' &amp;&amp; code.charAt(i - 1) == '/') {
                         --counter;
 
                         if (counter == 0) {
@@ -720,7 +748,7 @@ function wrs_endParseSaveMode(code) {
         }
     }
 
-    if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'image') {
+    if (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'image') {
         code = wrs_codeImgTransform(code, 'img264');
     } else if (convertToXml || convertToSafeXml) {
         code = wrs_codeImgTransform(code, 'img2mathml');
@@ -806,7 +834,7 @@ function wrs_getContent(url, postVariables) {
 function wrs_getInnerHTML(element) {
     var innerHTML = '';
 
-    for (var i = 0; i < element.childNodes.length; ++i) {
+    for (var i = 0; i &lt; element.childNodes.length; ++i) {
         innerHTML += wrs_createObjectCode(element.childNodes[i]);
     }
 
@@ -839,7 +867,7 @@ function wrs_getLatexFromTextNode(textNode, caretPosition) {
     // Looking for the first textNode.
     var startNode = textNode;
 
-    while (startNode.previousSibling && startNode.previousSibling.nodeType == 3) { // TEXT_NODE.
+    while (startNode.previousSibling &amp;&amp; startNode.previousSibling.nodeType == 3) { // TEXT_NODE.
         startNode = startNode.previousSibling;
     }
 
@@ -866,10 +894,10 @@ function wrs_getLatexFromTextNode(textNode, caretPosition) {
 
     function isPrevious(node, position, endNode, endPosition) {
         if (node == endNode) {
-            return (position <= endPosition);
+            return (position &lt;= endPosition);
         }
 
-        while (node && node != endNode) {
+        while (node &amp;&amp; node != endNode) {
             node = node.nextSibling;
         }
 
@@ -972,7 +1000,7 @@ function wrs_getNodeLength(node) {
             length = 0;
         }
 
-        for (var i = 0; i < node.childNodes.length; ++i) {
+        for (var i = 0; i &lt; node.childNodes.length; ++i) {
             length += wrs_getNodeLength(node.childNodes[i]);
         }
 
@@ -992,9 +1020,9 @@ function wrs_getQueryParams(windowObject) {
     var data = {};
     var start = windowObject.location.search.indexOf('?');
     start = (start == -1) ? 0 : start + 1;
-    var queryStringParts = windowObject.location.search.substr(start).split('&');
+    var queryStringParts = windowObject.location.search.substr(start).split('&amp;');
 
-    for (var i = 0; i < queryStringParts.length; ++i) {
+    for (var i = 0; i &lt; queryStringParts.length; ++i) {
         var paramParts = queryStringParts[i].split('=', 2);
         data[paramParts[0]] = wrs_urldecode(paramParts[1]);
     }
@@ -1023,7 +1051,7 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
         target.focus();
     }
 
-    if (document.selection && !forceGetSelection) {
+    if (document.selection &amp;&amp; !forceGetSelection) {
         var range = windowTarget.document.selection.createRange();
 
         if (range.parentElement) {
@@ -1039,19 +1067,19 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
             var temporalObject = range.parentElement();
 
             if (temporalObject.nodeName.toUpperCase() != 'IMG') {
-                // IE9 fix: parentElement() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
-                range.pasteHTML('<span id="wrs_openEditorWindow_temporalObject"></span>');
+                // IE9 fix: parentElement() does not return the IMG node, returns the parent DIV node. In IE &lt; 9, pasteHTML does not work well.
+                range.pasteHTML('&lt;span id="wrs_openEditorWindow_temporalObject">&lt;/span>');
                 temporalObject = windowTarget.document.getElementById('wrs_openEditorWindow_temporalObject');
             }
 
             var node;
             var caretPosition;
 
-            if (temporalObject.nextSibling && temporalObject.nextSibling.nodeType == 3) { // TEXT_NODE.
+            if (temporalObject.nextSibling &amp;&amp; temporalObject.nextSibling.nodeType == 3) { // TEXT_NODE.
                 node = temporalObject.nextSibling;
                 caretPosition = 0;
             }
-            else if (temporalObject.previousSibling && temporalObject.previousSibling.nodeType == 3) { // TEXT_NODE.
+            else if (temporalObject.previousSibling &amp;&amp; temporalObject.previousSibling.nodeType == 3) { // TEXT_NODE.
                 node = temporalObject.previousSibling;
                 caretPosition = node.nodeValue.length;
             }
@@ -1176,7 +1204,7 @@ function wrs_getWIRISImageOutput(imgCode, convertToXml, convertToSafeXml) {
  * @ignore
  */
 function wrs_htmlentities(input) {
-    return input.split('&').join('&amp;').split('<').join('&lt;').split('>').join('&gt;').split('"').join('&quot;');
+    return input.split('&amp;').join('&amp;amp;').split('&lt;').join('&amp;lt;').split('>').join('&amp;gt;').split('"').join('&amp;quot;');
 }
 
 /**
@@ -1186,7 +1214,7 @@ function wrs_htmlentities(input) {
  * @ignore
  */
 function wrs_htmlentitiesDecode(input) {
-    return input.split('&quot;').join('"').split('&gt;').join('>').split('&lt;').join('<').split('&amp;').join('&');
+    return input.split('&amp;quot;').join('"').split('&amp;gt;').join('>').split('&amp;lt;').join('&lt;').split('&amp;amp;').join('&amp;');
 }
 
 /**
@@ -1200,7 +1228,7 @@ function wrs_httpBuildQuery(properties) {
 
     for (i in properties) {
         if (properties[i] != null) {
-            result += wrs_urlencode(i) + '=' + wrs_urlencode(properties[i]) + '&';
+            result += wrs_urlencode(i) + '=' + wrs_urlencode(properties[i]) + '&amp;';
         }
     }
 
@@ -1209,10 +1237,10 @@ function wrs_httpBuildQuery(properties) {
 
 /**
  * Parses initial HTML code. If the HTML contains data generated by WIRIS, this data would be converted as following:
- * <pre>
+ * &lt;pre>
  * MathML code: Image containing the corresponding MathML formulas.
  * MathML code with LaTeX annotation : LaTeX.
- * </pre>
+ * &lt;/pre>
  * @param {string} code HTML code with data generated by WIRIS plugin.
  * @param {string} language Language for the formula.
  * @return {string} HTML code with the WIRIS data converted into LaTeX and images.
@@ -1239,11 +1267,11 @@ function wrs_initParse(code, language) {
  * @ignore
  */
 function wrs_initParseImgToIframes(windowTarget) {
-    if (window._wrs_conf_defaultEditMode && _wrs_conf_defaultEditMode == 'iframes') {
+    if (window._wrs_conf_defaultEditMode &amp;&amp; _wrs_conf_defaultEditMode == 'iframes') {
         var imgList = windowTarget.document.getElementsByTagName('img');
         var i = 0;
 
-        while (i < imgList.length) {
+        while (i &lt; imgList.length) {
             if (imgList[i].className == _wrs_conf_imageClassName) {
                 var mathml = imgList[i].getAttribute(_wrs_conf_imageMathmlAttribute);
 
@@ -1268,12 +1296,12 @@ function wrs_initParseImgToIframes(windowTarget) {
  * @ignore
  */
 function wrs_initParseEditMode(code) {
-    if (window._wrs_conf_parseModes !== undefined && wrs_arrayContains(_wrs_conf_parseModes, 'latex') != -1) {
+    if (window._wrs_conf_parseModes !== undefined &amp;&amp; wrs_arrayContains(_wrs_conf_parseModes, 'latex') != -1) {
         var imgList = wrs_getElementsByNameFromString(code, 'img', true);
         var token = 'encoding="LaTeX">';
         var carry = 0;          // While replacing images with latex, the indexes of the found images changes respecting the original code, so this carry is needed.
 
-        for (var i = 0; i < imgList.length; ++i) {
+        for (var i = 0; i &lt; imgList.length; ++i) {
             var imgCode = code.substring(imgList[i].start + carry, imgList[i].end + carry);
 
             if (imgCode.indexOf(' class="' + _wrs_conf_imageClassName + '"') != -1) {
@@ -1293,7 +1321,7 @@ function wrs_initParseEditMode(code) {
 
                     if (latexStartPosition != -1) {
                         latexStartPosition += token.length;
-                        var latexEndPosition = mathml.indexOf('</annotation>', latexStartPosition);
+                        var latexEndPosition = mathml.indexOf('&lt;/annotation>', latexStartPosition);
                         var latex = mathml.substring(latexStartPosition, latexEndPosition);
 
                         var replaceText = '$$' + wrs_htmlentitiesDecode(latex) + '$$';
@@ -1329,7 +1357,7 @@ function wrs_initParseSaveMode(code, language) {
             code = wrs_parseMathmlToImg(code, _wrs_xmlCharacters, language);
         }
 
-        if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'image') {
+        if (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'image') {
             code = wrs_codeImgTransform(code, 'base642showimage');
         }
     }
@@ -1337,7 +1365,7 @@ function wrs_initParseSaveMode(code, language) {
     var appletList = wrs_getElementsByNameFromString(code, 'applet', false);
     var carry = 0;          // While replacing applets with images, the indexes of the found applets changes respecting the original code, so this carry is needed.
 
-    for (var i = 0; i < appletList.length; ++i) {
+    for (var i = 0; i &lt; appletList.length; ++i) {
         var appletCode = code.substring(appletList[i].start + carry, appletList[i].end + carry);
 
         // The second control in the if is used to find WIRIS applet which don't have Wiriscas class (as it was in old CAS applets).
@@ -1363,7 +1391,7 @@ function wrs_initParseSaveMode(code, language) {
             }
 
             // Double click to edit has been removed here.
-            var imgCode = '<img align="middle" class="' + _wrs_conf_CASClassName + '" ' + _wrs_conf_CASMathmlAttribute + '="' + wrs_mathmlEncode(appletCode) + '" src="' + src + '" />';
+            var imgCode = '&lt;img align="middle" class="' + _wrs_conf_CASClassName + '" ' + _wrs_conf_CASMathmlAttribute + '="' + wrs_mathmlEncode(appletCode) + '" src="' + src + '" />';
 
             code = code.substring(0, appletList[i].start + carry) + imgCode + code.substring(appletList[i].end + carry);
             carry += imgCode.length - (appletList[i].end - appletList[i].start);
@@ -1387,7 +1415,7 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
     var elements = [];
     var code = code.toLowerCase();
     name = name.toLowerCase();
-    var start = code.indexOf('<' + name + ' ');
+    var start = code.indexOf('&lt;' + name + ' ');
 
     while (start != -1) {                       // Look for nodes.
         var endString;
@@ -1396,7 +1424,7 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
             endString = '>';
         }
         else {
-            endString = '</' + name + '>';
+            endString = '&lt;/' + name + '>';
         }
 
         var end = code.indexOf(endString, start);
@@ -1413,7 +1441,7 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
             end = start + 1;
         }
 
-        start = code.indexOf('<' + name + ' ', end);
+        start = code.indexOf('&lt;' + name + ' ', end);
     }
 
     return elements;
@@ -1431,7 +1459,7 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         focusElement.focus();
 
         if (_wrs_isNewElement) {
-            if (document.selection && document.getSelection != 0) {
+            if (document.selection &amp;&amp; document.getSelection != 0) {
                 var range = windowTarget.document.selection.createRange();
                 windowTarget.document.execCommand('InsertImage', false, element.src);
 
@@ -1448,7 +1476,7 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                         temporalObject.parentNode.replaceChild(element, temporalObject);
                     }
                     else {
-                        // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
+                        // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE &lt; 9, pasteHTML does not work well.
                         range.pasteHTML(wrs_createObjectCode(element));
                     }
                 }
@@ -1487,7 +1515,7 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                     node.insertBefore(element, node.childNodes[position]);
                 }
 
-                if (!isAndroid && !isIOS){
+                if (!isAndroid &amp;&amp; !isIOS){
                     // Fix to set the caret after the inserted image.
                     range.selectNode(element);
                     position = range.endOffset;
@@ -1526,12 +1554,12 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
  * @ignore
  */
 function wrs_isMathmlInAttribute(content, i) {
-    // Regex = '^[\'"][\\s]*=[\\s]*[\\w-]+([\\s]*("[^"]*"|\'[^\']*\')[\\s]*=[\\s]*[\\w-]+[\\s]*)*[\\s]+gmi<';
+    // Regex = '^[\'"][\\s]*=[\\s]*[\\w-]+([\\s]*("[^"]*"|\'[^\']*\')[\\s]*=[\\s]*[\\w-]+[\\s]*)*[\\s]+gmi&lt;';
     var math_att = '[\'"][\\s]*=[\\s]*[\\w-]+';                         // "=att OR '=att
     var att_content = '"[^"]*"|\'[^\']*\'';                             // "blabla" OR 'blabla'
     var att = '[\\s]*(' + att_content + ')[\\s]*=[\\s]*[\\w-]+[\\s]*';  // "blabla"=att OR 'blabla'=att
     var atts = '(' + att + ')*';                                        // "blabla"=att1 "blabla"=att2
-    var regex = '^' + math_att + atts + '[\\s]+gmi<';                   // "=att "blabla"=att1 "blabla"=att2 gmi< .
+    var regex = '^' + math_att + atts + '[\\s]+gmi&lt;';                   // "=att "blabla"=att1 "blabla"=att2 gmi&lt; .
     var expression = new RegExp(regex);
 
     var actual_content = content.substring(0, i);
@@ -1557,12 +1585,12 @@ function wrs_mathmlDecode(input) {
     input = input.split(_wrs_safeXmlCharactersEntities.realDoubleQuote).join(_wrs_safeXmlCharacters.realDoubleQuote);
 
     // Blackboard.
-    if ('_wrs_blackboard' in window && window._wrs_blackboard){
+    if ('_wrs_blackboard' in window &amp;&amp; window._wrs_blackboard){
         input = input.split(_wrs_safeBadBlackboardCharacters.ltElement).join(_wrs_safeGoodBlackboardCharacters.ltElement);
         input = input.split(_wrs_safeBadBlackboardCharacters.gtElement).join(_wrs_safeGoodBlackboardCharacters.gtElement);
         input = input.split(_wrs_safeBadBlackboardCharacters.ampElement).join(_wrs_safeGoodBlackboardCharacters.ampElement);
 
-        /*var regex = /«mtext».*[<>&].*«\/mtext»/;
+        /*var regex = /«mtext».*[&lt;>&amp;].*«\/mtext»/;
 
         var result = regex.exec(input);
         while(result){
@@ -1581,11 +1609,11 @@ function wrs_mathmlDecode(input) {
     input = input.split(_wrs_safeXmlCharacters.ampersand).join(_wrs_xmlCharacters.ampersand);
     input = input.split(_wrs_safeXmlCharacters.quote).join(_wrs_xmlCharacters.quote);
 
-    // We are replacing $ by & when its part of an entity for retrocompatibility. Now, the standard is replace § by &.
+    // We are replacing $ by &amp; when its part of an entity for retrocompatibility. Now, the standard is replace § by &amp;.
     var returnValue = '';
     var currentEntity = null;
 
-    for (var i = 0; i < input.length; ++i) {
+    for (var i = 0; i &lt; input.length; ++i) {
         var character = input.charAt(i);
 
         if (currentEntity == null) {
@@ -1598,7 +1626,7 @@ function wrs_mathmlDecode(input) {
         }
         else {
             if (character == ';') {
-                returnValue += '&' + currentEntity + ';';
+                returnValue += '&amp;' + currentEntity + ';';
                 currentEntity = null;
             }
             else if (character.match(/([a-zA-Z0-9#._-] | '-')/)) {  // Character is part of an entity.
@@ -1641,20 +1669,20 @@ function wrs_mathmlEncode(input) {
 function wrs_mathmlEntities(mathml) {
     var toReturn = '';
 
-    for (var i = 0; i < mathml.length; ++i) {
+    for (var i = 0; i &lt; mathml.length; ++i) {
         var character = mathml.charAt(i);
 
         // Parsing > 128 characters.
         if (mathml.charCodeAt(i) > 128) {
-            toReturn += '&#' + mathml.charCodeAt(i) + ';';
+            toReturn += '&amp;#' + mathml.charCodeAt(i) + ';';
         }
-        else if (character == '&') {
+        else if (character == '&amp;') {
             var end = mathml.indexOf(';', i + 1);
 
             if (end >= 0) {
                 var container = document.createElement('span');
                 container.innerHTML = mathml.substring(i, end + 1);
-                toReturn += '&#' + wrs_fixedCharCodeAt((container.innerText || container.textContent),0) + ';';
+                toReturn += '&amp;#' + wrs_fixedCharCodeAt((container.innerText || container.textContent),0) + ';';
                 i = end;
             }
             else {
@@ -1679,7 +1707,7 @@ function wrs_mathmlEntities(mathml) {
 function wrs_mathmlAddEditorAttribute(mathml) {
     var toReturn = '';
 
-    var start = mathml.indexOf('<math');
+    var start = mathml.indexOf('&lt;math');
     if (start == 0 ) {
         end = mathml.indexOf('>');
         if (mathml.indexOf("class") == -1 ) {
@@ -1709,7 +1737,7 @@ function wrs_fixedCharCodeAt(str, idx) {
     /* High surrogate (could change last hex to 0xDB7F to treat high
     private surrogates as single characters) */
 
-    if (0xD800 <= code && code <= 0xDBFF) {
+    if (0xD800 &lt;= code &amp;&amp; code &lt;= 0xDBFF) {
         hi = code;
         low = str.charCodeAt(idx + 1);
         if (isNaN(low)) {
@@ -1718,7 +1746,7 @@ function wrs_fixedCharCodeAt(str, idx) {
         return ((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
     }
 
-    if (0xDC00 <= code && code <= 0xDFFF) { // Low surrogate.
+    if (0xDC00 &lt;= code &amp;&amp; code &lt;= 0xDFFF) { // Low surrogate.
         /* We return false to allow loops to skip this iteration since should have
            already handled high surrogate above in the previous iteration. */
         return false;
@@ -1764,7 +1792,7 @@ function wrs_mathmlToIframeObject(windowTarget, mathml) {
         container.appendChild(formulaContainer);
 
         function waitForViewer() {
-            if (windowTarget.com && windowTarget.com.wiris) {
+            if (windowTarget.com &amp;&amp; windowTarget.com.wiris) {
                 if (!('_wrs_viewer' in windowTarget)) {
                     windowTarget._wrs_viewer = new windowTarget.com.wiris.jsEditor.JsViewerMain(_wrs_conf_pluginBasePath + '/integration/editor');
                     windowTarget._wrs_viewer.insertCSS(null, windowTarget.document);
@@ -1839,7 +1867,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
 
     var data = (wirisProperties) ? wirisProperties : {};
 
-    if (window._wrs_conf_useDigestInsteadOfMathml && _wrs_conf_useDigestInsteadOfMathml) {
+    if (window._wrs_conf_useDigestInsteadOfMathml &amp;&amp; _wrs_conf_useDigestInsteadOfMathml) {
         data['returnDigest'] = 'true';
     }
 
@@ -1851,14 +1879,14 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         data['centerbaseline'] = 'false';
     }
 
-    // Full base64 method (edit & save).
-    if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default') {
+    // Full base64 method (edit &amp; save).
+    if (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'default') {
         data['base64'] = true;
     }
 
     // Render js params: _wrs_int_wirisProperties contains some js render params. Since mathml can support render params, js params should be send only to editor, not to render.
 
-    if (window._wrs_conf_enableAccessibility && _wrs_conf_enableAccessibility) {
+    if (window._wrs_conf_enableAccessibility &amp;&amp; _wrs_conf_enableAccessibility) {
         imgObject.alt = wrs_mathmlToAccessible(mathml, language, data);
     }
 
@@ -1891,7 +1919,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         // result = wrs_assArrayToUrl(ar);
     }*/
 
-    if (window._wrs_conf_useDigestInsteadOfMathml && _wrs_conf_useDigestInsteadOfMathml) {
+    if (window._wrs_conf_useDigestInsteadOfMathml &amp;&amp; _wrs_conf_useDigestInsteadOfMathml) {
         var parts = result.split(':', 2);
         imgObject.setAttribute(_wrs_conf_imageMathmlAttribute, parts[0]);
         imgObject.src = parts[1];
@@ -1900,7 +1928,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         imgObject.setAttribute(_wrs_conf_imageMathmlAttribute, wrs_mathmlEncode(mathml));
         imgObject.src = result;
         if (_wrs_conf_setSize) {
-            wrs_setImgSize(imgObject,result, (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default') ? true : false);
+            wrs_setImgSize(imgObject,result, (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'default') ? true : false);
         }
     }
 
@@ -1931,7 +1959,7 @@ function wrs_openCASWindow(target, isIframe, language) {
     if (target) {
         var selectedItem = wrs_getSelectedItem(target, isIframe);
 
-        if (selectedItem != null && selectedItem.caretPosition === undefined && selectedItem.node.nodeName.toUpperCase() == 'IMG' && selectedItem.node.className == _wrs_conf_CASClassName) {
+        if (selectedItem != null &amp;&amp; selectedItem.caretPosition === undefined &amp;&amp; selectedItem.node.nodeName.toUpperCase() == 'IMG' &amp;&amp; selectedItem.node.className == _wrs_conf_CASClassName) {
             _wrs_temporalImage = selectedItem.node;
             _wrs_isNewElement = false;
         }
@@ -1990,7 +2018,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
     }
 
     var availableDirs = new Array('rtl', 'ltr');
-    if (typeof _wrs_int_directionality != 'undefined' && wrs_arrayContains(availableDirs, _wrs_int_directionality) != -1){
+    if (typeof _wrs_int_directionality != 'undefined' &amp;&amp; wrs_arrayContains(availableDirs, _wrs_int_directionality) != -1){
         path = wrs_addArgument(path,"dir",_wrs_int_directionality);
     }
 
@@ -2063,14 +2091,14 @@ function wrs_openEditorWindow(language, target, isIframe) {
         var deviceHeight = window.outerHeight;
 
         var landscape = deviceWidth > deviceHeight;
-        var portrait = deviceWidth < deviceHeight;
+        var portrait = deviceWidth &lt; deviceHeight;
 
         var iframeAttributes  = {};
         iframeAttributes['width'] = _wrs_conf_editorAttributes.split(' ').join('').split(',')[0].split("=")[1];
         iframeAttributes['height'] = _wrs_conf_editorAttributes.split(' ').join('').split(',')[1].split("=")[1];
         iframeAttributes['src'] = path;
 
-        var isMobile = (landscape && iframeAttributes['height'] > deviceHeight) || (portrait && iframeAttributes['width'] > deviceWidth) ? true : false;
+        var isMobile = (landscape &amp;&amp; iframeAttributes['height'] > deviceHeight) || (portrait &amp;&amp; iframeAttributes['width'] > deviceWidth) ? true : false;
 
         // Device object properties.
         _wrs_deviceProperties['orientation'] = landscape ? 'landscape' : 'portait';
@@ -2089,7 +2117,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
 
 
 /**
- * Converts all occurrences of mathml code to LATEX. The MathML code should containg <annotation encoding="LaTeX"/> to be converted.
+ * Converts all occurrences of mathml code to LATEX. The MathML code should containg &lt;annotation encoding="LaTeX"/> to be converted.
  * @param {string} content A string containing MathML valid code.
  * @return {string} String with all MathML annotated occurrences replaced by the corresponding LaTeX code.
  * @ignore
@@ -2171,7 +2199,7 @@ function wrs_parseMathmlToImg(content, characters, language) {
             end += mathTagEnd.length;
         }
 
-        if (!wrs_isMathmlInAttribute(content, start) && imageMathmlAtrribute == -1){
+        if (!wrs_isMathmlInAttribute(content, start) &amp;&amp; imageMathmlAtrribute == -1){
             var mathml = content.substring(start, end);
             mathml = (characters == _wrs_safeXmlCharacters) ? wrs_mathmlDecode(mathml) : wrs_mathmlEntities(mathml);
             output += wrs_createObjectCode(wrs_mathmlToImgObject(document, mathml, null, language));
@@ -2189,7 +2217,7 @@ function wrs_parseMathmlToImg(content, characters, language) {
 
 /**
  * Converts all occurrences of safe applet code to the corresponding code.
- * @param {string} content String containging valid applet code <APPLET>...</APPLET>
+ * @param {string} content String containging valid applet code &lt;APPLET>...&lt;/APPLET>
  * @return {string} String with all the applet code conerted to safe tags.
  * @ignore
  */
@@ -2240,7 +2268,7 @@ function wrs_removeEvent(element, event, func) {
 }
 
 /**
- * Splits an HTML content in three parts: the code before <body>, the code between <body> and </body> and the code after </body>.
+ * Splits an HTML content in three parts: the code before &lt;body>, the code between &lt;body> and &lt;/body> and the code after &lt;/body>.
  * @param {string} code HTML code to be splited.
  * @return {objet} An object with the structure {'prefix': xxx, 'code': yyy, 'sufix': zzz}
  * @ignore
@@ -2248,14 +2276,14 @@ function wrs_removeEvent(element, event, func) {
 function wrs_splitBody(code) {
     var prefix = '';
     var sufix = '';
-    var bodyPosition = code.indexOf('<body');
+    var bodyPosition = code.indexOf('&lt;body');
 
     if (bodyPosition != -1) {
         bodyPosition = code.indexOf('>', bodyPosition);
 
         if (bodyPosition != -1) {
             ++bodyPosition;
-            var endBodyPosition = code.indexOf('</body>', bodyPosition);
+            var endBodyPosition = code.indexOf('&lt;/body>', bodyPosition);
 
             if (endBodyPosition == -1) {
                 endBodyPosition = code.length;
@@ -2371,7 +2399,7 @@ function wrs_updateFormula(focusElement, windowTarget, mathml, wirisProperties, 
  * @ignore
  */
 function wrs_updateTextarea(textarea, text) {
-    if (textarea && text) {
+    if (textarea &amp;&amp; text) {
         textarea.focus();
 
         if (textarea.selectionStart != null) {
@@ -2409,7 +2437,7 @@ function wrs_urlencode(clearString) {
 
 function wrs_addArgument(path,key,value) {
     if (path.indexOf("?") > 0) {
-        sep = "&";
+        sep = "&amp;";
     } else {
         sep = "?";
     }
@@ -2421,9 +2449,9 @@ function wrs_urlToAssArray(url) {
     i = url.indexOf("?");
     if (i > 0) {
         var query = url.substring(i + 1);
-        var ss  = query.split("&");
+        var ss  = query.split("&amp;");
         var h = new Object();
-        for (i = 0; i < ss.length; i++) {
+        for (i = 0; i &lt; ss.length; i++) {
             var s = ss[i];
             var kv = s.split("=");
             if (kv.length > 1) {
@@ -2477,7 +2505,7 @@ function wrs_fixAfterResize(img) {
 
 function wrs_initSetSize() {
     // Override _wrs_conf_setSize to align formulas when xml or safeXml mode are enabled.
-    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default');
+    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' &amp;&amp; _wrs_conf_editMode == 'default');
 }
 
 function wrs_loadConfiguration() {
@@ -2485,7 +2513,7 @@ function wrs_loadConfiguration() {
         // Discover path.
         var scriptName = "core/core.js";
         var col = document.getElementsByTagName("script");
-        for (i = 0; i < col.length; i++) {
+        for (i = 0; i &lt; col.length; i++) {
             var d;
             var src;
             d = col[i];
@@ -2577,13 +2605,13 @@ function wrs_createModalWindow(title, iframeParams, deviceProperties, modalPrope
 
     document.body.className = !(document.body.className) ? "wrs_modal_open" : document.body.className + " wrs_modal_open";
 
-    if (!deviceProperties['isMobile'] && !deviceProperties['isIOS'] && !deviceProperties['isAndroid']) { // Desktop.
+    if (!deviceProperties['isMobile'] &amp;&amp; !deviceProperties['isIOS'] &amp;&amp; !deviceProperties['isAndroid']) { // Desktop.
         wrs_createModalWindowDesktop(modalDiv, containerDiv, iframe, iframeParams);
     }
-    else if (deviceProperties['isAndroid'] && !deviceProperties['isMobile']) {
+    else if (deviceProperties['isAndroid'] &amp;&amp; !deviceProperties['isMobile']) {
         wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframeParams);
     }
-    else if (deviceProperties['isIOS'] && !deviceProperties['isMobile']) {
+    else if (deviceProperties['isIOS'] &amp;&amp; !deviceProperties['isMobile']) {
         wrs_createModalWindowIos(modalDiv, containerDiv, iframe, iframeParams);
     }
     else if (deviceProperties['isMobile']) {
@@ -2663,7 +2691,7 @@ function wrs_startDrag(ev) {
         if(!_wrs_dragDataObject) {
             ev = ev || event;
             _wrs_dragDataObject = {
-                x: wrs_eventClient(ev).X - (isNaN(parseInt(window.getComputedStyle(_wrs_dragObject)).left && parseInt(window.getComputedStyle(_wrs_dragObject).left > 0 )) ? _wrs_dragObject.offsetLeft : parseInt(window.getComputedStyle(_wrs_dragObject).left)),
+                x: wrs_eventClient(ev).X - (isNaN(parseInt(window.getComputedStyle(_wrs_dragObject)).left &amp;&amp; parseInt(window.getComputedStyle(_wrs_dragObject).left > 0 )) ? _wrs_dragObject.offsetLeft : parseInt(window.getComputedStyle(_wrs_dragObject).left)),
                 y: wrs_eventClient(ev).Y - (isNaN(parseInt(window.getComputedStyle(_wrs_dragObject).top)) ? _wrs_dragObject.offsetTop : parseInt(window.getComputedStyle(_wrs_dragObject).top))
             };
         };
@@ -2734,7 +2762,7 @@ function wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframePara
     iframe.className = iframe.className + " wrs_modal_android";
 
     // Android portrait.
-    if (window.outerWidth < window.outerHeight) {
+    if (window.outerWidth &lt; window.outerHeight) {
 
         var modalHeight = parseInt(iframeParams['height']) + 30;
         var modalWidth = parseInt(iframeParams['width']) + 10;
@@ -2758,7 +2786,7 @@ function wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframePara
         iframe.style.margin = '6px';
     }
 
-    if (window.outerWidth < window.outerHeight) {
+    if (window.outerWidth &lt; window.outerHeight) {
         var portraitZoom = (window.outerWidth / modalWidth).toFixed(2);
         wrs_addMetaViewport("device-width", portraitZoom, portraitZoom, portraitZoom);
     } else {
@@ -2831,7 +2859,7 @@ function wrs_createModalWindowMobile(modalDiv, containerDiv, iframe, iframeParam
 }
 
 /**
- * Create modal dialog for Androir mobile devices with an old stock browser (<=4.3).
+ * Create modal dialog for Androir mobile devices with an old stock browser (&lt;=4.3).
  *
  * @param  {modalDiv} modal overlay div.
  * @param  {containerDiv} modal window div.
@@ -2844,7 +2872,7 @@ function wrs_createModalWindowBadStockAndroid(modalDiv, containerDiv, iframe, if
     containerDiv.className = containerDiv.className + " wrs_modal_badStock";
     iframe.className = iframe.className + " wrs_modal_badStock";
 
-    if (window.outerWidth < parseInt(iframeParams['width'])) {
+    if (window.outerWidth &lt; parseInt(iframeParams['width'])) {
         var modalWidth = parseInt(iframeParams['width']) + 10;
         containerDiv.style.width = iframeParams['width'] + 'px';
         iframe.style.width = iframeParams['width'] + 'px';
@@ -2903,7 +2931,7 @@ function wrs_closeModalWindow() {
  * Android stock browser test
  * http://stackoverflow.com/questions/24926221/distinguish-android-chrome-from-stock-browser-stock-browsers-user-agent-contai
  *
- * @return {Boolean} true if user agent is from an Android stock browser (<= 4.3)
+ * @return {Boolean} true if user agent is from an Android stock browser (&lt;= 4.3)
  * @ignore
  */
 function wrs_isBadStockAndroid () {
@@ -2922,7 +2950,7 @@ function wrs_isBadStockAndroid () {
 
     var versionNumber = parseFloat((userAgent.match('Android ([0-9.]+)') || [])[1]);
     // Anything below 4.4 uses WebKit without *any* viewport support.
-    return versionNumber <= 4.3;
+    return versionNumber &lt;= 4.3;
 }
 
 /**
@@ -2933,7 +2961,7 @@ function wrs_isBadStockAndroid () {
  * @ignore
  */
 function wrs_populateLatexCache(latex, mathml) {
-    if (mathml.indexOf('semantics') == -1 && mathml.indexOf('annotation') == -1 ) {
+    if (mathml.indexOf('semantics') == -1 &amp;&amp; mathml.indexOf('annotation') == -1 ) {
         mathml = wrs_insertSemanticsMathml(mathml, latex);
     }
     if (!_wrs_int_LatexCache.hasOwnProperty(latex)) {
@@ -2951,17 +2979,17 @@ function wrs_populateLatexCache(latex, mathml) {
 function wrs_insertSemanticsMathml(mathml, latex) {
 
     var firstEndTag = '>';
-    var mathTagEnd = '<' + '/math' + '>';
-    var openSemantics = '<' + 'semantics' + '>';
-    var closeSemantics = '<' + '/semantics' + '>';
-    var openTarget = '<annotation encoding="LaTeX">';
-    var closeTarget = '<' + '/annotation' + '>';
+    var mathTagEnd = '&lt;' + '/math' + '>';
+    var openSemantics = '&lt;' + 'semantics' + '>';
+    var closeSemantics = '&lt;' + '/semantics' + '>';
+    var openTarget = '&lt;annotation encoding="LaTeX">';
+    var closeTarget = '&lt;' + '/annotation' + '>';
 
     var indexMathBegin = mathml.indexOf(firstEndTag);
     var indexMathEnd = mathml.indexOf(mathTagEnd);
-    var mathBeginExists = mathml.substring(mathml.indexOf('<'), mathml.indexOf('>')).indexOf('math');
+    var mathBeginExists = mathml.substring(mathml.indexOf('&lt;'), mathml.indexOf('>')).indexOf('math');
 
-    if (indexMathBegin != -1 && indexMathEnd != -1 && mathBeginExists)  {
+    if (indexMathBegin != -1 &amp;&amp; indexMathEnd != -1 &amp;&amp; mathBeginExists)  {
         var mathmlContent = mathml.substring(indexMathBegin + 1, indexMathEnd);
         var mathmlContentSemantics = openSemantics + mathmlContent + openTarget + latex + closeTarget + closeSemantics;
         return mathml.replace(mathmlContent, mathmlContentSemantics);
@@ -2983,7 +3011,7 @@ function wrs_codeImgTransform(code, mode) {
     output = '';
 
     var endPosition = 0;
-    var pattern = /<img/gi;
+    var pattern = /&lt;img/gi;
     var patternLength = pattern.source.length;
 
     while (pattern.test(code)) {
@@ -2992,7 +3020,7 @@ function wrs_codeImgTransform(code, mode) {
 
         var i = startPosition + 1;
 
-        while (i < code.length && endPosition <= startPosition) {
+        while (i &lt; code.length &amp;&amp; endPosition &lt;= startPosition) {
             var character = code.charAt(i);
 
             if (character == '"' || character == '\'') {
@@ -3012,7 +3040,7 @@ function wrs_codeImgTransform(code, mode) {
             ++i;
         }
 
-        if (endPosition < startPosition) {      // The img tag is stripped.
+        if (endPosition &lt; startPosition) {      // The img tag is stripped.
             output += code.substring(startPosition, code.length);
             return output;
         }
@@ -3083,16 +3111,16 @@ function wrs_decode64(el) {
     if (code === SLASH || code === SLASH_URL_SAFE){
         return 63 // Char '/'.
     }
-    if (code < NUMBER){
+    if (code &lt; NUMBER){
         return -1 // No match.
     }
-    if (code < NUMBER + 10){
+    if (code &lt; NUMBER + 10){
         return code - NUMBER + 26 + 26
     }
-    if (code < UPPER + 26){
+    if (code &lt; UPPER + 26){
         return code - UPPER
     }
-    if (code < LOWER + 26){
+    if (code &lt; LOWER + 26){
         return code - LOWER + 26
     }
 }
@@ -3121,15 +3149,15 @@ function wrs_b64ToByteArray(b64String, len) {
         var l = len;
     }
 
-    for (var i = 0; i < l; i += 4) {
+    for (var i = 0; i &lt; l; i += 4) {
         // Ignoring code checker standards (bitewise operators).
         // See https://tracker.moodle.org/browse/CONTRIB-5862 for further information.
         // @codingStandardsIgnoreStart
-        tmp = (wrs_decode64(b64String.charAt(i)) << 18) | (wrs_decode64(b64String.charAt(i + 1)) << 12) | (wrs_decode64(b64String.charAt(i + 2)) << 6) | wrs_decode64(b64String.charAt(i + 3));
+        tmp = (wrs_decode64(b64String.charAt(i)) &lt;&lt; 18) | (wrs_decode64(b64String.charAt(i + 1)) &lt;&lt; 12) | (wrs_decode64(b64String.charAt(i + 2)) &lt;&lt; 6) | wrs_decode64(b64String.charAt(i + 3));
 
-        arr.push((tmp  >> 16) & 0xFF);
-        arr.push((tmp >> 8) & 0xFF);
-        arr.push(tmp & 0xFF);
+        arr.push((tmp  >> 16) &amp; 0xFF);
+        arr.push((tmp >> 8) &amp; 0xFF);
+        arr.push(tmp &amp; 0xFF);
         // @codingStandardsIgnoreEnd
     }
 
@@ -3137,12 +3165,12 @@ function wrs_b64ToByteArray(b64String, len) {
         if (placeHolders === 2) {
             // Ignoring code checker standards (bitewise operators).
             // @codingStandardsIgnoreStart
-            tmp = (wrs_decode64(b64String.charAt(i)) << 2) | (wrs_decode64(b64String.charAt(i + 1)) >> 4);
-            arr.push(tmp & 0xFF)
+            tmp = (wrs_decode64(b64String.charAt(i)) &lt;&lt; 2) | (wrs_decode64(b64String.charAt(i + 1)) >> 4);
+            arr.push(tmp &amp; 0xFF)
         } else if (placeHolders === 1) {
-            tmp = (wrs_decode64(b64String.charAt(i)) << 10) | (wrs_decode64(b64String.charAt(i + 1)) << 4) | (wrs_decode64(b64String.charAt(i + 2)) >> 2)
-            arr.push((tmp >> 8) & 0xFF);
-            arr.push(tmp & 0xFF);
+            tmp = (wrs_decode64(b64String.charAt(i)) &lt;&lt; 10) | (wrs_decode64(b64String.charAt(i + 1)) &lt;&lt; 4) | (wrs_decode64(b64String.charAt(i + 2)) >> 2)
+            arr.push((tmp >> 8) &amp; 0xFF);
+            arr.push(tmp &amp; 0xFF);
             // @codingStandardsIgnoreEnd
         }
     }
@@ -3157,12 +3185,12 @@ function wrs_b64ToByteArray(b64String, len) {
  * @ignore
  */
 function wrs_readInt32(bytes) {
-    if (bytes.length < 4) {
+    if (bytes.length &lt; 4) {
         return false;
     }
     var int32 = bytes.splice(0,4);
     // @codingStandardsIgnoreStart
-    return (int32[0] << 24 | int32[1] << 16 | int32[2] <<  8 | int32[3] << 0);
+    return (int32[0] &lt;&lt; 24 | int32[1] &lt;&lt; 16 | int32[2] &lt;&lt;  8 | int32[3] &lt;&lt; 0);
     // @codingStandardsIgnoreEnd
 }
 
@@ -3174,7 +3202,7 @@ function wrs_readInt32(bytes) {
  */
 function wrs_readByte(bytes) {
     // @codingStandardsIgnoreStart
-    return bytes.shift() << 0;
+    return bytes.shift() &lt;&lt; 0;
     // @codingStandardsIgnoreEnd
 
 }
@@ -3291,7 +3319,7 @@ if (!Object.keys) {
         dontEnumsLength = dontEnums.length;
 
         return function (obj) {
-            if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            if (typeof obj !== 'object' &amp;&amp; (typeof obj !== 'function' || obj === null)) {
                 throw new TypeError('Object.keys called on non-object');
             }
 
@@ -3304,7 +3332,7 @@ if (!Object.keys) {
             }
 
             if (hasDontEnumBug) {
-                for (i = 0; i < dontEnumsLength; i++) {
+                for (i = 0; i &lt; dontEnumsLength; i++) {
                     if (hasOwnProperty.call(obj, dontEnums[i])) {
                         result.push(dontEnums[i]);
                     }
@@ -3359,8 +3387,8 @@ if (!Array.prototype.forEach) {
         // 6. Let k be 0.
         k = 0;
 
-        // 7. Repeat, while k < len.
-        while (k < len) {
+        // 7. Repeat, while k &lt; len.
+        while (k &lt; len) {
 
             var kValue;
 
@@ -3383,4 +3411,26 @@ if (!Array.prototype.forEach) {
         }
         // 8. return undefined.
     };
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#wrs_addPluginListener">wrs_addPluginListener</a></li><li><a href="global.html#wrs_endParse">wrs_endParse</a></li><li><a href="global.html#wrs_initParse">wrs_initParse</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Thu May 19 2016 09:39:46 GMT+0200 (Romance Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
