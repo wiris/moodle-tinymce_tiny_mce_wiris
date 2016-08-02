@@ -62,6 +62,8 @@ var _wrs_addCoreQueue = typeof _wrs_addCoreQueue == 'undefined' ? false : _wrs_a
                 var external_url = editor.getParam('external_plugins')['tiny_mce_wiris'];
                 _wrs_conf_path = external_url.substring(0,external_url.lastIndexOf("/") + 1)
                 // New int path.
+                // Absolute URL path needed: integration files are in the same external_url domain.
+                _wrs_int_conf_file = _wrs_conf_path.split('/')[0] + '//' + _wrs_conf_path.split('/')[2] + _wrs_int_conf_file;
                 _wrs_int_path = wrs_intPath(_wrs_int_conf_file, _wrs_conf_path);
             }
             if (typeof _wrs_conf_hostPlatform != 'undefined' && _wrs_conf_hostPlatform == 'Moodle' && _wrs_conf_versionPlatform < 2013111800) {
@@ -351,7 +353,7 @@ function wrs_intPath(intFile, confPath) {
     var intPath = intFile.split("/");
     intPath.pop();
     intPath = intPath.join("/");
-    intPath = intPath.indexOf("/") == 0 || intPath.indexOf("http") == 0 ? intPath : confPath + "/" + intPath;
+    intPath = intPath.indexOf("/") == 0 || intPath.indexOf("http") == 0 ? intPath : confPath + intPath;
     return intPath;
 }
 
@@ -521,15 +523,16 @@ function wrs_int_mouseupHandler() {
  * @param string mathml
  */
 function wrs_int_updateFormula(mathml, editMode, language) {
-    if (typeof tinymce.activeEditor.fire != 'undefined') {
-        tinymce.activeEditor.fire('change');
-    }
     // Var _wrs_int_wirisProperties contains some js render params. Since mathml can support render params, js params should be send only to editor, not to render.
     if (_wrs_int_temporalElementIsIframe) {
         wrs_updateFormula(_wrs_int_temporalIframe.contentWindow, _wrs_int_temporalIframe.contentWindow, mathml, {}, editMode, language);
     }
     else {
         wrs_updateFormula(_wrs_int_temporalIframe, window, mathml, {}, editMode, language);
+    }
+
+    if (typeof tinymce.activeEditor.fire != 'undefined') {
+        tinymce.activeEditor.fire('change');
     }
 }
 
