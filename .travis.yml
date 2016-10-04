@@ -15,13 +15,6 @@ php:
 env:
  global:
   - MOODLE_BRANCH=MOODLE_31_STABLE
-  - MOODLE_BRANCH=MOODLE_30_STABLE
-  - MOODLE_BRANCH=MOODLE_29_STABLE
-  - MOODLE_BRANCH=MOODLE_28_STABLE
-  - MOODLE_BRANCH=MOODLE_27_STABLE
-  - MOODLE_BRANCH=MOODLE_26_STABLE
-  - MOODLE_BRANCH=MOODLE_25_STABLE
-  - MOODLE_BRANCH=MOODLE_24_STABLE
  matrix:
   - DB=pgsql
   - DB=mysqli
@@ -44,4 +37,4 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci shifter
   - moodle-plugin-ci validate
-  - moodle-plugin-ci phpunit
+  - moodle-plugin-ci phpunit  
