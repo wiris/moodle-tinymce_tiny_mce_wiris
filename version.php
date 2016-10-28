@@ -15,11 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 //
 
+/**
+ * Version details.
+ *
+ * @package    tinymce
+ * @subpackage tiny_mce_wiris
+ * @copyright  Maths for More S.L. <info@wiris.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016101700;
-$plugin->release = '3.61.2.1319';
+$plugin->version   = 2016102800;
+$plugin->release = '3.62.0.1320';
 $plugin->requires  = 2012120300;
 $plugin->component = 'tinymce_tiny_mce_wiris';
-$plugin->dependencies = array ('filter_wiris' => 2016101700);
+$plugin->dependencies = array ('filter_wiris' => 2016102800);
 $plugin->maturity = MATURITY_STABLE;
