@@ -29,6 +29,9 @@ var _wrs_temporalImage;
 var _wrs_temporalFocusElement;
 var _wrs_androidRange;
 var _wrs_iosRange;
+// We need to keep the main window height scroll value to restore it
+// when we close a modalwindow.
+var _wrs_mainwindow_scroll;
 // We need a variable to send device properties to editor.js on modal mode.
 var _wrs_deviceProperties = {}
 // Dragable options.
@@ -593,8 +596,7 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
                 if (latex.indexOf('<') == -1) {
                     latex = wrs_htmlentitiesDecode(latex);
                     var mathml = wrs_getMathMLFromLatex(latex, true);
-                    var imgObject = wrs_mathmlToImgObject(document, mathml, wirisProperties, language);
-                    output += wrs_createObjectCode(imgObject);
+                    output += mathml;
                     endPosition += 2;
                 }
                 else {
@@ -978,6 +980,8 @@ function wrs_getMathMLFromLatex(latex, includeLatexOnSemantics) {
     }
 
     var mathML = wrs_getContent(_wrs_conf_servicePath, data);
+    // Populate LatexCache.
+    wrs_populateLatexCache(latex, mathML);
     return mathML.split("\r").join('').split("\n").join(' ');
 }
 
@@ -1160,7 +1164,7 @@ function wrs_getWIRISImageOutput(imgCode, convertToXml, convertToSafeXml) {
     var imgObject = wrs_createObject(imgCode);
 
     if (imgObject) {
-        if (imgObject.className == _wrs_conf_imageClassName) {
+        if (imgObject.className == _wrs_conf_imageClassName || imgObject.getAttribute(_wrs_conf_imageMathmlAttribute)) {
             if (!convertToXml) {
                 return imgCode;
             }
@@ -1670,6 +1674,11 @@ function wrs_mathmlEncode(input) {
     input = input.split(_wrs_xmlCharacters.doubleQuote).join(_wrs_safeXmlCharacters.doubleQuote);
     input = input.split(_wrs_xmlCharacters.ampersand).join(_wrs_safeXmlCharacters.ampersand);
     input = input.split(_wrs_xmlCharacters.quote).join(_wrs_safeXmlCharacters.quote);
+
+    // Transform "<" --> "&lt;".
+    // Transform ">" --> "&gt;".
+    input = input.split(_wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join(_wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
+    input = input.split(_wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join(_wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
 
     return input;
 }
@@ -2627,7 +2636,8 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
  */
 
 function wrs_createModalWindow(title, iframeParams, deviceProperties, modalProperties) {
-
+    // Keep the scroll to restore when the modal window is closed.
+    _wrs_mainwindow_scroll = window.scrollY;
     // Adding css stylesheet.
     var fileref = document.createElement("link");
     fileref.setAttribute("rel", "stylesheet");
@@ -2997,7 +3007,11 @@ function wrs_closeModalWindow() {
     if (document.querySelector('meta[name=viewport]')) {
         document.querySelector('meta[name=viewport]').content = "";
     }
-    document.body.className = document.body.className != 'wrs_modal_open' ? document.body.className.replace(' wrs_modal_open', '') : document.body.className = ""
+
+    // Due to this line, the scroll is set to 0 on the main window, so that we need to restore it with the previous value.
+    document.body.className = document.body.className != 'wrs_modal_open' ? document.body.className.replace(' wrs_modal_open', '') : document.body.className = "";
+    window.scrollTo(0, _wrs_mainwindow_scroll);
+
     var modalDiv = document.getElementsByClassName('wrs_modal_overlay')[0];
     closeFunction = document.body.removeChild(modalDiv);
 }
