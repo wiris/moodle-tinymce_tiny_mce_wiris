@@ -43,13 +43,16 @@ var _wrs_int_temporalImageResizing;
 var _wrs_int_wirisProperties;
 var _wrs_int_directionality;
 // Custom Editors.
-var _wrs_int_customEditors = {chemistry : {name: 'Chemistry', toolbar : 'chemistry', icon : 'chem.png', enabled : false, confVariable : '_wrs_conf_chemEnabled'}}
+var _wrs_int_customEditors = {chemistry : {name: 'Chemistry', toolbar : 'chemistry', icon : 'chem.png', enabled : false, confVariable : '_wrs_conf_chemEnabled', title: 'WIRIS EDITOR chemistry'}}
 
 // Variable to control first wrs_initParse call.
 var _wrs_int_initParsed = false;
 
 // Core added to queue.
 var _wrs_addCoreQueue = typeof _wrs_addCoreQueue == 'undefined' ? false : _wrs_addCoreQueue;
+
+// Lang
+var _wrs_int_langCode = 'en';
 
 /* Plugin integration */
 (function () {
@@ -112,6 +115,9 @@ var _wrs_addCoreQueue = typeof _wrs_addCoreQueue == 'undefined' ? false : _wrs_a
                 function whenDocReady() {
                     if (window.wrs_initParse && typeof _wrs_conf_plugin_loaded != 'undefined') {
                         var language = editor.getParam('language');
+                        // The file editor.js gets this variable _wrs_int_langCode variable to set
+                        // WIRIS Editor lang.
+                        _wrs_int_langCode = language;
                         _wrs_int_directionality = editor.getParam('directionality');
 
                         if ('wiriseditorparameters' in editor.settings) {
@@ -138,7 +144,14 @@ var _wrs_addCoreQueue = typeof _wrs_addCoreQueue == 'undefined' ? false : _wrs_a
                         // Bug fix: In Moodle2.x when TinyMCE is set to full screen
                         // the content doesn't need to be filtered.
                         if (!editor.getParam('fullscreen_is_enabled')){
-                            editor.setContent(wrs_initParse(content, language));
+
+                            // When there is a blankspace, null or undefined state or the tag "<p><br data..." that autoinserts tinymce,
+                            // if we use "setContent()", tinymce puts a blankspace (&nbsp)
+                            if (content !== '' && content !== null && typeof content !== 'undefined' &&
+                                content !== '<p><br data-mce-bogus="1"></p>') {
+                                editor.setContent(wrs_initParse(content, language));
+                            }
+
                             // Init parsing OK. If a setContent method is called
                             // wrs_initParse is called again.
                             // Now if source code is edited the returned code is parsed.
@@ -366,7 +379,7 @@ function wrs_intPath(intFile, confPath) {
  * @param bool isIframe
  */
 function wrs_int_openNewFormulaEditor(element, language, isIframe) {
-    if (_wrs_int_window_opened) {
+    if (_wrs_int_window_opened && !_wrs_conf_modalWindow) {
         _wrs_int_window.focus();
     }
     else {
@@ -437,7 +450,7 @@ function wrs_int_doubleClickHandler(editor, target, isIframe, element) {
                 };
             }
 
-            if (!_wrs_int_window_opened) {
+            if (!_wrs_int_window_opened || _wrs_conf_modalWindow) {
                 var language = editor.settings.language;
 
                 if (editor.settings['wirisformulaeditorlang']) {

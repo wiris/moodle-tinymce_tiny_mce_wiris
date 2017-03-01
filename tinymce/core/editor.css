@@ -49,15 +49,86 @@
 }
 .wrs_buttonContainer {
     display: inline;
+}
+
+.wrs_buttonContainer.wrs_modalAndroid {
     padding-left: 6px;
 }
 
-.wrs_modal_open .wrs_buttonContainer {
+..wrs_buttonContainer.wrs_modalDesktop {
     padding-left: 0px;
 }
 
 @media only screen and (max-device-width: 480px) and (orientation: portrait) {
     #container {
         width : 140%;
+    }
+}
+
+
+/*iPad and iPad Mini*/
+@media only screen
+and (min-device-width : 768px)
+and (max-device-width : 1024px)
+and (orientation : portrait) {
+
+    .wrs_container.wrs_modalIos {
+        width: 100vw    !important;
+        height: 100vh   !important;
+    }
+
+    .wrs_editorContainer.wrs_modalIos {
+        width: 100vw    !important;
+        height: 89vh   !important;
+    }
+
+    .wrs_controls.wrs_modalIos {
+        width: 100vw    !important;
+        height: 11vh   !important;
+    }
+
+}
+
+@media only screen
+and (min-device-width : 768px)
+and (max-device-width : 1024px)
+and (orientation : landscape) {
+    .wrs_container.wrs_modalIos {
+        width: 100vw    !important;
+        height: 100vh   !important;
+    }
+
+    .wrs_editorContainer.wrs_modalIos {
+        width: 100vw    !important;
+        height: 87vh   !important;
+    }
+
+    .wrs_controls.wrs_modalIos {
+        width: 100vw    !important;
+        height: 13vh   !important;
+    }
+}
+
+/*iPhone 5*/
+@media only screen
+and (min-device-width : 320px)
+and (max-device-width : 568px)
+and (orientation : portrait) {
+
+    .wrs_container.wrs_modalIos {
+        display: inline;
+        width: 320px    !important;
+        height: 100vh    !important;
+    }
+
+    .wrs_editorContainer.wrs_modalIos {
+        width: 320px    !important;
+        height: 79vh    !important;
+    }
+
+    .wrs_controls.wrs_modalIos {
+        width: 320px    !important;
+        height: 21vh    !important;
+        vertical-align: middle;
     }
 }

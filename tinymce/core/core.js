@@ -29,17 +29,12 @@ var _wrs_temporalImage;
 var _wrs_temporalFocusElement;
 var _wrs_androidRange;
 var _wrs_iosRange;
-// We need to keep the main window height scroll value to restore it
-// when we close a modalwindow.
-var _wrs_mainwindow_scroll;
-// We need a variable to send device properties to editor.js on modal mode.
-var _wrs_deviceProperties = {}
-// Dragable options.
-var _wrs_dragDataObject;
-var _wrs_dragObject;
 
 // LaTex client cache.
 var _wrs_int_LatexCache = {};
+
+// Accessible client cache
+var _wrs_int_AccessibleCache = {};
 
 var _wrs_xmlCharacters = {
     'tagOpener': '<',       // Hex: \x3C.
@@ -108,6 +103,12 @@ if (typeof MutationObserver != 'undefined') {
 // Plugin listeners for custom callbacks. This variable
 // can be setted by the user using wrs_addPluginListener.
 var wrs_pluginListeners = [];
+
+var _wrs_css_loaded = false;
+
+var _wrs_modalWindowProperties = typeof _wrs_modalWindowProperties != 'undefined' ? _wrs_modalWindowProperties : {};
+var _wrs_editor = typeof _wrs_editor != 'undefined' ? _wrs_editor : null;
+var _wrs_modalWindow = typeof _wrs_modalWindow != 'undefined' ? _wrs_modalWindow : null;
 
 /**
  * Adds element events.
@@ -240,6 +241,18 @@ function wrs_arrayContains(stack, element) {
 }
 
 /**
+ * Adds a specific className to given element
+ * @param  {object} element
+ * @param  {string} className
+ * @ignore
+ */
+function wrs_addClass(element, className) {
+    if (!wrs_containsClass(element, className)) {
+        element.className += " " + className;
+    }
+}
+
+/**
  * Checks if an element contains a class.
  * @param {object} element
  * @param {string} className
@@ -247,7 +260,7 @@ function wrs_arrayContains(stack, element) {
  * @ignore
  */
 function wrs_containsClass(element, className) {
-    if (!('className' in element)){
+    if (!('className' in element)) {
         return false;
     }
 
@@ -260,6 +273,24 @@ function wrs_containsClass(element, className) {
     }
 
     return false;
+}
+
+/**
+ * Remove a specific class
+ * @param {object} element
+ * @param {string} className
+ * @ignore
+ */
+function wrs_removeClass(element, className) {
+    var newClassName = '';
+    var classes = element.className.split(" ");
+
+    for (var i = 0; i < classes.length; i++) {
+        if(classes[i] != className) {
+            newClassName += classes[i] + " ";
+        }
+    }
+    element.className = newClassName.trim();
 }
 
 /**
@@ -428,6 +459,7 @@ function wrs_createShowImageSrc(mathml, data, language) {
     }
     dataObject.formula = com.wiris.js.JsPluginTools.md5encode(wrs_propertiesToString(dataMd5));
     dataObject.lang = (typeof language == 'undefined') ? 'en' : language;
+    dataObject.version = _wrs_conf_version;
 
     var result = wrs_getContent(_wrs_conf_showimagePath + '?' + wrs_httpBuildQuery(dataObject));
     return result;
@@ -1675,10 +1707,10 @@ function wrs_mathmlEncode(input) {
     input = input.split(_wrs_xmlCharacters.ampersand).join(_wrs_safeXmlCharacters.ampersand);
     input = input.split(_wrs_xmlCharacters.quote).join(_wrs_safeXmlCharacters.quote);
 
-    // Transform "<" --> "&lt;".
-    // Transform ">" --> "&gt;".
-    input = input.split(_wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join(_wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
-    input = input.split(_wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join(_wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
+    // Transform ="<" --> "&lt;".
+    // Transform =">" --> "&gt;".
+    input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
+    input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
 
     return input;
 }
@@ -1785,9 +1817,18 @@ function wrs_fixedCharCodeAt(str, idx) {
  * @ignore
  */
 function wrs_mathmlToAccessible(mathml, language, data) {
-    data['service'] = 'mathml2accessible';
+    var accessibleText;
 
-    return wrs_getContent(_wrs_conf_servicePath, data);
+    if (_wrs_int_AccessibleCache.hasOwnProperty(mathml)) {
+        accessibleText = _wrs_int_AccessibleCache[mathml];
+    }
+    else {
+        data['service'] = 'mathml2accessible';
+        var accessibleText = wrs_getContent(_wrs_conf_servicePath, data);
+    }
+
+    return accessibleText;
+
 }
 
 /**
@@ -1925,22 +1966,38 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
 
     // Experimental settings.
     if (_wrs_conf_wirisPluginPerformance && (_wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml')) {
+        // Internet Explorer 6-11
+        // http://stackoverflow.com/questions/9847580/how-to-detect-safari-chrome-ie-firefox-and-opera-browser
+        var isIE = /*@cc_on!@*/false || !!document.documentMode;
+        if (isIE) {
+            data['useragent'] = 'IE';
+            _wrs_conf_imageFormat = 'png';
+        }
+        else {
+            data['useragent'] = 'other browser';
+            _wrs_conf_imageFormat = 'svg';
+        }
+
         var result = JSON.parse(wrs_createShowImageSrc(mathml, data, language));
         if (result["status"] == 'warning') {
             // POST call.
              result = JSON.parse(wrs_getContent(_wrs_conf_showimagePath, data));
         }
         result = result.result;
-        imgObject.src = result['format'] == 'svg' ? 'data:image/svg+xml;base64,' : 'data:image/png;base64,';
-        imgObject.src = imgObject.src + result["base64"];
+        if (result['format'] == 'png') {
+            imgObject.src = 'data:image/png;base64,' + result['content'];
+        } else {
+            imgObject.src = 'data:image/svg+xml;charset=utf8,' + wrs_urlencode(result['content']);
+        }
         imgObject.setAttribute(_wrs_conf_imageMathmlAttribute, wrs_mathmlEncode(mathml));
         if (_wrs_conf_setSize) {
-            wrs_setImgSize(imgObject,result, true);
+            wrs_setImgSize(imgObject, result['content'], true);
         }
 
         if (window._wrs_conf_enableAccessibility && _wrs_conf_enableAccessibility) {
             if (typeof result.alt == 'undefined') {
                 imgObject.alt = wrs_mathmlToAccessible(mathml, language, data);
+                wrs_populateAccessibleCache(mathml, imgObject.alt);
             }
             else {
                 imgObject.alt = result.alt;
@@ -1963,6 +2020,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         }
         if (window._wrs_conf_enableAccessibility && _wrs_conf_enableAccessibility) {
             imgObject.alt = wrs_mathmlToAccessible(mathml, language, data);
+            wrs_populateAccessibleCache(mathml, imgObject.alt);
         }
     }
     /* if (_wrs_conf_setSize) {
@@ -2055,7 +2113,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
     }
 
     // Avoid double slashes.
-    var path = _wrs_conf_path.lastIndexOf('/') == _wrs_conf_path.length - 1 ?  _wrs_conf_path + "core/editor.html" :  _wrs_conf_path + "/core/editor.html";
+    var path = _wrs_conf_path.lastIndexOf('/') == _wrs_conf_path.length - 1 ? _wrs_conf_path + "core/editor.html" : _wrs_conf_path + "/core/editor.html";
 
     if (language) {
         path = wrs_addArgument(path, "lang", language);
@@ -2130,35 +2188,25 @@ function wrs_openEditorWindow(language, target, isIframe) {
         }
     }
 
+    var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
     if (!_wrs_conf_modalWindow) {
-        _wrs_popupWindow = window.open(path, 'WIRISeditor', _wrs_conf_editorAttributes);
+        _wrs_popupWindow = window.open(path, title, _wrs_conf_editorAttributes);
         return _wrs_popupWindow;
     }
     else {
-        var deviceWidth = window.outerWidth;
-        var deviceHeight = window.outerHeight;
-
-        var landscape = deviceWidth > deviceHeight;
-        var portrait = deviceWidth < deviceHeight;
-
-        var iframeAttributes  = {};
-        iframeAttributes['width'] = _wrs_conf_editorAttributes.split(' ').join('').split(',')[0].split("=")[1];
-        iframeAttributes['height'] = _wrs_conf_editorAttributes.split(' ').join('').split(',')[1].split("=")[1];
-        iframeAttributes['src'] = path;
-
-        var isMobile = (landscape && iframeAttributes['height'] > deviceHeight) || (portrait && iframeAttributes['width'] > deviceWidth) ? true : false;
-
-        // Device object properties.
-        _wrs_deviceProperties['orientation'] = landscape ? 'landscape' : 'portait';
-        _wrs_deviceProperties['isAndroid'] = isAndroid ? true : false;
-        _wrs_deviceProperties['isIOS'] = isIOS ? true : false;
-        _wrs_deviceProperties['isMobile'] = isMobile;
-
-        // Modal properties.
-        var _wrs_modalProperties = {
-            draggable : true
-        };
-        wrs_createModalWindow('WIRIS editor', iframeAttributes, _wrs_deviceProperties, _wrs_modalProperties);
+        if (_wrs_modalWindow == null) {
+            _wrs_modalWindow = new ModalWindow(path, _wrs_conf_editorAttributes);
+        }
+        if (!_wrs_css_loaded) {
+            var fileref = document.createElement("link");
+            fileref.setAttribute("rel", "stylesheet");
+            fileref.setAttribute("type", "text/css");
+            fileref.setAttribute("href", window.parent._wrs_conf_path + '/core/modal.css');
+            document.getElementsByTagName("head")[0].appendChild(fileref);
+            _wrs_css_loaded = true;
+        }
+        _wrs_modalWindow.setTitle(title);
+        _wrs_modalWindow.open();
     }
 }
 
@@ -2308,7 +2356,7 @@ function wrs_parseSafeAppletsToObjects(content) {
  */
 function wrs_removeEvent(element, event, func) {
     if (element.removeEventListener) {
-        element.removeEventListener(event, func, false);
+        element.removeEventListener(event, func, true);
     }
     else if (element.detachEvent) {
         element.detachEvent('on' + event, func);
@@ -2538,14 +2586,14 @@ function wrs_urlToAssArray(url) {
     }
 }
 
-function wrs_setImgSize(img, url, base64) {
+function wrs_setImgSize(img, url, json) {
 
-    if (base64) {
+    if (json) {
         // Cleaning data:image/png;base64.
-        var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
         if (_wrs_conf_imageFormat == 'svg') {
-            var ar = getMetricsFromSvgString(atob(base64String));
+            var ar = getMetricsFromSvgString(url);
         } else {
+            var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
             bytes = wrs_b64ToByteArray(base64String, 88);
             var ar = wrs_getMetricsFromBytes(bytes);
         }
@@ -2574,8 +2622,16 @@ function wrs_fixAfterResize(img) {
     img.removeAttribute('width');
     img.removeAttribute('height');
     if (_wrs_conf_setSize) {
-        if (img.src.indexOf("base64") != -1) {
-            wrs_setImgSize(img,'', true);
+        if (img.src.indexOf("data:image") != -1) {
+            if (_wrs_conf_imageFormat == 'svg') {
+                // data:image/svg+xml;charset=utf8, = 32
+                var svg = wrs_urldecode(img.src.substring(32, img.src.length))
+                wrs_setImgSize(img, svg, true);
+            } else {
+                // data:image/png;base64, == 22
+                var base64 = img.src.substring(22,img.src.length);
+                wrs_setImgSize(img, base64, true);
+            }
         } else {
             wrs_setImgSize(img,img.src);
         }
@@ -2612,6 +2668,7 @@ function wrs_loadConfiguration() {
     // With this variable we avoid URL's with doubles //.
     var newConfPath = _wrs_conf_path.lastIndexOf("/") == _wrs_conf_path.length - 1 ? _wrs_conf_path + _wrs_int_conf_file : _wrs_conf_path + "/" + _wrs_int_conf_file;
     var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : newConfPath;
+    configUrl = configUrl.replace(/([^:]\/)\/+/g, "$1");
     script.src = configUrl;
     document.getElementsByTagName('head')[0].appendChild(script); // Asynchronous load of configuration.
 }
@@ -2636,201 +2693,28 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
  * @ignore
  */
 
-function wrs_createModalWindow(title, iframeParams, deviceProperties, modalProperties) {
-    // Keep the scroll to restore when the modal window is closed.
-    _wrs_mainwindow_scroll = window.scrollY;
+function wrs_createModalWindow() {
     // Adding css stylesheet.
-    var fileref = document.createElement("link");
-    fileref.setAttribute("rel", "stylesheet");
-    fileref.setAttribute("type", "text/css");
-    fileref.setAttribute("href", window.parent._wrs_conf_path + '/core/modal.css');
-
-    document.getElementsByTagName("head")[0].appendChild(fileref);
-
-    var attributes = {};
-
-    attributes['class'] = 'wrs_modal_overlay';
-    var modalDiv = wrs_createElement('div', attributes);
-
-    attributes['class'] = 'wrs_modal_title_bar';
-    var barModalDiv = wrs_createElement('div', attributes);
-
-    attributes = {};
-    attributes['class'] = 'wrs_modal_title';
-    var titleModalDiv = wrs_createElement('div', attributes);
-    titleModalDiv.innerHTML = title;
-
-    attributes = {};
-    attributes['class'] = 'wrs_modal_close_button'
-    var closeDiv = wrs_createElement('div', attributes);
-    closeDiv.innerHTML = "X";
-
-    attributes = {};
-    attributes['class'] = 'wrs_modal_dialogContainer';
-    var containerDiv = wrs_createElement('div', attributes);
-    containerDiv.style.overflow = 'hidden';
-
-    attributes = {};
-    attributes['class'] = 'wrs_modal_iframe';
-    attributes['src'] = iframeParams['src'];
-    attributes['frameBorder'] = "0";
-
-    var iframe = wrs_createElement('iframe', attributes);
-
-    barModalDiv.appendChild(closeDiv);
-    barModalDiv.appendChild(titleModalDiv);
-    modalDiv.appendChild(containerDiv);
-
-    if (!deviceProperties['isMobile']) {
-        containerDiv.appendChild(barModalDiv);
-    }
-    containerDiv.appendChild(iframe);
-
-    document.body.className = !(document.body.className) ? "wrs_modal_open" : document.body.className + " wrs_modal_open";
-
-    if (!deviceProperties['isMobile'] && !deviceProperties['isIOS'] && !deviceProperties['isAndroid']) { // Desktop.
-        wrs_createModalWindowDesktop(modalDiv, containerDiv, iframe, iframeParams);
-    }
-    else if (deviceProperties['isAndroid'] && !deviceProperties['isMobile']) {
-        wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframeParams);
-    }
-    else if (deviceProperties['isIOS'] && !deviceProperties['isMobile']) {
-        wrs_createModalWindowIos(modalDiv, containerDiv, iframe, iframeParams);
-    }
-    else if (deviceProperties['isMobile']) {
-        if (!wrs_isBadStockAndroid()) {
-            wrs_createModalWindowMobile(modalDiv, containerDiv, iframe, iframeParams);
-        } else {
-            wrs_createModalWindowBadStockAndroid(modalDiv, containerDiv, iframe, iframeParams);
-        }
+    if (!_wrs_css_loaded) {
+        var fileref = document.createElement("link");
+        fileref.setAttribute("rel", "stylesheet");
+        fileref.setAttribute("type", "text/css");
+        fileref.setAttribute("href", window.parent._wrs_conf_path + '/core/modal.css');
+        document.getElementsByTagName("head")[0].appendChild(fileref);
+        _wrs_css_loaded = true;
     }
 
-    document.body.appendChild(modalDiv);
-    if (modalProperties.draggable) {
-        wrs_addModalListeners();
-    }
-
-    wrs_addEvent(closeDiv, 'click', function() {
-        wrs_closeModalWindow();
-    });
-    _wrs_popupWindow = iframe.contentWindow;
-
+    _wrs_modalWindow.open();
 }
 
 /**
- * Makes an object draggable adding mouse and touch events.
- *
- * @param  {object} draggable object (for example modal dialog).
- * @param  {target} target to add the events (for example de titlebar of a modal dialog)
- * @ignore
+ * Closes modal window
  */
-function wrs_addModalListeners(object, target) {
-    _wrs_dragObject = document.getElementsByClassName('wrs_modal_dialogContainer')[0];
-
-    // Mouse events.
-    wrs_addEvent(document.body, 'mousedown', wrs_startDrag);
-    wrs_addEvent(window, 'mouseup', wrs_stopDrag);
-    wrs_addEvent(document, 'mouseup', wrs_stopDrag);
-    wrs_addEvent(document.getElementsByClassName("wrs_modal_iframe")[0], 'mouseup', wrs_stopDrag);
-    wrs_addEvent(document.body, 'mousemove', wrs_drag);
-
-    // Touch Events.
-    // Don't add touch events on modal window for mobile.
-    if (typeof(document.getElementsByClassName('wrs_modal_title')[0]) != 'undefined') {
-        wrs_addEvent(document.getElementsByClassName('wrs_modal_title')[0], 'touchstart', wrs_startDrag);
-        wrs_addEvent(document.body, 'touchmove', wrs_drag);
-        wrs_addEvent(window, 'touchend', wrs_stopDrag);
-    }
-}
-
-/**
- * Returns mouse or touch coordinates (on touch events ev.ClientX doesn't exists)
- * @param {event} ev mnouse or touch event
- * @return {object} with the X and Y coordinates.
- * @ignore
- */
-function wrs_eventClient(ev) {
-    if (typeof(ev.clientX) == 'undefined') {
-        var client = {
-            X : ev.changedTouches[0].clientX,
-            Y : ev.changedTouches[0].clientY
-        };
-        return client;
-    } else {
-        client = {
-            X : ev.clientX,
-            Y : ev.clientY
-        };
-        return client;
-    }
-}
-
-/**
- * Start drag function: set the object _wrs_dragDataObject with the draggable object offsets coordinates.
- * when drag starts (on touchstart or mousedown events).
- *
- * @param {event} ev touchstart or mousedown event.
- * @ignore
- */
-function wrs_startDrag(ev) {
-    if (ev.target.className == 'wrs_modal_title') {
-        if(!_wrs_dragDataObject) {
-            ev = ev || event;
-            _wrs_dragDataObject = {
-                x: wrs_eventClient(ev).X - (isNaN(parseInt(window.getComputedStyle(_wrs_dragObject)).left && parseInt(window.getComputedStyle(_wrs_dragObject).left > 0 )) ? _wrs_dragObject.offsetLeft : parseInt(window.getComputedStyle(_wrs_dragObject).left)),
-                y: wrs_eventClient(ev).Y - (isNaN(parseInt(window.getComputedStyle(_wrs_dragObject).top)) ? _wrs_dragObject.offsetTop : parseInt(window.getComputedStyle(_wrs_dragObject).top))
-            };
-        };
-    }
-}
-
-/**
- * Updates_wrs_dragDataObject with the draggable object coordinates when the draggable object is being moved.
- *
- * @param {event} ev touchmouve or mousemove events.
- * @ignore
- */
-function wrs_drag(ev) {
-    if(_wrs_dragDataObject) {
-        ev.preventDefault();
-        ev = ev || event;
-        _wrs_dragObject.style.left = wrs_eventClient(ev).X - _wrs_dragDataObject.x + "px";
-        _wrs_dragObject.style.top = wrs_eventClient(ev).Y - _wrs_dragDataObject.y + "px";
-        _wrs_dragObject.style.position = 'absolute';
-    }
-}
-
-/**
- * Set the _wrs_dragDataObject to null when the drag finish (touchend or mouseup events).
- *
- * @param {event} ev touchend or mouseup event.
- * @ignore
- */
-function wrs_stopDrag(ev) {
-    _wrs_dragDataObject = null;
-}
-
-/**
- * Create modal dialog for desktop OS.
- * @param  {modalDiv} modal overlay div.
- * @param  {containerDiv} modal window div.
- * @param  {iframe} embedded iframe.
- * @param  {iframeParams}  embedded iframe params (height, width).
- * @ignore
- */
-
-function wrs_createModalWindowDesktop(modalDiv, containerDiv, iframe, iframeParams) {
-    modalDiv.className = modalDiv.className + " wrs_modal_desktop";
-    containerDiv.className = containerDiv.className + " wrs_modal_desktop";
-    iframe.className = iframe.className + " wrs_modal_android"
-    var modalHeight = parseInt(iframeParams['height']) + 30;
-    var modalWidth = parseInt(iframeParams['width']) + 10;
-
-    containerDiv.style.width = modalWidth + 'px';
-    containerDiv.style.height = modalHeight + 'px';
-    iframe.style.width = iframeParams['width'] + 'px';
-    iframe.style.height = iframeParams['height'] + 'px';
-    iframe.style.margin = '6px';
+function wrs_closeModalWindow() {
+    wrs_int_disableCustomEditors();
+    wrs_int_notifyWindowClosed();
+    _wrs_editMode = (window._wrs_conf_defaultEditMode) ? _wrs_conf_defaultEditMode : 'images';
+    _wrs_modalWindow.close();
 }
 
 /**
@@ -2842,51 +2726,12 @@ function wrs_createModalWindowDesktop(modalDiv, containerDiv, iframe, iframePara
  * @ignore
  */
 
-function wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframeParams) {
-    modalDiv.className = modalDiv.className + " wrs_modal_android";
-    containerDiv.className = containerDiv.className + " wrs_modal_android";
-    iframe.className = iframe.className + " wrs_modal_android";
-
-    // Android portrait.
-    if (window.outerWidth < window.outerHeight) {
-
-        var modalHeight = parseInt(iframeParams['height']) + 30;
-        var modalWidth = parseInt(iframeParams['width']) + 10;
-
-        containerDiv.style.width = modalWidth + 'px';
-        containerDiv.style.height = modalHeight + 'px';
-
-        iframe.style.width = iframeParams['width'] + 'px';
-        iframe.style.height = iframeParams['height'] + 'px';
-    }
-
-    else {
-        var modalHeight = parseInt(iframeParams['height']) + 30;
-        var modalWidth = parseInt(iframeParams['width']) + 10;
-
-        containerDiv.style.width = modalWidth + 'px';
-        containerDiv.style.height = modalHeight + 'px';
-
-        iframe.style.width = iframeParams['width'] + 'px';
-        iframe.style.height = iframeParams['height'] + 'px';
-        iframe.style.margin = '6px';
-    }
-
-    if (window.outerWidth < window.outerHeight) {
-        var portraitZoom = (window.outerWidth / modalWidth).toFixed(2);
-        wrs_addMetaViewport("device-width", portraitZoom, portraitZoom, portraitZoom);
-    } else {
-        wrs_addMetaViewport("device-width", 1.0, 1.0, 1.0);
-    }
-
-    window.addEventListener('orientationchange', function() {
-        if (window.outerWidth > window.outerHeight) { // Portrait --> landscape.
-            wrs_addMetaViewport("device-width", 1.0, 1.0, 1.0);
-        } else { // Landscape --> portrait.
-            var portraitZoom = (window.outerWidth / modalWidth).toFixed(2);
-            wrs_addMetaViewport("device-width", portraitZoom, portraitZoom, portraitZoom);
-        }
-    });
+function wrs_createModalWindowAndroid() {
+    _wrs_modalWindowProperties.device = 'android';
+    wrs_addClass(_wrs_modalWindow.iframeContainer, 'wrs_modal_android');
+    _wrs_modalWindow.overlayDiv.className = _wrs_modalWindow.overlayDiv.className + " wrs_modal_android";
+    _wrs_modalWindow.containerDiv.className = _wrs_modalWindow.containerDiv.className + " wrs_modal_android";
+    _wrs_modalWindow.iframe.className = _wrs_modalWindow.iframe.className + " wrs_modal_android";
 }
 
 /**
@@ -2897,26 +2742,15 @@ function wrs_createModalWindowAndroid(modalDiv, containerDiv, iframe, iframePara
  * @param  {iframeParams}  embedded iframe params (height, width).
  * @ignore
  */
-
-function wrs_createModalWindowIos(modalDiv, containerDiv, iframe, iframeParams) {
-    modalDiv.className = modalDiv.className + " wrs_modal_ios";
+function wrs_createModalWindowIos() {
+    wrs_addClass(iframeContainer, 'wrs_modal_ios');
+    _wrs_modalWindow.overlayDiv.className = _wrs_modalWindow.overlayDiv.className + " wrs_modal_ios";
     if (typeof _wrs_isMoodle24 != 'undefined') {
-        modalDiv.className = modalDiv.className + " moodle";
+        _wrs_modalWindow.overlayDiv.className = _wrs_modalWindow.overlayDiv.className + " moodle";
     }
 
-    containerDiv.className = containerDiv.className + " wrs_modal_ios";
-    iframe.className = iframe.className + " wrs_modal_ios";
-
-    wrs_addMetaViewport("device-width", 1.0, 1.0, 1.0);
-
-    var modalHeight = parseInt(iframeParams['height']) + 30;
-    var modalWidth = parseInt(iframeParams['width']) + 10;
-
-    containerDiv.style.width = modalWidth + 'px';
-    containerDiv.style.height = modalHeight + 'px';
-
-    iframe.style.width = iframeParams['width'] + 'px';
-    iframe.style.height = iframeParams['height'] + 'px';
+    _wrs_modalWindow.containerDiv.className = _wrs_modalWindow.containerDiv.className + " wrs_modal_ios";
+    _wrs_modalWindow.iframe.className = _wrs_modalWindow.iframe.className + " wrs_modal_ios";
 }
 
 /**
@@ -2929,11 +2763,12 @@ function wrs_createModalWindowIos(modalDiv, containerDiv, iframe, iframeParams) 
  * @ignore
  */
 
-function wrs_createModalWindowMobile(modalDiv, containerDiv, iframe, iframeParams) {
+function wrs_createModalWindowMobile(modalDiv, containerDiv, iframe, iframeParams, iframeContainer) {
 
-    modalDiv.className = modalDiv.className + " wrs_modal_mobile";
-    containerDiv.className = containerDiv.className + " wrs_modal_mobile";
-    iframe.className = iframe.className + " wrs_modal_mobile";
+    wrs_addClass(_wrs_modalWindow.iframeContainer, 'wrs_modal_mobile');
+    _wrs_modalWindow.overlayDiv.className = _wrs_modalWindow.overlayDiv.className + " wrs_modal_mobile";
+    _wrs_modalWindow.containerDiv.className = _wrs_modalWindow.containerDiv.className + " wrs_modal_mobile";
+    _wrs_modalWindow.iframe.className = _wrs_modalWindow.iframe.className + " wrs_modal_mobile";
 
     wrs_addMetaViewport("device-width", 1.0, 1.0, 1.0);
 
@@ -2954,24 +2789,24 @@ function wrs_createModalWindowMobile(modalDiv, containerDiv, iframe, iframeParam
  * @ignore
  */
 function wrs_createModalWindowBadStockAndroid(modalDiv, containerDiv, iframe, iframeParams) {
-    modalDiv.className = modalDiv.className + " wrs_modal_badStock";
-    containerDiv.className = containerDiv.className + " wrs_modal_badStock";
-    iframe.className = iframe.className + " wrs_modal_badStock";
+    _wrs_modalWindow.overlayDiv.className = _wrs_modalWindow.overlayDiv.className + " wrs_modal_badStock";
+    _wrs_modalWindow.containerDiv.className = _wrs_modalWindow.containerDiv.className + " wrs_modal_badStock";
+    _wrs_modalWindow.iframe.className = _wrs_modalWindow.iframe.className + " wrs_modal_badStock";
 
-    if (window.outerWidth < parseInt(iframeParams['width'])) {
-        var modalWidth = parseInt(iframeParams['width']) + 10;
-        containerDiv.style.width = iframeParams['width'] + 'px';
-        iframe.style.width = iframeParams['width'] + 'px';
+    if (window.outerWidth < parseInt(_wrs_modalWindowProperties.iframeAttributes['width'])) {
+        var modalWidth = parseInt(_wrs_modalWindowProperties.iframeAttributes['width']) + 10;
+        _wrs_modalWindow.containerDiv.style.width = _wrs_modalWindowProperties.iframeAttributes['width'] + 'px';
+        _wrs_modalWindow.iframe.style.width = _wrs_modalWindowProperties.iframeAttributes['width'] + 'px';
     }
 
     window.addEventListener('orientationchange', function() {
-        if (window.outerWidth > parseInt(iframeParams['width']) + 10) {
-            var modalWidth = parseInt(iframeParams['width']) + 10;
-            containerDiv.style.width = modalWidth + 'px';
-            iframe.style.width = iframeParams['width'] + 'px';
+        if (window.outerWidth > parseInt(_wrs_modalWindowProperties.iframeAttributes['width']) + 10) {
+            var modalWidth = parseInt(_wrs_modalWindowProperties.iframeAttributes['width']) + 10;
+            _wrs_modalWindow.containerDiv.style.width = modalWidth + 'px';
+            _wrs_modalWindow.iframe.style.width = _wrs_modalWindowProperties.iframeAttributes['width'] + 'px';
         } else {
-            containerDiv.style.width = null;
-            iframe.style.width = null;
+            _wrs_modalWindow.containerDiv.style.width = null;
+            _wrs_modalWindow.iframe.style.width = null;
         }
     });
 
@@ -3000,22 +2835,6 @@ function wrs_addMetaViewport(width, initialScale, minimumScale, maximumScale) {
     }
 }
 
-/**
- * Closes modal window and restores viewport header.
- * @ignore
- */
-function wrs_closeModalWindow() {
-    if (document.querySelector('meta[name=viewport]')) {
-        document.querySelector('meta[name=viewport]').content = "";
-    }
-
-    // Due to this line, the scroll is set to 0 on the main window, so that we need to restore it with the previous value.
-    document.body.className = document.body.className != 'wrs_modal_open' ? document.body.className.replace(' wrs_modal_open', '') : document.body.className = "";
-    window.scrollTo(0, _wrs_mainwindow_scroll);
-
-    var modalDiv = document.getElementsByClassName('wrs_modal_overlay')[0];
-    closeFunction = document.body.removeChild(modalDiv);
-}
 
 /**
  * Android stock browser test
@@ -3056,6 +2875,19 @@ function wrs_populateLatexCache(latex, mathml) {
     }
     if (!_wrs_int_LatexCache.hasOwnProperty(latex)) {
         _wrs_int_LatexCache[latex] = mathml;
+    }
+}
+
+/**
+ * Puts into _wrs_int_AccessibleCache global variable dictionary the pair mathml=>accessibleText.
+ *
+ * @param {string} mathml MatML text.
+ * @param {string} accessibleText Image accessible text
+ * @ignore
+ */
+function wrs_populateAccessibleCache(mathml, accessibleText) {
+    if (!_wrs_int_AccessibleCache.hasOwnProperty(mathml)) {
+        _wrs_int_AccessibleCache[mathml] = accessibleText;
     }
 }
 
@@ -4149,3 +3981,460 @@ if(typeof window != "undefined") {
 com.wiris.js.JsPluginTools.main();
 delete Array.prototype.__class__; }());
 // @codingStandardsIgnoreEnd
+/**
+ * Modal window constructor
+ * @param {string} path             Iframe src
+ * @param {string} title            Modal window title
+ * @param {Object} editorAttributes Editor attributes (width, height)...
+ * @ignore
+ */
+function ModalWindow(path, editorAttributes) {
+
+    var ua = navigator.userAgent.toLowerCase();
+    var isAndroid = ua.indexOf("android") > -1;
+    var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
+
+    var deviceWidth = window.outerWidth;
+    var deviceHeight = window.outerHeight;
+
+    var landscape = deviceWidth > deviceHeight;
+    var portrait = deviceWidth < deviceHeight;
+
+    var iframeAttributes  = {};
+    iframeAttributes['width'] = editorAttributes.split(' ').join('').split(',')[0].split("=")[1];
+    iframeAttributes['height'] = editorAttributes.split(' ').join('').split(',')[1].split("=")[1];
+    iframeAttributes['src'] = path;
+
+    var isMobile = (landscape && iframeAttributes['height'] > deviceHeight) || (portrait && iframeAttributes['width'] > deviceWidth) ? true : false;
+
+    // Device object properties.
+
+    var deviceProperties = {};
+    deviceProperties['orientation'] = landscape ? 'landscape' : 'portait';
+    deviceProperties['isAndroid'] = isAndroid ? true : false;
+    deviceProperties['isIOS'] = isIOS ? true : false;
+    deviceProperties['isMobile'] = isMobile;
+
+    this.deviceProperties = deviceProperties;
+    this.properties = {
+        created : false,
+        state : '',
+        previousState : '',
+        deviceProperties: deviceProperties
+    }
+
+    this.properties.iframeAttributes = iframeAttributes;
+
+    this.title = '';
+
+    var attributes = {};
+
+    attributes['class'] = 'wrs_modal_overlay';
+    var modalOverlayDiv = wrs_createElement('div', attributes);
+    this.overlayDiv = modalOverlayDiv;
+
+    attributes['class'] = 'wrs_modal_title_bar';
+    var barModalDiv = wrs_createElement('div', attributes);
+    this.titleBardDiv = barModalDiv;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_title';
+    var titleModalDiv = wrs_createElement('div', attributes);
+    titleModalDiv.innerHTML = this.title;
+    this.titleDiv = titleModalDiv;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_close_button';
+    var closeModalDiv = wrs_createElement('div', attributes);
+    // closeModalDiv.innerHTML = '&times;';
+    this.closeDiv = closeModalDiv;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_stack_button';
+    var stackModalDiv = wrs_createElement('div', attributes);
+    // stackModalDiv.innerHTML = '/';
+    this.stackDiv = stackModalDiv;
+
+    attribyutes = {};
+    attributes['class'] = 'wrs_modal_minimize_button';
+    var minimizeModalDiv = wrs_createElement('div', attributes);
+    // minimizeModalDiv.innerHTML = "_";
+    this.minimizeDiv = minimizeModalDiv;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_dialogContainer';
+    var containerDiv = wrs_createElement('div', attributes);
+    containerDiv.style.overflow = 'hidden';
+    this.containerDiv = containerDiv;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_iframe';
+    attributes['src'] = iframeAttributes['src'];
+    attributes['frameBorder'] = "0";
+    var iframeModal = wrs_createElement('iframe', attributes);
+    this.iframe = iframeModal;
+
+    attributes = {};
+    attributes['class'] = 'wrs_modal_iframeContainer';
+    var iframeModalContainer = wrs_createElement('div', attributes);
+    this.iframeContainer = iframeModalContainer;
+
+    this.editor = null;
+
+}
+
+ModalWindow.prototype.create = function() {
+    this.titleBardDiv.appendChild(this.closeDiv);
+    this.titleBardDiv.appendChild(this.stackDiv);
+    this.titleBardDiv.appendChild(this.minimizeDiv);
+    this.titleBardDiv.appendChild(this.titleDiv);
+    this.iframeContainer.appendChild(this.iframe);
+
+    if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isAndroid'] && !this.deviceProperties['isIOS']) {
+        this.containerDiv.appendChild(this.titleBardDiv);
+    }
+    this.containerDiv.appendChild(this.iframeContainer);
+
+    document.body.appendChild(this.containerDiv);
+    document.body.appendChild(this.overlayDiv);
+
+    wrs_addEvent(this.closeDiv, 'click', this.close.bind(this));
+
+    if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isIOS'] && !this.deviceProperties['isAndroid']) { // Desktop.
+        this.stackDiv.addEventListener('click', this.stackModalWindow.bind(this), true);
+        this.minimizeDiv.addEventListener('click', this.minimizeModalWindow.bind(this), true);
+        this.createModalWindowDesktop();
+    }
+    else if (this.deviceProperties['isAndroid']) {
+        this.createModalWindowAndroid();
+    }
+    else if (this.deviceProperties['isIOS'] && !this.deviceProperties['isMobile']) {
+        this.createModalWindowIos();
+    }
+    this.addListeners();
+    _wrs_popupWindow = this.iframe.contentWindow;
+    this.properties.open = true;
+    this.properties.created = true;
+}
+
+ModalWindow.prototype.open = function() {
+    if (this.properties.open == true) {
+        this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+    } else if (this.properties.created) {
+
+        this.containerDiv.style.visibility = '';
+        this.overlayDiv.style.visibility = '';
+        this.containerDiv.style.display = '';
+        this.overlayDiv.style.display = '';
+
+        var editor = this.iframe.contentWindow._wrs_modalWindowProperties.editor;
+
+        this.properties.open = true;
+        if (customEditor = wrs_int_getCustomEditorEnabled()) {
+            toolbar = customEditor.toolbar ? customEditor.toolbar : wrs_attributes['toolbar'];
+            if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
+                editor.setParams({'toolbar' : toolbar});
+            }
+        } else {
+            if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
+                var properties = {'toolbar' : 'general'};
+                // Client properties.
+                properties = typeof _wrs_int_wirisProperties != 'undefined' ? _wrs_int_wirisProperties : properties;
+                // Server side properties.
+                properties = typeof _wrs_conf_editorAttributes != 'undefined' ? _wrs_conf_editorAttributes : properties;
+                editor.setParams(properties);
+            }
+
+        }
+
+        if (_wrs_isNewElement) {
+            if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
+                editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+            } else {
+                editor.setMathML('<math/>');
+            }
+        } else {
+            editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+        }
+
+        editor.focus();
+        if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
+            this.stackModalWindow();
+        }
+    } else {
+        this.create();
+    }
+}
+
+/**
+ * Closes modal window and restores viewport header.
+ * @ignore
+ */
+ModalWindow.prototype.close = function() {
+    this.overlayDiv.style.visibility = 'hidden';
+    this.containerDiv.style.visibility = 'hidden';
+    this.containerDiv.style.display = 'none';
+    this.overlayDiv.style.display = 'none';
+    this.properties.open = false;
+    wrs_int_disableCustomEditors();
+    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
+    // Properties to initial state
+    this.properties.state = '';
+    this.properties.previousState = '';
+}
+
+ModalWindow.prototype.addClass = function(cls) {
+    wrs_addClass(this.overlayDiv, cls);
+    wrs_addClass(this.titleBardDiv, cls);
+    wrs_addClass(this.overlayDiv, cls);
+    wrs_addClass(this.containerDiv, cls);
+    wrs_addClass(this.iframeContainer, cls);
+    wrs_addClass(this.iframe, cls);
+    wrs_addClass(this.stackDiv, cls);
+    wrs_addClass(this.minimizeDiv, cls);
+}
+
+ModalWindow.prototype.removeClass = function(cls) {
+    wrs_removeClass(this.overlayDiv, cls);
+    wrs_removeClass(this.titleBardDiv, cls);
+    wrs_removeClass(this.overlayDiv, cls);
+    wrs_removeClass(this.containerDiv, cls);
+    wrs_removeClass(this.iframeContainer, cls);
+    wrs_removeClass(this.iframe, cls);
+    wrs_removeClass(this.stackDiv, cls);
+    wrs_removeClass(this.minimizeDiv, cls);
+}
+
+ModalWindow.prototype.setTitle = function(title) {
+    this.titleDiv.innerHTML = title;
+    this.title = title;
+
+}
+/**
+ * Create modal dialog for desktop OS.
+ * @param  {modalDiv} modal overlay div.
+ * @param  {containerDiv} modal window div.
+ * @param  {iframe} embedded iframe.
+ * @param  {iframeParams}  embedded iframe params (height, width).
+ * @ignore
+ */
+ModalWindow.prototype.createModalWindowDesktop = function() {
+    this.addClass('wrs_modal_desktop');
+    this.stackModalWindow();
+}
+
+/**
+ * Create modal dialog for non mobile android devices.
+ * @param  {modalDiv} modal overlay div.
+ * @param  {containerDiv} modal window div.
+ * @param  {iframe} embedded iframe.
+ * @param  {iframeParams}  embedded iframe params (height, width).
+ * @ignore
+ */
+
+ModalWindow.prototype.createModalWindowAndroid = function() {
+    this.addClass('wrs_modal_android');
+}
+
+/**
+ * Create modal dialog for iOS devices.
+ * @ignore
+ */
+
+ModalWindow.prototype.createModalWindowIos = function() {
+
+    this.addClass('wrs_modal_ios');
+}
+
+ModalWindow.prototype.stackModalWindow = function () {
+    if (this.properties.state == 'stack' || (this.properties.state == 'minimized') && !this.properties.previousState == 'stack') {
+        this.maximizeModalWindow();
+    } else {
+        this.properties.previousState = this.properties.state;
+        this.properties.state = 'stack';
+
+        // We need to remove "width" manually because is calculated by javascript.
+        // containerDiv.style.width = null;
+        // containerDiv.style.left = null;
+        this.containerDiv.style.top = null;
+        // this.containerDiv.style.width = null;
+        this.containerDiv.style.rifgh = null;
+        this.containerDiv.style.left = null;
+        this.containerDiv.style.position = null;
+
+        var modalWidth = parseInt(this.properties.iframeAttributes['width']);
+        this.iframeContainer.style.width = modalWidth + 'px';
+        this.iframeContainer.style.height = 300 + 'px';
+        this.containerDiv.style.width = (modalWidth + 12) + 'px';
+        this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
+        this.iframe.style.height = (parseInt(300) + 3) + 'px';
+        this.iframe.style.margin = '6px';
+        this.removeClass('wrs_maximized');
+        this.removeClass('wrs_minimized');
+        this.addClass('wrs_stack');
+    }
+}
+
+ModalWindow.prototype.minimizeModalWindow = function() {
+    if (this.properties.state == 'minimized' && this.properties.previousState == 'stack') {
+        this.stackModalWindow();
+    }
+    else if (this.properties.state == 'minimized' && this.properties.previousState == 'maximized') {
+        this.maximizeModalWindow();
+    }
+    else {
+        this.removeListeners();
+        this.properties.previousState = this.properties.state;
+        this.properties.state = "minimized";
+        this.containerDiv.style.width = null;
+        this.containerDiv.style.left = null;
+        this.containerDiv.style.top = null;
+        this.containerDiv.style.position = null;
+
+        if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
+            this.removeClass('wrs_stack');
+        }
+        else {
+            this.removeClass('wrs_maximized');
+        }
+
+        this.addClass('wrs_minimized');
+    }
+}
+
+/**
+ * Minimizes modal window.
+ * @ignore
+ */
+ModalWindow.prototype.maximizeModalWindow = function() {
+    this.properties.previousState = this.properties.state;
+    this.properties.state = 'maximized';
+
+    var modalHeight = parseInt(this.properties.iframeAttributes['height']);
+    var modalWidth = parseInt(this.properties.iframeAttributes['width']);
+    this.iframeContainer.style.width = modalWidth + 'px';
+    this.iframeContainer.style.height = modalHeight + 'px';
+    this.containerDiv.style.width = (modalWidth + 12) + 'px';
+    this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
+    this.iframe.style.height = (parseInt(this.properties.iframeAttributes['height']) + 3) + 'px';
+    this.iframe.style.margin = '6px';
+    this.removeClass('wrs_drag');
+    if (wrs_containsClass(this.overlayDiv, 'wrs_minimized')) {
+        this.removeClass('wrs_minimized');
+    } else if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
+        this.containerDiv.style.left = null;
+        this.containerDiv.style.top = null;
+        this.removeClass('wrs_stack');
+    }
+    this.addClass('wrs_maximized');
+}
+
+/**
+ * Makes an object draggable adding mouse and touch events.
+ *
+ * @param  {object} draggable object (for example modal dialog).
+ * @param  {target} target to add the events (for example de titlebar of a modal dialog)
+ * @ignore
+ */
+ModalWindow.prototype.addListeners = function() {
+    // Mouse events.
+    wrs_addEvent(document.body, 'mousedown', this.startDrag.bind(this));
+    wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
+    wrs_addEvent(document, 'mouseup', this.stopDrag.bind(this));
+    wrs_addEvent(this.iframe.contentWindow, 'mouseup', this.stopDrag.bind(this));
+    wrs_addEvent(document.body, 'mousemove', this.drag.bind(this));
+}
+
+/**
+ * Removes draggable events from an object.
+ *
+ * @param  {object} draggable object (for example modal dialog).
+ * @param  {target} target to add the events (for example de titlebar of a modal dialog)
+ * @ignore
+ */
+ModalWindow.prototype.removeListeners = function() {
+    // Mouse events.
+    wrs_removeEvent(document.body, 'mousedown', this.startDrag);
+    wrs_removeEvent(window, 'mouseup', this.stopDrag);
+    wrs_removeEvent(document, 'mouseup', this.stopDrag);
+    wrs_removeEvent(document.getElementsByClassName("wrs_modal_iframe")[0], 'mouseup', this.stopDrag);
+    wrs_removeEvent(document.body, 'mousemove', this.drag);
+}
+
+
+/**
+ * Returns mouse or touch coordinates (on touch events ev.ClientX doesn't exists)
+ * @param {event} ev mnouse or touch event
+ * @return {object} with the X and Y coordinates.
+ * @ignore
+ */
+ModalWindow.prototype.eventClient = function(ev) {
+    if (typeof(ev.clientX) == 'undefined') {
+        var client = {
+            X : ev.changedTouches[0].clientX,
+            Y : ev.changedTouches[0].clientY
+        };
+        return client;
+    } else {
+        client = {
+            X : ev.clientX,
+            Y : ev.clientY
+        };
+        return client;
+    }
+}
+
+/**
+ * Start drag function: set the object _wrs_dragDataObject with the draggable object offsets coordinates.
+ * when drag starts (on touchstart or mousedown events).
+ *
+ * @param {event} ev touchstart or mousedown event.
+ * @ignore
+ */
+ModalWindow.prototype.startDrag = function(ev) {
+    if (this.properties.state == 'minimized') {
+        return;
+    }
+    if (ev.target.className == 'wrs_modal_title') {
+        if(!this.dragDataobject) {
+            ev = ev || event;
+            this.dragDataObject = {
+                x: this.eventClient(ev).X - (isNaN(parseInt(window.getComputedStyle(this.containerDiv)).left && parseInt(window.getComputedStyle(this.containerDiv).left > 0 )) ? this.containerDiv.offsetLeft : parseInt(window.getComputedStyle(this.containerDiv).left)),
+                y: this.eventClient(ev).Y - (isNaN(parseInt(window.getComputedStyle(this.containerDiv).top)) ? this.containerDiv.offsetTop : parseInt(window.getComputedStyle(this.containerDiv).top))
+            };
+        };
+    }
+
+    if (typeof dialogContainerDiv != 'undefined') {
+        this.addClass('wrs_drag');
+    }
+}
+
+/**
+ * Updates_wrs_dragDataObject with the draggable object coordinates when the draggable object is being moved.
+ *
+ * @param {event} ev touchmouve or mousemove events.
+ * @ignore
+ */
+ModalWindow.prototype.drag = function(ev) {
+    if(this.dragDataObject) {
+        ev.preventDefault();
+        ev = ev || event;
+        this.containerDiv.style.left = this.eventClient(ev).X - this.dragDataObject.x + "px";
+        this.containerDiv.style.top = this.eventClient(ev).Y - this.dragDataObject.y + "px";
+        this.containerDiv.style.position = 'absolute';
+        this.containerDiv.style.bottom = null;
+        wrs_removeClass(this.containerDiv, 'wrs_stack');
+    }
+}
+
+/**
+ * Set the _wrs_dragDataObject to null when the drag finish (touchend or mouseup events).
+ *
+ * @param {event} ev touchend or mouseup event.
+ * @ignore
+ */
+ModalWindow.prototype.stopDrag = function(ev) {
+    wrs_addClass(this.containerDiv, 'wrs_drag');
+    this.dragDataObject = null;
+}

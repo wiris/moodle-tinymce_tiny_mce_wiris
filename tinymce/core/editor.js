@@ -18,6 +18,8 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                          '_wrs_int_path' ,
                          '_wrs_int_wirisProperties',
                          '_wrs_int_customEditors',
+                         '_wrs_modalWindowProperties',
+                         '_wrs_int_langCode'
                         ];
 
     // Sometimes (yes, sometimes) internet explorer security policies hides popups
@@ -160,8 +162,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
     function wrs_waitForCore() {
         if (typeof _wrs_conf_core_loaded != 'undefined' && typeof _wrs_conf_configuration_loaded != 'undefined' && _wrs_conf_configuration_loaded == true) {
             // Insert editor.
-            var lang = new RegExp("lang=([^&]*)","i").exec(window.location);
-            lang = (lang != null && lang.length > 1) ? lang[1] : "en";
             var script = document.createElement('script');
             script.type = 'text/javascript';
             var editorUrl = _wrs_conf_editorUrl;
@@ -178,13 +178,13 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             statSaveMode = _wrs_conf_saveMode;
             statVersion = _wrs_conf_version;
 
-            script.src = editorUrl + "?lang=" + lang + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
+            script.src = editorUrl + "?lang=" + _wrs_int_langCode + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
             document.getElementsByTagName('head')[0].appendChild(script);
 
             // Insert strings.
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = "../lang/" + lang + "/strings.js";
+            script.src = "../lang/" + _wrs_int_langCode + "/strings.js";
             document.getElementsByTagName('head')[0].appendChild(script);
         } else {
             setTimeout(wrs_waitForCore, 200);
@@ -208,10 +208,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
     wrs_addEvent(window, 'load', function () {
         function wrs_waitForEditor() {
             if ((typeof _wrs_conf_core_loaded != 'undefined') && ('com' in window && 'wiris' in window.com && 'jsEditor' in window.com.wiris)) {
-                // Class for modal dialog.
-                if (_wrs_conf_modalWindow) {
-                    document.body.className = !(document.body.className) ? "wrs_modal_open" : document.body.className + " wrs_modal_open";
-                }
 
                 var queryParams = wrs_getQueryParams(window);
                 var customEditor;
@@ -235,15 +231,26 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         }
                     }
                 }
+
                 if (com.wiris.jsEditor.defaultBasePath) {
                     editor = com.wiris.jsEditor.JsEditor.newInstance(wrs_attributes);
                 }
                 else {
                     editor = new com.wiris.jsEditor.JsEditor('editor', null);
                 }
+                _wrs_modalWindowProperties.editor = editor;
+                // getMethod(null, 'wrs_editorLoaded', [editor], function(editorLoaded){
+                // });
+
+                var ua = navigator.userAgent.toLowerCase();
+                var isAndroid = ua.indexOf("android") > -1;
+                var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
 
                 var editorElement = editor.getElement();
                 var editorContainer = document.getElementById('editorContainer');
+                if (isIOS) {
+                    editorContainer.className += ' wrs_editorContainer wrs_modalIos';
+                }
                 editor.insertInto(editorContainer);
 
                 // Mathml content.
@@ -269,8 +276,17 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     strings = new Object();
                 }
 
+                if (isIOS) {
+                    // Editor and controls container
+                    var editorAndControlsContainer = document.getElementById('container');
+                    editorAndControlsContainer.className += ' wrs_container wrs_modalIos';
+                }
+
                 // Submit button.
                 var controls = document.getElementById('controls');
+                if (isIOS) {
+                    controls.className += ' wrs_controls wrs_modalIos';
+                }
                 var submitButton = document.createElement('input');
                 submitButton.type = 'button';
                 submitButton.className = 'wrs_button_accept';
@@ -321,9 +337,9 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                 cancelButton.type = 'button';
                 cancelButton.className = 'wrs_button_cancel';
 
-                if (strings['cancel'] != null){
+                if (strings['cancel'] != null) {
                     cancelButton.value = strings['cancel'];
-                }else{
+                } else {
                     cancelButton.value = 'Cancel';
                 }
 
@@ -332,6 +348,15 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                 });
 
                 buttonContainer.appendChild(cancelButton);
+
+                // Class for modal dialog.
+                if (_wrs_conf_modalWindow) {
+                    if (_wrs_modalWindowProperties.device == 'android') {
+                        buttonContainer.className = buttonContainer.className + ' wrs_modalAndroid';
+                    } else {
+                        buttonContainer.className = buttonContainer.className + ' wrs_modalDesktop';
+                    }
+                }
 
                 /*var manualLink = document.getElementById('a_manual');
                 if (typeof manualLink != 'undefined' && strings['manual'] != null){
