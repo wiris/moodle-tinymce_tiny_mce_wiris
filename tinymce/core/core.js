@@ -27,8 +27,7 @@ var _wrs_editMode = typeof _wrs_editMode != 'undefined' ? _wrs_editMode : undefi
 var _wrs_isNewElement = typeof _wrs_isNewElement != 'undefined' ? _wrs_isNewElement : true;
 var _wrs_temporalImage;
 var _wrs_temporalFocusElement;
-var _wrs_androidRange;
-var _wrs_iosRange;
+var _wrs_range;
 
 // LaTex client cache.
 var _wrs_int_LatexCache = {};
@@ -1532,15 +1531,15 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 }
             }
             else {
-                var isAndroid = false;
-                if (_wrs_androidRange){
-                    var isAndroid = true;
-                    var range = _wrs_androidRange;
-                } else if (_wrs_iosRange){
-                    var isIOS = true;
-                    var range = _wrs_iosRange;
-                }else{
-                    var selection = windowTarget.getSelection();
+                var ua = navigator.userAgent.toLowerCase();
+                var isAndroid = ua.indexOf("android") > -1;
+                var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
+                var selection = windowTarget.getSelection();
+                if (_wrs_range) {
+                    var range = _wrs_range;
+                    _wrs_range = null;
+                }
+                else {
 
                     try {
                         var range = selection.getRangeAt(0);
@@ -1548,8 +1547,8 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                     catch (e) {
                         var range = windowTarget.document.createRange();
                     }
-                    selection.removeAllRanges();
                 }
+                selection.removeAllRanges();
 
                 range.deleteContents();
 
@@ -1709,8 +1708,8 @@ function wrs_mathmlEncode(input) {
 
     // Transform ="<" --> "&lt;".
     // Transform =">" --> "&gt;".
-    input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
-    input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
+    // input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
+    // input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
 
     return input;
 }
@@ -2081,20 +2080,17 @@ function wrs_openEditorWindow(language, target, isIframe) {
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1;
     var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
-    if(isAndroid) {
-        if (isIframe) { // Variable contentWindow have sense only on a iframe context.
-            var selection = target.contentWindow.getSelection();
-            _wrs_androidRange = selection.getRangeAt(0);
-        }
+
+    if(isAndroid || isIOS) {
         _wrs_conf_modalWindow = true; // Conf property must be overrided on tablet/phone devices.
     }
 
-    if(isIOS) {
-        if (isIframe) {
-            var selection = target.contentWindow.getSelection();
-            _wrs_iosRange = selection.getRangeAt(0);
-        }
-            _wrs_conf_modalWindow = true; // Conf property must be overrided on tablet/phone devices.
+    try {
+        var selection = target.contentWindow.getSelection();
+        _wrs_range = selection.getRangeAt(0);
+    }
+    catch (e) {
+        _wrs_range = null;
     }
 
     if (isIframe === undefined) {
@@ -4034,18 +4030,21 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_close_button';
+    attributes['title'] = 'Close';
     var closeModalDiv = wrs_createElement('div', attributes);
     // closeModalDiv.innerHTML = '&times;';
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
+    attributes['title'] = 'Full-screen';
     var stackModalDiv = wrs_createElement('div', attributes);
     // stackModalDiv.innerHTML = '/';
     this.stackDiv = stackModalDiv;
 
-    attribyutes = {};
+    attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
+    attributes['title'] = 'Minimise';
     var minimizeModalDiv = wrs_createElement('div', attributes);
     // minimizeModalDiv.innerHTML = "_";
     this.minimizeDiv = minimizeModalDiv;
@@ -4107,6 +4106,9 @@ ModalWindow.prototype.create = function() {
 }
 
 ModalWindow.prototype.open = function() {
+
+    this.hideKeyboard();
+
     if (this.properties.open == true) {
         this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
     } else if (this.properties.created) {
@@ -4124,16 +4126,8 @@ ModalWindow.prototype.open = function() {
             if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
                 editor.setParams({'toolbar' : toolbar});
             }
-        } else {
-            if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
-                var properties = {'toolbar' : 'general'};
-                // Client properties.
-                properties = typeof _wrs_int_wirisProperties != 'undefined' ? _wrs_int_wirisProperties : properties;
-                // Server side properties.
-                properties = typeof _wrs_conf_editorAttributes != 'undefined' ? _wrs_conf_editorAttributes : properties;
-                editor.setParams(properties);
-            }
-
+        } else if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
+            editor.setParams({'toolbar' : 'general'});
         }
 
         if (_wrs_isNewElement) {
@@ -4242,14 +4236,12 @@ ModalWindow.prototype.stackModalWindow = function () {
         this.properties.previousState = this.properties.state;
         this.properties.state = 'stack';
 
-        // We need to remove "width" manually because is calculated by javascript.
-        // containerDiv.style.width = null;
-        // containerDiv.style.left = null;
         this.containerDiv.style.top = null;
-        // this.containerDiv.style.width = null;
         this.containerDiv.style.rifgh = null;
         this.containerDiv.style.left = null;
         this.containerDiv.style.position = null;
+
+        this.stackDiv.title = "Full-screen";
 
         var modalWidth = parseInt(this.properties.iframeAttributes['width']);
         this.iframeContainer.style.width = modalWidth + 'px';
@@ -4315,6 +4307,7 @@ ModalWindow.prototype.maximizeModalWindow = function() {
         this.containerDiv.style.top = null;
         this.removeClass('wrs_stack');
     }
+    this.stackDiv.title = "Exit full-screen";
     this.addClass('wrs_maximized');
 }
 
@@ -4426,4 +4419,34 @@ ModalWindow.prototype.drag = function(ev) {
 ModalWindow.prototype.stopDrag = function(ev) {
     wrs_addClass(this.containerDiv, 'wrs_drag');
     this.dragDataObject = null;
+}
+
+/**
+ * Hide soft keyboards.
+ *
+ * @ignore
+ */
+ModalWindow.prototype.hideKeyboard = function() {
+    // ...creating temp field.
+    var field = document.createElement('input');
+    field.setAttribute('type', 'text');
+    // ...hiding temp field from peoples eyes.
+    // ...-webkit-user-modify is nessesary for Android 4.x.
+    field.setAttribute('style', 'position:absolute; top: 0px; opacity: 0; -webkit-user-modify: read-write-plaintext-only; left:0px;');
+    document.body.appendChild(field);
+
+    // ...adding onfocus event handler for out temp field.
+    field.onfocus = function(){
+          // ...this timeout of 200ms is nessasary for Android 2.3.x.
+          setTimeout(function() {
+
+                field.setAttribute('style', 'display:none;');
+                setTimeout(function() {
+                    document.body.removeChild(field);
+                    document.body.focus();
+                }, 14);
+
+          }, 200);
+    };
+    field.focus();
 }
