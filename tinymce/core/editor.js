@@ -239,8 +239,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     editor = new com.wiris.jsEditor.JsEditor('editor', null);
                 }
                 _wrs_modalWindowProperties.editor = editor;
-                // getMethod(null, 'wrs_editorLoaded', [editor], function(editorLoaded){
-                // });
 
                 var ua = navigator.userAgent.toLowerCase();
                 var isAndroid = ua.indexOf("android") > -1;
@@ -277,7 +275,7 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                 }
 
                 if (isIOS) {
-                    // Editor and controls container
+                    // Editor and controls container.
                     var editorAndControlsContainer = document.getElementById('container');
                     editorAndControlsContainer.className += ' wrs_container wrs_modalIos';
                 }
@@ -323,7 +321,7 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         mathml = wrs_mathmlEntities(mathml);    // Apply a parse.
                     }
 
-                    getMethod(null, 'wrs_int_updateFormula', [mathml, _wrs_editMode, queryParams['lang']], function(){
+                    getMethod(null, 'wrs_int_updateFormula', [mathml, null, queryParams['lang']], function(){
                             _wrs_closeFunction();
                     });
 
