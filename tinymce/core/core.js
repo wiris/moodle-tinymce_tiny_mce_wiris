@@ -21,6 +21,32 @@ wrs_addEvent(window, 'message', function (e) {
     }
 });
 
+/**
+ * Fires an element event.
+ * @param {object} element element where event should be fired.
+ * @param {string} event event to fire.
+ * @ignore
+ */
+function wrs_fireEvent(element, event) {
+    if (document.createEvent){
+        var eventObject = document.createEvent('HTMLEvents');
+        eventObject.initEvent(event, true, true);
+        return !element.dispatchEvent(eventObject);
+    }
+
+    var eventObject = document.createEventObject();
+    return element.fireEvent('on' + event, eventObject)
+}
+
+wrs_addEvent(window, 'mouseup', function (e) {
+    if (typeof(_wrs_modalWindow) !== 'undefined' && _wrs_modalWindow != null) {
+        if (_wrs_modalWindow.properties.state != "maximized") {
+            _wrs_modalWindow.overlayDiv.style.display = 'none';
+        }
+        wrs_fireEvent(_wrs_modalWindow.iframe.contentDocument, 'mouseup');
+    }
+});
+
 // Vars.
 var _wrs_currentPath = window.location.toString().substr(0, window.location.toString().lastIndexOf('/') + 1);
 var _wrs_editMode = typeof _wrs_editMode != 'undefined' ? _wrs_editMode : undefined;
@@ -32,7 +58,7 @@ var _wrs_range;
 // LaTex client cache.
 var _wrs_int_LatexCache = {};
 
-// Accessible client cache
+// Accessible client cache.
 var _wrs_int_AccessibleCache = {};
 
 var _wrs_xmlCharacters = {
@@ -259,7 +285,7 @@ function wrs_addClass(element, className) {
  * @ignore
  */
 function wrs_containsClass(element, className) {
-    if (!('className' in element)) {
+    if (element == null || !('className' in element)) {
         return false;
     }
 
@@ -784,23 +810,6 @@ function wrs_endParseSaveMode(code) {
     }
 
     return code;
-}
-
-/**
- * Fires an element event.
- * @param {object} element element where event should be fired.
- * @param {string} event event to fire.
- * @ignore
- */
-function wrs_fireEvent(element, event) {
-    if (document.createEvent){
-        var eventObject = document.createEvent('HTMLEvents');
-        eventObject.initEvent(event, true, true);
-        return !element.dispatchEvent(eventObject);
-    }
-
-    var eventObject = document.createEventObject();
-    return element.fireEvent('on' + event, eventObject)
 }
 
 /**
@@ -1706,11 +1715,6 @@ function wrs_mathmlEncode(input) {
     input = input.split(_wrs_xmlCharacters.ampersand).join(_wrs_safeXmlCharacters.ampersand);
     input = input.split(_wrs_xmlCharacters.quote).join(_wrs_safeXmlCharacters.quote);
 
-    // Transform ="<" --> "&lt;".
-    // Transform =">" --> "&gt;".
-    // input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagOpener + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&lt;" + _wrs_safeXmlCharacters.doubleQuote);
-    // input = input.split("=" + _wrs_safeXmlCharacters.doubleQuote + _wrs_safeXmlCharacters.tagCloser + _wrs_safeXmlCharacters.doubleQuote).join("=" + _wrs_safeXmlCharacters.doubleQuote + "&gt;" + _wrs_safeXmlCharacters.doubleQuote);
-
     return input;
 }
 
@@ -1935,6 +1939,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
     }
 
     data['mml'] = mathml;
+    data['lang'] = language;
 
     if (_wrs_conf_setSize) {
         // Request metrics of the generated image.
@@ -1963,7 +1968,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         imgObject.setAttribute('data-custom-editor', mathmlSubstring);
     }
 
-    // Performance enabled
+    // Performance enabled.
     if (_wrs_conf_wirisPluginPerformance && (_wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml')) {
 
         var result = JSON.parse(wrs_createShowImageSrc(mathml, data, language));
@@ -2120,7 +2125,12 @@ function wrs_openEditorWindow(language, target, isIframe) {
     _wrs_temporalRange = null;
 
     if (target) {
-        var selectedItem = wrs_getSelectedItem(target, isIframe);
+        var selectedItem;
+        if (typeof wrs_int_getSelectedItem != 'undefined') {
+            selectedItem = wrs_int_getSelectedItem(target, isIframe);
+        } else {
+            selectedItem = wrs_getSelectedItem(target, isIframe);
+        }
 
         if (selectedItem != null) {
             if (selectedItem.caretPosition === undefined) {
@@ -2186,7 +2196,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
             var fileref = document.createElement("link");
             fileref.setAttribute("rel", "stylesheet");
             fileref.setAttribute("type", "text/css");
-            fileref.setAttribute("href", window.parent._wrs_conf_path + '/core/modal.css');
+            fileref.setAttribute("href", wrs_concatenateUrl(window.parent._wrs_conf_path, '/core/modal.css'));
             document.getElementsByTagName("head")[0].appendChild(fileref);
             _wrs_css_loaded = true;
         }
@@ -2412,13 +2422,13 @@ wrs_PluginEvent.prototype.preventDefault = function () {
 }
 
 /**
- * Fires one WIRIS event
+ * Fires WIRIS plugin event listeners
  * @param  {String} eventName event name
  * @param  {Object} e         event properties
  * @return {bool}             false if event has been prevented.
  * @ignore
  */
-function wrs_fireEvent(eventName, e) {
+function wrs_fireEventListeners(eventName, e) {
     for (var i = 0; i < wrs_pluginListeners.length && !e.cancelled; ++i) {
         if (wrs_pluginListeners[i][eventName]) {
             // Calling listener.
@@ -2447,6 +2457,8 @@ function wrs_updateFormula(focusElement, windowTarget, mathml, wirisProperties, 
     // - editMode (read only)
     // - wirisProperties
     // - language (read only).
+
+    editMode = editMode !== null ? editMode : _wrs_editMode;
     var e = new wrs_PluginEvent();
 
     e.mathml = mathml;
@@ -2463,7 +2475,7 @@ function wrs_updateFormula(focusElement, windowTarget, mathml, wirisProperties, 
     e.language = language;
     e.editMode = editMode;
 
-    if (wrs_fireEvent('onBeforeFormulaInsertion', e)) {
+    if (wrs_fireEventListeners('onBeforeFormulaInsertion', e)) {
         return;
     }
 
@@ -2494,7 +2506,7 @@ function wrs_updateFormula(focusElement, windowTarget, mathml, wirisProperties, 
         wrs_insertElementOnSelection(e.node, focusElement, windowTarget);
     }
 
-    if (wrs_fireEvent('onAfterFormulaInsertion', e)) {
+    if (wrs_fireEventListeners('onAfterFormulaInsertion', e)) {
         return;
     }
 }
@@ -2609,11 +2621,11 @@ function wrs_fixAfterResize(img) {
     if (_wrs_conf_setSize) {
         if (img.src.indexOf("data:image") != -1) {
             if (_wrs_conf_imageFormat == 'svg') {
-                // data:image/svg+xml;charset=utf8, = 32
+                // ...data:image/svg+xml;charset=utf8, = 32.
                 var svg = wrs_urldecode(img.src.substring(32, img.src.length))
                 wrs_setImgSize(img, svg, true);
             } else {
-                // data:image/png;base64, == 22
+                // ...data:image/png;base64, == 22.
                 var base64 = img.src.substring(22,img.src.length);
                 wrs_setImgSize(img, base64, true);
             }
@@ -2658,6 +2670,10 @@ function wrs_loadConfiguration() {
     document.getElementsByTagName('head')[0].appendChild(script); // Asynchronous load of configuration.
 }
 
+function wrs_concatenateUrl(path1, path2) {
+    return (path1 + path2).replace(/([^:]\/)\/+/g, "$1");
+}
+
 var _wrs_conf_core_loaded = true;
 
 if (typeof _wrs_conf_configuration_loaded == 'undefined') {
@@ -2684,7 +2700,7 @@ function wrs_createModalWindow() {
         var fileref = document.createElement("link");
         fileref.setAttribute("rel", "stylesheet");
         fileref.setAttribute("type", "text/css");
-        fileref.setAttribute("href", window.parent._wrs_conf_path + '/core/modal.css');
+        fileref.setAttribute("href", wrs_concatenateUrl(window.parent._wrs_conf_path, '/core/modal.css'));
         document.getElementsByTagName("head")[0].appendChild(fileref);
         _wrs_css_loaded = true;
     }
@@ -4032,21 +4048,18 @@ function ModalWindow(path, editorAttributes) {
     attributes['class'] = 'wrs_modal_close_button';
     attributes['title'] = 'Close';
     var closeModalDiv = wrs_createElement('div', attributes);
-    // closeModalDiv.innerHTML = '&times;';
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
     attributes['title'] = 'Full-screen';
     var stackModalDiv = wrs_createElement('div', attributes);
-    // stackModalDiv.innerHTML = '/';
     this.stackDiv = stackModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
     attributes['title'] = 'Minimise';
     var minimizeModalDiv = wrs_createElement('div', attributes);
-    // minimizeModalDiv.innerHTML = "_";
     this.minimizeDiv = minimizeModalDiv;
 
     attributes = {};
@@ -4077,6 +4090,12 @@ ModalWindow.prototype.create = function() {
     this.titleBardDiv.appendChild(this.minimizeDiv);
     this.titleBardDiv.appendChild(this.titleDiv);
     this.iframeContainer.appendChild(this.iframe);
+
+    wrs_addEvent(this.overlayDiv, 'mouseup', function (e) {
+        if (typeof(_wrs_modalWindow) !== 'undefined' && _wrs_modalWindow != null) {
+            wrs_fireEvent(_wrs_modalWindow.iframe.contentDocument, 'mouseup');
+        }
+    });
 
     if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isAndroid'] && !this.deviceProperties['isIOS']) {
         this.containerDiv.appendChild(this.titleBardDiv);
@@ -4161,7 +4180,7 @@ ModalWindow.prototype.close = function() {
     this.properties.open = false;
     wrs_int_disableCustomEditors();
     document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
-    // Properties to initial state
+    // Properties to initial state.
     this.properties.state = '';
     this.properties.previousState = '';
 }
@@ -4241,6 +4260,8 @@ ModalWindow.prototype.stackModalWindow = function () {
         this.containerDiv.style.left = null;
         this.containerDiv.style.position = null;
 
+        this.overlayDiv.style.background = "rgba(0,0,0,0)";
+
         this.stackDiv.title = "Full-screen";
 
         var modalWidth = parseInt(this.properties.iframeAttributes['width']);
@@ -4251,6 +4272,7 @@ ModalWindow.prototype.stackModalWindow = function () {
         this.iframe.style.height = (parseInt(300) + 3) + 'px';
         this.iframe.style.margin = '6px';
         this.removeClass('wrs_maximized');
+        this.minimizeDiv.title = "Minimise";
         this.removeClass('wrs_minimized');
         this.addClass('wrs_stack');
     }
@@ -4271,6 +4293,8 @@ ModalWindow.prototype.minimizeModalWindow = function() {
         this.containerDiv.style.left = null;
         this.containerDiv.style.top = null;
         this.containerDiv.style.position = null;
+        this.overlayDiv.style.background = "rgba(0,0,0,0)";
+        this.minimizeDiv.title = "Maximise";
 
         if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
             this.removeClass('wrs_stack');
@@ -4301,6 +4325,7 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.iframe.style.margin = '6px';
     this.removeClass('wrs_drag');
     if (wrs_containsClass(this.overlayDiv, 'wrs_minimized')) {
+        this.minimizeDiv.title = "Minimise";
         this.removeClass('wrs_minimized');
     } else if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
         this.containerDiv.style.left = null;
@@ -4308,6 +4333,8 @@ ModalWindow.prototype.maximizeModalWindow = function() {
         this.removeClass('wrs_stack');
     }
     this.stackDiv.title = "Exit full-screen";
+    this.overlayDiv.style.background = "rgba(0,0,0,0.8)";
+    this.overlayDiv.style.display = '';
     this.addClass('wrs_maximized');
 }
 
@@ -4324,6 +4351,7 @@ ModalWindow.prototype.addListeners = function() {
     wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(this.iframe.contentWindow, 'mouseup', this.stopDrag.bind(this));
+    wrs_addEvent(this.iframe.contentWindow, 'mousedown', this.setOverlayDiv.bind(this));
     wrs_addEvent(document.body, 'mousemove', this.drag.bind(this));
 }
 
@@ -4351,7 +4379,7 @@ ModalWindow.prototype.removeListeners = function() {
  * @ignore
  */
 ModalWindow.prototype.eventClient = function(ev) {
-    if (typeof(ev.clientX) == 'undefined') {
+    if (typeof(ev.clientX) == 'undefined' && ev.changedTouches) {
         var client = {
             X : ev.changedTouches[0].clientX,
             Y : ev.changedTouches[0].clientY
@@ -4364,6 +4392,17 @@ ModalWindow.prototype.eventClient = function(ev) {
         };
         return client;
     }
+}
+
+
+/**
+ * Set the overlay div display
+ *
+ * @param {event} ev touchstart or mousedown event.
+ * @ignore
+ */
+ModalWindow.prototype.setOverlayDiv = function(ev) {
+    this.overlayDiv.style.display = '';
 }
 
 /**
@@ -4402,8 +4441,8 @@ ModalWindow.prototype.drag = function(ev) {
     if(this.dragDataObject) {
         ev.preventDefault();
         ev = ev || event;
-        this.containerDiv.style.left = this.eventClient(ev).X - this.dragDataObject.x + "px";
-        this.containerDiv.style.top = this.eventClient(ev).Y - this.dragDataObject.y + "px";
+        this.containerDiv.style.left = this.eventClient(ev).X - this.dragDataObject.x + window.pageXOffset + "px";
+        this.containerDiv.style.top = this.eventClient(ev).Y - this.dragDataObject.y + window.pageYOffset + "px";
         this.containerDiv.style.position = 'absolute';
         this.containerDiv.style.bottom = null;
         wrs_removeClass(this.containerDiv, 'wrs_stack');
@@ -4417,6 +4456,16 @@ ModalWindow.prototype.drag = function(ev) {
  * @ignore
  */
 ModalWindow.prototype.stopDrag = function(ev) {
+    this.containerDiv.style.position = 'fixed';
+    // Due to we have multiple events that call this function, we need only to execute the next modifiers one time,
+    // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
+    if (this.dragDataObject) {
+        // Fixed position makes the coords relative to the main window. So that, we need to transform
+        // the absolute coords to relative removing the scroll.
+        this.containerDiv.style.left = parseInt(this.containerDiv.style.left) - window.pageXOffset + "px";
+        this.containerDiv.style.top = parseInt(this.containerDiv.style.top) - window.pageYOffset + "px";
+    }
+    this.containerDiv.style.bottom = null;
     wrs_addClass(this.containerDiv, 'wrs_drag');
     this.dragDataObject = null;
 }
