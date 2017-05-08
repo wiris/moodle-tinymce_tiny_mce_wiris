@@ -2184,7 +2184,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
     }
 
     var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
-    if (!_wrs_conf_modalWindow) {
+    if (_wrs_conf_modalWindow != 'undefined' && _wrs_conf_modalWindow === false) {
         _wrs_popupWindow = window.open(path, title, _wrs_conf_editorAttributes);
         return _wrs_popupWindow;
     }
@@ -2196,7 +2196,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
             var fileref = document.createElement("link");
             fileref.setAttribute("rel", "stylesheet");
             fileref.setAttribute("type", "text/css");
-            fileref.setAttribute("href", wrs_concatenateUrl(window.parent._wrs_conf_path, '/core/modal.css'));
+            fileref.setAttribute("href", wrs_concatenateUrl(_wrs_conf_path, '/core/modal.css'));
             document.getElementsByTagName("head")[0].appendChild(fileref);
             _wrs_css_loaded = true;
         }
@@ -2700,7 +2700,7 @@ function wrs_createModalWindow() {
         var fileref = document.createElement("link");
         fileref.setAttribute("rel", "stylesheet");
         fileref.setAttribute("type", "text/css");
-        fileref.setAttribute("href", wrs_concatenateUrl(window.parent._wrs_conf_path, '/core/modal.css'));
+        fileref.setAttribute("href", wrs_concatenateUrl(_wrs_conf_path, '/core/modal.css'));
         document.getElementsByTagName("head")[0].appendChild(fileref);
         _wrs_css_loaded = true;
     }
@@ -3223,14 +3223,16 @@ function getMetricsFromSvgString(svgString) {
  */
 function wrs_int_getCustomEditorEnabled() {
     var customEditorEnabled = null;
-    Object.keys(_wrs_int_customEditors).forEach(function(key) {
+    for (var key in _wrs_int_customEditors) {
         if (_wrs_int_customEditors[key].enabled) {
-            customEditorEnabled = _wrs_int_customEditors[key]
+            customEditorEnabled = _wrs_int_customEditors[key];
+            break;
         }
-    });
+    }
 
     return customEditorEnabled;
 }
+
 
 /**
  * Disable all custom editors
@@ -4122,50 +4124,84 @@ ModalWindow.prototype.create = function() {
     _wrs_popupWindow = this.iframe.contentWindow;
     this.properties.open = true;
     this.properties.created = true;
+
+    if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
+        this.maximizeModalWindow();
+    }
+
 }
 
 ModalWindow.prototype.open = function() {
 
     this.hideKeyboard();
 
-    if (this.properties.open == true) {
-        this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
-    } else if (this.properties.created) {
-
-        this.containerDiv.style.visibility = '';
-        this.overlayDiv.style.visibility = '';
-        this.containerDiv.style.display = '';
-        this.overlayDiv.style.display = '';
+    if (this.properties.open == true || this.properties.created) {
 
         var editor = this.iframe.contentWindow._wrs_modalWindowProperties.editor;
-
-        this.properties.open = true;
-        if (customEditor = wrs_int_getCustomEditorEnabled()) {
-            toolbar = customEditor.toolbar ? customEditor.toolbar : wrs_attributes['toolbar'];
-            if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
-                editor.setParams({'toolbar' : toolbar});
+        var update_toolbar = function() {
+            if (customEditor = wrs_int_getCustomEditorEnabled()) {
+                toolbar = customEditor.toolbar ? customEditor.toolbar : wrs_attributes['toolbar'];
+                if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
+                    editor.setParams({'toolbar' : toolbar});
+                    _wrs_modalWindow.setTitle(customEditor.title);
+                }
+            } else if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
+                editor.setParams({'toolbar' : 'general'});
+                _wrs_modalWindow.setTitle('WIRIS EDITOR math');
             }
-        } else if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
-            editor.setParams({'toolbar' : 'general'});
-        }
+        };
 
-        if (_wrs_isNewElement) {
-            if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
-                editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+        if (this.properties.open == true) {
+            var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
+            if (customEditorClass) {
+                wrs_int_enableCustomEditor(customEditorClass);
+            }
+            else {
+                wrs_int_disableCustomEditors();
+            }
+            update_toolbar();
+            this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+        }
+        else {
+            this.containerDiv.style.visibility = '';
+            this.overlayDiv.style.visibility = '';
+            this.containerDiv.style.display = '';
+            this.overlayDiv.style.display = '';
+
+            this.properties.open = true;
+
+            if (_wrs_isNewElement) {
+                if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
+                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                } else {
+                    editor.setMathML('<math/>');
+                }
+                update_toolbar();
             } else {
-                editor.setMathML('<math/>');
+                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
+                if (customEditorClass) {
+                    wrs_int_enableCustomEditor(customEditorClass);
+                }
+                else {
+                    wrs_int_disableCustomEditors();
+                }
+                update_toolbar();
+                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
             }
-        } else {
-            editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+
+            editor.focus();
+            if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
+                this.stackModalWindow();
+            }
         }
 
-        editor.focus();
-        if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
-            this.stackModalWindow();
+        if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
+            this.maximizeModalWindow();
         }
     } else {
         this.create();
     }
+
 }
 
 /**
@@ -4497,5 +4533,8 @@ ModalWindow.prototype.hideKeyboard = function() {
 
           }, 200);
     };
+    // ...focus function changes scroll value, so we need to restore it.
+    var keepScroll = scrollY;
     field.focus();
+    window.scrollTo(0, keepScroll);
 }
