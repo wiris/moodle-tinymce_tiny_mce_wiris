@@ -2091,8 +2091,14 @@ function wrs_openEditorWindow(language, target, isIframe) {
     }
 
     try {
-        var selection = target.contentWindow.getSelection();
-        _wrs_range = selection.getRangeAt(0);
+        if (isIframe) {
+            var selection = target.contentWindow.getSelection();
+            _wrs_range = selection.getRangeAt(0);
+        }
+        else {
+            var selection = getSelection();
+            _wrs_range = selection.getRangeAt(0);
+        }
     }
     catch (e) {
         _wrs_range = null;
@@ -4534,7 +4540,9 @@ ModalWindow.prototype.hideKeyboard = function() {
           }, 200);
     };
     // ...focus function changes scroll value, so we need to restore it.
-    var keepScroll = scrollY;
-    field.focus();
-    window.scrollTo(0, keepScroll);
+    if (typeof scrollY != 'undefined') {
+        var keepScroll = scrollY;
+        field.focus();
+        window.scrollTo(0, keepScroll);
+    }
 }
