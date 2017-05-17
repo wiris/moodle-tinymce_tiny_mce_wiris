@@ -2206,7 +2206,6 @@ function wrs_openEditorWindow(language, target, isIframe) {
             document.getElementsByTagName("head")[0].appendChild(fileref);
             _wrs_css_loaded = true;
         }
-        _wrs_modalWindow.setTitle(title);
         _wrs_modalWindow.open();
     }
 }
@@ -4154,19 +4153,25 @@ ModalWindow.prototype.open = function() {
             } else if (typeof editor.params.toolbar != 'undefined' && editor.params.toolbar != 'general') {
                 editor.setParams({'toolbar' : 'general'});
                 _wrs_modalWindow.setTitle('WIRIS EDITOR math');
+                wrs_int_disableCustomEditors();
             }
         };
 
         if (this.properties.open == true) {
-            var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
-            if (customEditorClass) {
-                wrs_int_enableCustomEditor(customEditorClass);
+            if (!_wrs_isNewElement) {
+                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
+                if (customEditorClass) {
+                    wrs_int_enableCustomEditor(customEditorClass);
+                }
+                else {
+                    wrs_int_disableCustomEditors();
+                }
+                update_toolbar();
+                this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
             }
             else {
-                wrs_int_disableCustomEditors();
+                update_toolbar();
             }
-            update_toolbar();
-            this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
         }
         else {
             this.containerDiv.style.visibility = '';
@@ -4205,6 +4210,8 @@ ModalWindow.prototype.open = function() {
             this.maximizeModalWindow();
         }
     } else {
+        var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
+        _wrs_modalWindow.setTitle(title);
         this.create();
     }
 
@@ -4468,9 +4475,6 @@ ModalWindow.prototype.startDrag = function(ev) {
         };
     }
 
-    if (typeof dialogContainerDiv != 'undefined') {
-        this.addClass('wrs_drag');
-    }
 }
 
 /**
@@ -4508,7 +4512,6 @@ ModalWindow.prototype.stopDrag = function(ev) {
         this.containerDiv.style.top = parseInt(this.containerDiv.style.top) - window.pageYOffset + "px";
     }
     this.containerDiv.style.bottom = null;
-    wrs_addClass(this.containerDiv, 'wrs_drag');
     this.dragDataObject = null;
 }
 
@@ -4539,10 +4542,7 @@ ModalWindow.prototype.hideKeyboard = function() {
 
           }, 200);
     };
-    // ...focus function changes scroll value, so we need to restore it.
-    if (typeof scrollY != 'undefined') {
-        var keepScroll = scrollY;
-        field.focus();
-        window.scrollTo(0, keepScroll);
-    }
+    var keepScroll = window.pageYOffset;
+    field.focus();
+    window.scrollTo(0, keepScroll);
 }

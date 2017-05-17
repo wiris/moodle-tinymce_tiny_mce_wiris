@@ -1,8 +1,11 @@
 WIRIS plugin for Moodle
 ==========
+### Master Build Status
 [![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=master)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
+### Development Build Status
+[![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=development)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
 
-Add a fully WYSIWYG editor for scientific expressions ([WIRIS EDITOR](http://www.wiris.com/editor)) and, optionally, an advanced calculator tool ([WIRIS CAS](http://www.wiris.com/cas)). Enabled editing to STEM related topics (Science, Technology, Engineering and Mathematics). 
+Add a fully WYSIWYG editor for scientific expressions ([WIRIS EDITOR](http://www.wiris.com/editor)) and, optionally, an advanced calculator tool ([WIRIS CAS](http://www.wiris.com/cas)). Enabled editing to STEM related topics (Science, Technology, Engineering and Mathematics).
 
 [WIRIS EDITOR](http://www.wiris.com/editor) is a mathematical **visual (WYSIWYG) editor**. You can use a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. You can create and edit your formulas in a visual environment, just click on the WIRIS editor icon for creation or double-click on the formula for edition. It is based on JavaScript and compatible with HTML 5.
 
