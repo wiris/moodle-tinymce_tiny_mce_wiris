@@ -4150,8 +4150,8 @@ ModalWindow.prototype.open = function() {
                 if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
                     editor.setParams({'toolbar' : toolbar});
                 }
-            } else {
-                var toolbar = typeof _wrs_int_wirisProperties['toolbar'] == 'undefined' ? 'general' : _wrs_int_wirisProperties['toolbar'];
+            } else { 
+                var toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle('WIRIS EDITOR math');
                 if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
                     editor.setParams({'toolbar' : toolbar});
@@ -4162,17 +4162,15 @@ ModalWindow.prototype.open = function() {
 
         if (this.properties.open == true) {
             if (!_wrs_isNewElement) {
-                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
-                if (customEditorClass) {
-                    wrs_int_enableCustomEditor(customEditorClass);
-                }
-                else {
-                    wrs_int_disableCustomEditors();
-                }
                 update_toolbar();
                 this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
             }
             else {
+                if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
+                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                } else {
+                    editor.setMathML('<math/>');
+                }
                 update_toolbar();
             }
         }
@@ -4192,13 +4190,6 @@ ModalWindow.prototype.open = function() {
                 }
                 update_toolbar();
             } else {
-                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
-                if (customEditorClass) {
-                    wrs_int_enableCustomEditor(customEditorClass);
-                }
-                else {
-                    wrs_int_disableCustomEditors();
-                }
                 update_toolbar();
                 editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
             }
