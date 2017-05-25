@@ -2647,21 +2647,7 @@ function wrs_initSetSize() {
 
 function wrs_loadConfiguration() {
     if (typeof _wrs_conf_path == 'undefined') {
-        // Discover path.
-        var scriptName = "core/core.js";
-        var col = document.getElementsByTagName("script");
-        for (i = 0; i < col.length; i++) {
-            var d;
-            var src;
-            d = col[i];
-            src = d.src;
-            var j = src.lastIndexOf(scriptName);
-            if (j >= 0) {
-                // That's my script!
-                baseURL = src.substr(0, j - 1);
-            }
-        }
-        _wrs_conf_path = baseURL;
+        _wrs_conf_path = wrs_getCorePath();
     }
 
     var script = document.createElement('script');
@@ -2673,6 +2659,29 @@ function wrs_loadConfiguration() {
     configUrl = configUrl.replace(/([^:]\/)\/+/g, "$1");
     script.src = configUrl;
     document.getElementsByTagName('head')[0].appendChild(script); // Asynchronous load of configuration.
+}
+
+function wrs_getCorePath() {
+    var scriptName = "core/core.js";
+        var col = document.getElementsByTagName("script");
+        for (i = 0; i < col.length; i++) {
+            var d;
+            var src;
+            d = col[i];
+            src = d.src;
+            var j = src.lastIndexOf(scriptName);
+            if (j >= 0) {
+                // That's my script!
+                return src.substr(0, j - 1);
+            }
+        }
+}
+
+function wrs_loadLangFile() {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js";
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 function wrs_concatenateUrl(path1, path2) {
@@ -2687,7 +2696,7 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
     _wrs_conf_plugin_loaded = true;
 }
 
-
+wrs_loadLangFile()
 
 /**
  * Create modal window with embebbed iframe
@@ -4053,19 +4062,19 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_close_button';
-    attributes['title'] = 'Close';
+    attributes['title'] = strings['close'];
     var closeModalDiv = wrs_createElement('div', attributes);
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
-    attributes['title'] = 'Full-screen';
+    attributes['title'] = strings['fullscreen'];
     var stackModalDiv = wrs_createElement('div', attributes);
     this.stackDiv = stackModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
-    attributes['title'] = 'Minimise';
+    attributes['title'] = strings['minimise'];
     var minimizeModalDiv = wrs_createElement('div', attributes);
     this.minimizeDiv = minimizeModalDiv;
 
@@ -4089,7 +4098,7 @@ function ModalWindow(path, editorAttributes) {
 
     this.editor = null;
 
-    this.lastImageWasNew = false;
+    this.lastImageWasNew = true;
 
 }
 
@@ -4152,7 +4161,7 @@ ModalWindow.prototype.open = function() {
                 if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
                     editor.setParams({'toolbar' : toolbar});
                 }
-            } else { 
+            } else {
                 var toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle('WIRIS EDITOR math');
                 if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
@@ -4162,25 +4171,37 @@ ModalWindow.prototype.open = function() {
             }
         };
 
-        if (this.properties.open == true) {
-            if (!_wrs_isNewElement) {
-                this.lastImageWasNew = false;
-                update_toolbar();
-                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+        var self = this;
+
+        // MobileDevices need to have specific mathml syntax
+        var setMathMLMobileDevices = function () {
+            if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
+                editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+            } else {
+                editor.setMathML('<math/>');
+            }
+        };
+
+        // It controls cases where is needed to set an empty mathml or copy the current mathml value.
+        var setMathMLGeneric = function () {
+            if (!self.lastImageWasNew) {
+                setMathMLMobileDevices();
             }
             else {
-                if (!this.lastImageWasNew) {
-                    if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
-                        editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-                    } else {
-                        editor.setMathML('<math/>');
-                    }
-                    this.lastImageWasNew = true;
-                }
-                else {
-                    editor.setMathML(editor.getMathML());
-                }
+                editor.setMathML(editor.getMathML());
+            }
+            update_toolbar();
+        };
+
+        if (this.properties.open == true) {
+            if (_wrs_isNewElement) {
+                setMathMLGeneric();
+                self.lastImageWasNew = true;
+            }
+            else {
                 update_toolbar();
+                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.lastImageWasNew = false;
             }
         }
         else {
@@ -4192,22 +4213,12 @@ ModalWindow.prototype.open = function() {
             this.properties.open = true;
 
             if (_wrs_isNewElement) {
-                if (!this.lastImageWasNew) {
-                    if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
-                        editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-                    } else {
-                        editor.setMathML('<math/>');
-                    }
-                    this.lastImageWasNew = true;
-                }
-                else {
-                    editor.setMathML(editor.getMathML());
-                }
-                update_toolbar();
+                setMathMLGeneric();
+                self.lastImageWasNew = true;
             } else {
-                this.lastImageWasNew = false;
                 update_toolbar();
                 editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.lastImageWasNew = false;
             }
 
             editor.focus();
