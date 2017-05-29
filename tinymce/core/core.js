@@ -1504,8 +1504,6 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
  */
 function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
     try {
-        focusElement.focus();
-
         // Integration function
         // If wrs_int_insertElementOnSelection function exists on
         // integration script can call focus method from the editor instance.
@@ -1514,6 +1512,9 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         // help's WIRIS plugin to focus properly on the current editor window.
         if (typeof wrs_int_insertElementOnSelection != 'undefined') {
             wrs_int_insertElementOnSelection();
+        }
+        else {
+            focusElement.focus();
         }
 
         if (_wrs_isNewElement) {
@@ -4096,10 +4097,7 @@ function ModalWindow(path, editorAttributes) {
     var iframeModalContainer = wrs_createElement('div', attributes);
     this.iframeContainer = iframeModalContainer;
 
-    this.editor = null;
-
     this.lastImageWasNew = true;
-
 }
 
 ModalWindow.prototype.create = function() {
@@ -4173,33 +4171,24 @@ ModalWindow.prototype.open = function() {
 
         var self = this;
 
-        // MobileDevices need to have specific mathml syntax
-        var setEmptyMathML = function () {
-            if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
-                editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-            } else {
-                editor.setMathML('<math/>');
-            }
-        };
-
         // It controls cases where is needed to set an empty mathml or copy the current mathml value.
         var updateMathMLContent = function () {
             if (!self.lastImageWasNew) {
-                setEmptyMathML();
+                if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
+                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                } else {
+                    editor.setMathML('<math/>');
+                }
             }
-            else {
-                editor.setMathML(editor.getMathML());
-            }
-            updateToolbar();
         };
 
         if (this.properties.open == true) {
+            updateToolbar();
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             }
             else {
-                updateToolbar();
                 editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
@@ -4212,16 +4201,18 @@ ModalWindow.prototype.open = function() {
 
             this.properties.open = true;
 
+            updateToolbar();
+
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             } else {
-                updateToolbar();
                 editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
 
             editor.focus();
+
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
                 this.stackModalWindow();
             }
@@ -4243,13 +4234,14 @@ ModalWindow.prototype.open = function() {
  * @ignore
  */
 ModalWindow.prototype.close = function() {
+    // Is mandatory make this BEFORE hide modalwindow.
+    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
     this.containerDiv.style.display = 'none';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
-    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
     // Properties to initial state.
     this.properties.state = '';
     this.properties.previousState = '';
