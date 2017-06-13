@@ -894,7 +894,15 @@ function wrs_getLatexFromMathML(mathml) {
         'mml': mathml
     };
 
-    return wrs_getContent(_wrs_conf_servicePath, data);
+    var jsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
+
+    var latex;
+
+    if (jsonResponse.status == "ok") {
+        latex = jsonResponse.result.text;
+    }
+
+    return latex;
 }
 
 /**
@@ -1019,10 +1027,19 @@ function wrs_getMathMLFromLatex(latex, includeLatexOnSemantics) {
         data['saveLatex'] = '';
     }
 
-    var mathML = wrs_getContent(_wrs_conf_servicePath, data);
-    // Populate LatexCache.
-    wrs_populateLatexCache(latex, mathML);
-    return mathML.split("\r").join('').split("\n").join(' ');
+    var jsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
+
+    var output;
+    if (jsonResponse.status == "ok") {
+        var output = jsonResponse.result.text;
+        output = output.split("\r").join('').split("\n").join(' ');
+        // Populate LatexCache.
+        wrs_populateLatexCache(latex, output);
+    } else {
+        output = "$$" + latex + "$$";
+    }
+
+    return output;
 }
 
 /**
@@ -1504,8 +1521,6 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
  */
 function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
     try {
-        focusElement.focus();
-
         // Integration function
         // If wrs_int_insertElementOnSelection function exists on
         // integration script can call focus method from the editor instance.
@@ -1514,6 +1529,9 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         // help's WIRIS plugin to focus properly on the current editor window.
         if (typeof wrs_int_insertElementOnSelection != 'undefined') {
             wrs_int_insertElementOnSelection();
+        }
+        else {
+            focusElement.focus();
         }
 
         if (_wrs_isNewElement) {
@@ -1827,7 +1845,11 @@ function wrs_mathmlToAccessible(mathml, language, data) {
     }
     else {
         data['service'] = 'mathml2accessible';
-        var accessibleText = wrs_getContent(_wrs_conf_servicePath, data);
+        var accesibleJsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
+    }
+
+    if (accesibleJsonResponse.status == 'ok') {
+        accessibleText = accesibleJsonResponse.result.text;
     }
 
     return accessibleText;
@@ -2647,21 +2669,7 @@ function wrs_initSetSize() {
 
 function wrs_loadConfiguration() {
     if (typeof _wrs_conf_path == 'undefined') {
-        // Discover path.
-        var scriptName = "core/core.js";
-        var col = document.getElementsByTagName("script");
-        for (i = 0; i < col.length; i++) {
-            var d;
-            var src;
-            d = col[i];
-            src = d.src;
-            var j = src.lastIndexOf(scriptName);
-            if (j >= 0) {
-                // That's my script!
-                baseURL = src.substr(0, j - 1);
-            }
-        }
-        _wrs_conf_path = baseURL;
+        _wrs_conf_path = wrs_getCorePath();
     }
 
     var script = document.createElement('script');
@@ -2673,6 +2681,29 @@ function wrs_loadConfiguration() {
     configUrl = configUrl.replace(/([^:]\/)\/+/g, "$1");
     script.src = configUrl;
     document.getElementsByTagName('head')[0].appendChild(script); // Asynchronous load of configuration.
+}
+
+function wrs_getCorePath() {
+    var scriptName = "core/core.js";
+    var col = document.getElementsByTagName("script");
+    for (i = 0; i < col.length; i++) {
+        var d;
+        var src;
+        d = col[i];
+        src = d.src;
+        var j = src.lastIndexOf(scriptName);
+        if (j >= 0) {
+            // That's my script!
+            return src.substr(0, j - 1);
+        }
+    }
+}
+
+function wrs_loadLangFile() {
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js";
+    document.getElementsByTagName('head')[0].appendChild(script);
 }
 
 function wrs_concatenateUrl(path1, path2) {
@@ -2687,7 +2718,7 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
     _wrs_conf_plugin_loaded = true;
 }
 
-
+wrs_loadLangFile()
 
 /**
  * Create modal window with embebbed iframe
@@ -4053,19 +4084,19 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_close_button';
-    attributes['title'] = 'Close';
+    attributes['title'] = strings['close'];
     var closeModalDiv = wrs_createElement('div', attributes);
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
-    attributes['title'] = 'Full-screen';
+    attributes['title'] = strings['fullscreen'];
     var stackModalDiv = wrs_createElement('div', attributes);
     this.stackDiv = stackModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
-    attributes['title'] = 'Minimise';
+    attributes['title'] = strings['minimise'];
     var minimizeModalDiv = wrs_createElement('div', attributes);
     this.minimizeDiv = minimizeModalDiv;
 
@@ -4087,8 +4118,7 @@ function ModalWindow(path, editorAttributes) {
     var iframeModalContainer = wrs_createElement('div', attributes);
     this.iframeContainer = iframeModalContainer;
 
-    this.editor = null;
-
+    this.lastImageWasNew = true;
 }
 
 ModalWindow.prototype.create = function() {
@@ -4143,7 +4173,7 @@ ModalWindow.prototype.open = function() {
     if (this.properties.open == true || this.properties.created) {
 
         var editor = this.iframe.contentWindow._wrs_modalWindowProperties.editor;
-        var update_toolbar = function() {
+        var updateToolbar = function() {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
                 var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle(customEditor.title);
@@ -4151,7 +4181,7 @@ ModalWindow.prototype.open = function() {
                     editor.setParams({'toolbar' : toolbar});
                 }
             } else {
-                var toolbar = typeof _wrs_int_wirisProperties['toolbar'] == 'undefined' ? 'general' : _wrs_int_wirisProperties['toolbar'];
+                var toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle('WIRIS EDITOR math');
                 if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
                     editor.setParams({'toolbar' : toolbar});
@@ -4160,20 +4190,28 @@ ModalWindow.prototype.open = function() {
             }
         };
 
+        var self = this;
+
+        // It controls cases where is needed to set an empty mathml or copy the current mathml value.
+        var updateMathMLContent = function () {
+            if (!self.lastImageWasNew) {
+                if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
+                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                } else {
+                    editor.setMathML('<math/>');
+                }
+            }
+        };
+
         if (this.properties.open == true) {
-            if (!_wrs_isNewElement) {
-                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
-                if (customEditorClass) {
-                    wrs_int_enableCustomEditor(customEditorClass);
-                }
-                else {
-                    wrs_int_disableCustomEditors();
-                }
-                update_toolbar();
-                this.iframe.contentWindow._wrs_modalWindowProperties.editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+            updateToolbar();
+            if (_wrs_isNewElement) {
+                updateMathMLContent();
+                self.lastImageWasNew = true;
             }
             else {
-                update_toolbar();
+                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.lastImageWasNew = false;
             }
         }
         else {
@@ -4184,26 +4222,18 @@ ModalWindow.prototype.open = function() {
 
             this.properties.open = true;
 
+            updateToolbar();
+
             if (_wrs_isNewElement) {
-                if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
-                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-                } else {
-                    editor.setMathML('<math/>');
-                }
-                update_toolbar();
+                updateMathMLContent();
+                self.lastImageWasNew = true;
             } else {
-                var customEditorClass = _wrs_temporalImage.getAttribute('data-custom-editor');
-                if (customEditorClass) {
-                    wrs_int_enableCustomEditor(customEditorClass);
-                }
-                else {
-                    wrs_int_disableCustomEditors();
-                }
-                update_toolbar();
                 editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.lastImageWasNew = false;
             }
 
             editor.focus();
+
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
                 this.stackModalWindow();
             }
@@ -4225,13 +4255,14 @@ ModalWindow.prototype.open = function() {
  * @ignore
  */
 ModalWindow.prototype.close = function() {
+    // Is mandatory make this BEFORE hide modalwindow.
+    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
     this.containerDiv.style.display = 'none';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
-    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
     // Properties to initial state.
     this.properties.state = '';
     this.properties.previousState = '';
