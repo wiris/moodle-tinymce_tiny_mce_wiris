@@ -116,7 +116,7 @@ if (!(window._wrs_conf_CASClassName)) {
 if (typeof MutationObserver != 'undefined') {
     var wrs_observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
-            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1 ) {
+            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.targetpassName.indexOf(_wrs_conf_imageClassName) == -1 ) {
                 mutation.target.className = _wrs_conf_imageClassName;
             }
         });
@@ -3410,6 +3410,17 @@ function wrs_addPluginListener(listener) {
     wrs_pluginListeners.push(listener);
 }
 
+/**
+ * For now its not possible comunicate directly between editor.js and ModalWindow object.
+ * We need to use this method to call ModalWindow prototype from editor.js
+ * @param  {object} editor WIRIS Editor
+ */
+function wrs_setModalWindowEditor(editor) {
+    if (_wrs_conf_modalWindow) {
+        _wrs_modalWindow.setEditor(editor);
+    }
+}
+
 // Production steps of ECMA-262, Edition 5, 15.4.4.18
 // Reference: http://es5.github.io/#x15.4.4.18.
 if (!Array.prototype.forEach) {
@@ -4171,7 +4182,7 @@ ModalWindow.prototype.open = function() {
 
     if (this.properties.open == true || this.properties.created) {
 
-        var editor = this.iframe.contentWindow._wrs_modalWindowProperties.editor;
+        var editor = this.editor;
         var updateToolbar = function() {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
                 var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
@@ -4255,7 +4266,7 @@ ModalWindow.prototype.open = function() {
  */
 ModalWindow.prototype.close = function() {
     // Is mandatory make this BEFORE hide modalwindow.
-    document.getElementsByClassName('wrs_modal_iframe')[0].contentWindow._wrs_modalWindowProperties.editor.setMathML('<math/>');
+    this.editor.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
     this.containerDiv.style.display = 'none';
@@ -4578,4 +4589,11 @@ ModalWindow.prototype.hideKeyboard = function() {
     var keepScroll = window.pageYOffset;
     field.focus();
     window.scrollTo(0, keepScroll);
+}
+
+/**
+ * Set WIRIS Editor as variable
+ */
+ModalWindow.prototype.setEditor = function(editor) {
+    this.editor = editor;
 }
