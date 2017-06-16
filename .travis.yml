@@ -11,6 +11,8 @@ php:
  - 7.0
 
 env:
+  - MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
+  - MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
   - MOODLE_BRANCH=MOODLE_30_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_29_STABLE DB=mysqli
@@ -35,6 +37,10 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_28_STABLE DB=pgsql
     - php: 5.6
       env: MOODLE_BRANCH=MOODLE_27_STABLE DB=mysqli
+    - php: 5.4
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
+    - php: 5.4
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
   include:
     - php: 5.4
       env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
