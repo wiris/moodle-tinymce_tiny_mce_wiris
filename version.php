@@ -26,9 +26,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2017062700;
+$plugin->version = 2017062800;
 
 $plugin->requires = 2012120300;
 $plugin->component = 'tinymce_tiny_mce_wiris';
-$plugin->dependencies = array ('filter_wiris' => 2017062700);
+$plugin->dependencies = array ('filter_wiris' => 2017062800);
 $plugin->maturity = MATURITY_BETA;
