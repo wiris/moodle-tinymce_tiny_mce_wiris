@@ -3406,6 +3406,7 @@ if (!Object.keys) {
 /**
  * Add a new callback to a WIRIS plugins listener.
  * @param {object} listener an Object containing listener name and a callback.
+ * @ignore
  */
 function wrs_addPluginListener(listener) {
     wrs_pluginListeners.push(listener);
@@ -3415,12 +3416,46 @@ function wrs_addPluginListener(listener) {
  * For now its not possible comunicate directly between editor.js and ModalWindow object.
  * We need to use this method to call ModalWindow prototype from editor.js
  * @param  {object} editor WIRIS Editor
+ * @ignore
  */
 function wrs_setModalWindowEditor(editor) {
     if (_wrs_conf_modalWindow) {
         _wrs_modalWindow.setEditor(editor);
     }
 }
+
+/**
+ * Get the base URL (i.e the URL on core.js lives).
+ */
+function wrs_getServerPath() {
+    url = wrs_getCorePath();
+    var hostNameIndex = url.indexOf("/", url.indexOf("/") + 2);
+    return url.substr(0, hostNameIndex);
+}
+
+/**
+ * This method updates all services paths if there are relative with the absolute
+ * URL path.
+ * @ignore
+ */
+function wrs_updateContextPath() {
+    if (typeof _wrs_conf_plugin_loaded == 'undefined') {
+            setTimeout(wrs_updateContextPath, 100);
+    } else {
+        if (_wrs_conf_showimagePath.indexOf("/") == 0) {
+            serverPath = wrs_getServerPath()
+            _wrs_conf_showimagePath = serverPath + _wrs_conf_showimagePath;
+            _wrs_conf_editorPath = serverPath + _wrs_conf_editorPath;
+            _wrs_conf_CASPath = serverPath + _wrs_conf_CASPath;
+            _wrs_conf_createimagePath = serverPath + _wrs_conf_createimagePath;
+            _wrs_conf_createcasimagePath = serverPath + _wrs_conf_createcasimagePath;
+            _wrs_conf_getmathmlPath = serverPath + _wrs_conf_getmathmlPath;
+            _wrs_conf_servicePath = serverPath + _wrs_conf_servicePath;
+        }
+     }
+}
+
+wrs_updateContextPath();
 
 // Production steps of ECMA-262, Edition 5, 15.4.4.18
 // Reference: http://es5.github.io/#x15.4.4.18.
