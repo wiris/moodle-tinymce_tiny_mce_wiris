@@ -39,11 +39,12 @@ function wrs_fireEvent(element, event) {
 }
 
 wrs_addEvent(window, 'mouseup', function (e) {
+
     if (typeof(_wrs_modalWindow) !== 'undefined' && _wrs_modalWindow != null) {
         if (_wrs_modalWindow.properties.state != "maximized") {
             _wrs_modalWindow.overlayDiv.style.display = 'none';
         }
-        wrs_fireEvent(_wrs_modalWindow.iframe.contentDocument, 'mouseup');
+        _wrs_modalWindow.fireEditorEvent('mouseup');
     }
 });
 
@@ -2576,7 +2577,7 @@ function wrs_urldecode(input) {
 function wrs_urlencode(clearString) {
     var output = '';
     // Method encodeURIComponent doesn't encode !'()*~ .
-    output = encodeURIComponent(clearString).replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/~/g, '%7E');
+    output = encodeURIComponent(clearString);
     return output;
 }
 
@@ -3405,6 +3406,7 @@ if (!Object.keys) {
 /**
  * Add a new callback to a WIRIS plugins listener.
  * @param {object} listener an Object containing listener name and a callback.
+ * @ignore
  */
 function wrs_addPluginListener(listener) {
     wrs_pluginListeners.push(listener);
@@ -3414,12 +3416,46 @@ function wrs_addPluginListener(listener) {
  * For now its not possible comunicate directly between editor.js and ModalWindow object.
  * We need to use this method to call ModalWindow prototype from editor.js
  * @param  {object} editor WIRIS Editor
+ * @ignore
  */
 function wrs_setModalWindowEditor(editor) {
     if (_wrs_conf_modalWindow) {
         _wrs_modalWindow.setEditor(editor);
     }
 }
+
+/**
+ * Get the base URL (i.e the URL on core.js lives).
+ */
+function wrs_getServerPath() {
+    url = wrs_getCorePath();
+    var hostNameIndex = url.indexOf("/", url.indexOf("/") + 2);
+    return url.substr(0, hostNameIndex);
+}
+
+/**
+ * This method updates all services paths if there are relative with the absolute
+ * URL path.
+ * @ignore
+ */
+function wrs_updateContextPath() {
+    if (typeof _wrs_conf_plugin_loaded == 'undefined') {
+            setTimeout(wrs_updateContextPath, 100);
+    } else {
+        if (_wrs_conf_showimagePath.indexOf("/") == 0) {
+            serverPath = wrs_getServerPath()
+            _wrs_conf_showimagePath = serverPath + _wrs_conf_showimagePath;
+            _wrs_conf_editorPath = serverPath + _wrs_conf_editorPath;
+            _wrs_conf_CASPath = serverPath + _wrs_conf_CASPath;
+            _wrs_conf_createimagePath = serverPath + _wrs_conf_createimagePath;
+            _wrs_conf_createcasimagePath = serverPath + _wrs_conf_createcasimagePath;
+            _wrs_conf_getmathmlPath = serverPath + _wrs_conf_getmathmlPath;
+            _wrs_conf_servicePath = serverPath + _wrs_conf_servicePath;
+        }
+    }
+}
+
+wrs_updateContextPath();
 
 // Production steps of ECMA-262, Edition 5, 15.4.4.18
 // Reference: http://es5.github.io/#x15.4.4.18.
@@ -4128,7 +4164,12 @@ function ModalWindow(path, editorAttributes) {
     var iframeModalContainer = wrs_createElement('div', attributes);
     this.iframeContainer = iframeModalContainer;
 
+    // We create iframe inside _wrs_conf_path origin.
+    this.iframeOrigin = this.getOriginFromUrl(_wrs_conf_path);
+
     this.lastImageWasNew = true;
+
+    this.toolbar = null;
 }
 
 ModalWindow.prototype.create = function() {
@@ -4140,7 +4181,7 @@ ModalWindow.prototype.create = function() {
 
     wrs_addEvent(this.overlayDiv, 'mouseup', function (e) {
         if (typeof(_wrs_modalWindow) !== 'undefined' && _wrs_modalWindow != null) {
-            wrs_fireEvent(_wrs_modalWindow.iframe.contentDocument, 'mouseup');
+            _wrs_modalWindow.fireEditorEvent('mouseup');
         }
     });
 
@@ -4183,18 +4224,20 @@ ModalWindow.prototype.open = function() {
     if (this.properties.open == true || this.properties.created) {
 
         var editor = this.editor;
-        var updateToolbar = function() {
+
+        // TODO: Rewrite this method.
+        var updateToolbar = function(object) {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
                 var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle(customEditor.title);
-                if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
-                    editor.setParams({'toolbar' : toolbar});
+                if (object.toolbar == null || object.toolbar != toolbar) {
+                    object.setToolbar(toolbar);
                 }
             } else {
                 var toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
                 _wrs_modalWindow.setTitle('WIRIS EDITOR math');
-                if (typeof editor.params.toolbar == 'undefined' || editor.params.toolbar != toolbar) {
-                    editor.setParams({'toolbar' : toolbar});
+                if (object.toolbar == null || object.toolbar != toolbar) {
+                    object.setToolbar(toolbar);
                     wrs_int_disableCustomEditors();
                 }
             }
@@ -4206,21 +4249,21 @@ ModalWindow.prototype.open = function() {
         var updateMathMLContent = function () {
             if (!self.lastImageWasNew) {
                 if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
-                    editor.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                    this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
                 } else {
-                    editor.setMathML('<math/>');
+                    this.setMathML('<math/>');
                 }
             }
         };
 
         if (this.properties.open == true) {
-            updateToolbar();
+            updateToolbar(self);
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             }
             else {
-                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
         }
@@ -4232,17 +4275,17 @@ ModalWindow.prototype.open = function() {
 
             this.properties.open = true;
 
-            updateToolbar();
+            updateToolbar(self);
 
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             } else {
-                editor.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
-
-            editor.focus();
+            console.log("focusing");
+            this.focus();
 
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
                 this.stackModalWindow();
@@ -4265,11 +4308,9 @@ ModalWindow.prototype.open = function() {
  * @ignore
  */
 ModalWindow.prototype.close = function() {
-    // Is mandatory make this BEFORE hide modalwindow.
-    this.editor.setMathML('<math/>');
+    this.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
-    this.containerDiv.style.display = 'none';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
@@ -4443,8 +4484,6 @@ ModalWindow.prototype.addListeners = function() {
     wrs_addEvent(document.body, 'mousedown', this.startDrag.bind(this));
     wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mouseup', this.stopDrag.bind(this));
-    wrs_addEvent(this.iframe.contentWindow, 'mouseup', this.stopDrag.bind(this));
-    wrs_addEvent(this.iframe.contentWindow, 'mousedown', this.setOverlayDiv.bind(this));
     wrs_addEvent(document.body, 'mousemove', this.drag.bind(this));
 }
 
@@ -4591,9 +4630,60 @@ ModalWindow.prototype.hideKeyboard = function() {
     window.scrollTo(0, keepScroll);
 }
 
+
 /**
- * Set WIRIS Editor as variable
+ * Returns the origin (i.e protocol + hostname + port) from an url string.
+ * This method is used to get the iframe window origin to allow postMessages.
+ * @param  {string} url url string
+ * @return {string}     origin string
+ * @ignore
  */
-ModalWindow.prototype.setEditor = function(editor) {
-    this.editor = editor;
+ModalWindow.prototype.getOriginFromUrl = function(url) {
+    var hostNameIndex = url.indexOf("/", url.indexOf("/") + 2);
+    return url.substr(0, hostNameIndex);
+}
+
+/**
+ * Enable safe cross-origin comunication betweenWIRIS Plugin and WIRIS Editor. We can't call directly
+ * WIRIS Editor methods because the content iframe could be in a different domain.
+ * We use postMessage method to create a wrapper between modal window and editor.
+ *
+ */
+
+/**
+ * Set a MathML into editor.
+ * @param {string} mathml MathML string.
+ * @ignore
+ */
+ModalWindow.prototype.setMathML = function(mathml) {
+    _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'setMathML', 'arguments': [mathml]}, this.iframeOrigin);
+    this.focus();
+}
+
+/**
+ * Set a toolbar into editor.
+ * @param {string} toolbar toolbar name.
+ * @ignore
+ */
+ModalWindow.prototype.setToolbar = function(toolbar) {
+    this.toolbar = toolbar;
+    _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'setParams', 'arguments': [{'toolbar' : toolbar}]}, this.iframeOrigin);
+}
+
+/**
+ * Set focus on editor.
+ * @ignore
+ */
+ModalWindow.prototype.focus = function() {
+    _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'focus', 'arguments': null}, this.iframeOrigin);
+}
+
+
+/**
+ * Fires editor event
+ * @param  {string} eventName event name
+ * @ignore
+ */
+ModalWindow.prototype.fireEditorEvent = function(eventName) {
+    _wrs_popupWindow.postMessage({'objectName' : 'editorEvent', 'eventName' : eventName, 'arguments': null}, this.iframeOrigin);
 }
