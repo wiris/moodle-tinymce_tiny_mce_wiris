@@ -1,0 +1,10 @@
+{
+    "name": "wiris/moodle-tinymce_tiny_mce_wiris",
+    "type": "moodle-tinymce",
+    "require": {
+        "composer/installers": "~1.0"
+    },
+    "extra": {
+        "installer-name": "tiny_mce_wiris"
+    }
+}
