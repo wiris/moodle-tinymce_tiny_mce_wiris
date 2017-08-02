@@ -4381,6 +4381,7 @@ ModalWindow.prototype.close = function() {
     this.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
+    this.containerDiv.style.display = 'none';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
