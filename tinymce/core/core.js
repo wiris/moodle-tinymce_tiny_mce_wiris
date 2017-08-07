@@ -103,6 +103,9 @@ var _wrs_staticNodeLengths = {
     'BR': 1
 }
 
+// Translated languages.
+var _wrs_languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
+
 // Backwards compatibily.
 
 if (!(window._wrs_conf_imageClassName)) {
@@ -2691,7 +2694,7 @@ function wrs_loadConfiguration() {
     }
 
     var httpRequest = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : _wrs_conf_path + "/" + _wrs_int_conf_file;
+    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : wrs_concatenateUrl(_wrs_conf_path, _wrs_int_conf_file);
     httpRequest.open('GET', configUrl, false);
     httpRequest.send(null);
 
@@ -2749,23 +2752,17 @@ function wrs_loadLangFile() {
     if (typeof _wrs_int_langCode == 'undefined' || _wrs_int_langCode == null) {
         _wrs_int_langCode = 'en';
     }
-    else {
-        var http = new XMLHttpRequest();
-        http.open('HEAD', wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js", false);
-        http.send();
-        if (http.status == 404) {
-            http = new XMLHttpRequest();
-            http.open('HEAD', wrs_getCorePath() + "/lang/" + _wrs_int_langCode.substring(0, 2) + "/strings.js", false);
-            http.send();
-            if (http.status == 404) {
-                // When a "father" language is not found, put english (en) as default.
-                _wrs_int_langCode = 'en';
-            }
-            else {
-                _wrs_int_langCode = _wrs_int_langCode.substring(0, 2);
-            }
-        }
+
+    langArray = _wrs_languages.split(',');
+
+    if (langArray.indexOf(_wrs_int_langCode) == -1) {
+        _wrs_int_langCode = _wrs_int_langCode.substr(0,2);
     }
+
+    if (langArray.indexOf(_wrs_int_langCode) == -1) {
+        _wrs_int_langCode = 'en';
+    }
+
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js";
@@ -2773,16 +2770,18 @@ function wrs_loadLangFile() {
 }
 
 function wrs_concatenateUrl(path1, path2) {
-    return (path1 + path2).replace(/([^:]\/)\/+/g, "$1");
+    var separator = "";
+    if ((path1.indexOf("/") != path1.length) && (path2.indexOf("/") != 0)) {
+        separator = "/";
+    }
+    return (path1 + separator + path2).replace(/([^:]\/)\/+/g, "$1");
 }
-
-var _wrs_conf_core_loaded = true;
 
 // Loading javascript configuration.
 if (typeof _wrs_conf_configuration_loaded == 'undefined') {
     wrs_loadConfiguration();
 } else {
-    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : _wrs_conf_path + "/" + _wrs_int_conf_file;
+    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : wrs_concatenateUrl(_wrs_conf_path, _wrs_int_conf_file);
     // If javascript configuration is loaded we need to load service paths manually.
     wrs_loadServicePaths(configUrl);
     _wrs_conf_plugin_loaded = true;
@@ -4289,7 +4288,8 @@ ModalWindow.prototype.create = function() {
 
 ModalWindow.prototype.open = function() {
 
-    this.hideKeyboard();
+    // Due to editor configurations we need to wait a few time.
+    setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
 
     if (this.properties.open == true || this.properties.created) {
 
@@ -4352,7 +4352,6 @@ ModalWindow.prototype.open = function() {
                 this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
-            console.log("focusing");
             this.focus();
 
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
@@ -4756,3 +4755,5 @@ ModalWindow.prototype.focus = function() {
 ModalWindow.prototype.fireEditorEvent = function(eventName) {
     _wrs_popupWindow.postMessage({'objectName' : 'editorEvent', 'eventName' : eventName, 'arguments': null}, this.iframeOrigin);
 }
+
+var _wrs_conf_core_loaded = true;
