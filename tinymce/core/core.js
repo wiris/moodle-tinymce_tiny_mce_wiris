@@ -103,6 +103,9 @@ var _wrs_staticNodeLengths = {
     'BR': 1
 }
 
+// Translated languages.
+var _wrs_languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
+
 // Backwards compatibily.
 
 if (!(window._wrs_conf_imageClassName)) {
@@ -574,6 +577,12 @@ function wrs_createObject(objectCode, creator) {
  * @ignore
  */
 function wrs_createObjectCode(object) {
+
+    // In case that the image was not created, the object can be null or undefined.
+    if (typeof object == 'undefined' || object == null) {
+        return;
+    }
+
     if (object.nodeType == 1) { // ELEMENT_NODE.
         var output = '<' + object.tagName;
 
@@ -1996,7 +2005,13 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         var result = JSON.parse(wrs_createShowImageSrc(mathml, data, language));
         if (result["status"] == 'warning') {
             // POST call.
-             result = JSON.parse(wrs_getContent(_wrs_conf_showimagePath, data));
+            // if the mathml is malformed, this function will throw an exception
+            try {
+                result = JSON.parse(wrs_getContent(_wrs_conf_showimagePath, data));
+            }
+            catch (e) {
+                return;
+            }
         }
         result = result.result;
         if (result['format'] == 'png') {
@@ -2667,21 +2682,54 @@ function wrs_initSetSize() {
     _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default');
 }
 
+/**
+ * Loads a set of global variables containing server configuration.
+ * This method calls to configurationjs service, converting the response
+ * JSON into javascript variables
+ * @ignore
+ */
 function wrs_loadConfiguration() {
     if (typeof _wrs_conf_path == 'undefined') {
         _wrs_conf_path = wrs_getCorePath();
     }
 
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    // Sometimes _wrs_conf_path contains a final "/" because is obtained using some editor's API.
-    // With this variable we avoid URL's with doubles //.
-    var newConfPath = _wrs_conf_path.lastIndexOf("/") == _wrs_conf_path.length - 1 ? _wrs_conf_path + _wrs_int_conf_file : _wrs_conf_path + "/" + _wrs_int_conf_file;
-    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : newConfPath;
-    configUrl = configUrl.replace(/([^:]\/)\/+/g, "$1");
-    script.src = configUrl;
-    document.getElementsByTagName('head')[0].appendChild(script); // Asynchronous load of configuration.
+    var httpRequest = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
+    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : wrs_concatenateUrl(_wrs_conf_path, _wrs_int_conf_file);
+    httpRequest.open('GET', configUrl, false);
+    httpRequest.send(null);
+
+    var jsonConfiguration = JSON.parse(httpRequest.responseText);
+
+    // JSON structure: {{jsVariableName, jsVariableValue}}.
+
+    variables = Object.keys(jsonConfiguration);
+
+    for (variable in variables) {
+        window[variables[variable]] = jsonConfiguration[variables[variable]];
+    }
+
+    // Services path (tech dependant).
+    wrs_loadServicePaths(configUrl);
+
+    // End configuration.
+    _wrs_conf_configuration_loaded = true;
+    if (typeof _wrs_conf_core_loaded != 'undefined') {
+        _wrs_conf_plugin_loaded = true;
+    }
 }
+
+function wrs_loadServicePaths(url) {
+    // Services path (tech dependant).
+    _wrs_conf_createimagePath = url.replace('configurationjs', 'createimage');
+    _wrs_conf_showimagePath = url.replace('configurationjs', 'showimage');
+    _wrs_conf_editorPath = url.replace('configurationjs', 'editor');
+    _wrs_conf_CASPath = url.replace('configurationjs', 'cas');
+    _wrs_conf_createcasimagePath = url.replace('configurationjs', 'createcasimage');
+    _wrs_conf_getmathmlPath = url.replace('configurationjs', 'getmathml');
+    _wrs_conf_servicePath = url.replace('configurationjs', 'service');
+}
+
+_wrs_conf_plugin_loaded = true;
 
 function wrs_getCorePath() {
     var scriptName = "core/core.js";
@@ -2700,6 +2748,21 @@ function wrs_getCorePath() {
 }
 
 function wrs_loadLangFile() {
+    // When a language is not defined, put english (en) as default.
+    if (typeof _wrs_int_langCode == 'undefined' || _wrs_int_langCode == null) {
+        _wrs_int_langCode = 'en';
+    }
+
+    langArray = _wrs_languages.split(',');
+
+    if (langArray.indexOf(_wrs_int_langCode) == -1) {
+        _wrs_int_langCode = _wrs_int_langCode.substr(0,2);
+    }
+
+    if (langArray.indexOf(_wrs_int_langCode) == -1) {
+        _wrs_int_langCode = 'en';
+    }
+
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js";
@@ -2707,14 +2770,20 @@ function wrs_loadLangFile() {
 }
 
 function wrs_concatenateUrl(path1, path2) {
-    return (path1 + path2).replace(/([^:]\/)\/+/g, "$1");
+    var separator = "";
+    if ((path1.indexOf("/") != path1.length) && (path2.indexOf("/") != 0)) {
+        separator = "/";
+    }
+    return (path1 + separator + path2).replace(/([^:]\/)\/+/g, "$1");
 }
 
-var _wrs_conf_core_loaded = true;
-
+// Loading javascript configuration.
 if (typeof _wrs_conf_configuration_loaded == 'undefined') {
     wrs_loadConfiguration();
 } else {
+    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : wrs_concatenateUrl(_wrs_conf_path, _wrs_int_conf_file);
+    // If javascript configuration is loaded we need to load service paths manually.
+    wrs_loadServicePaths(configUrl);
     _wrs_conf_plugin_loaded = true;
 }
 
@@ -4219,7 +4288,8 @@ ModalWindow.prototype.create = function() {
 
 ModalWindow.prototype.open = function() {
 
-    this.hideKeyboard();
+    // Due to editor configurations we need to wait a few time.
+    setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
 
     if (this.properties.open == true || this.properties.created) {
 
@@ -4247,12 +4317,10 @@ ModalWindow.prototype.open = function() {
 
         // It controls cases where is needed to set an empty mathml or copy the current mathml value.
         var updateMathMLContent = function () {
-            if (!self.lastImageWasNew) {
-                if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
-                    this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-                } else {
-                    this.setMathML('<math/>');
-                }
+            if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
+                self.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+            } else {
+                self.setMathML('<math/>');
             }
         };
 
@@ -4270,7 +4338,7 @@ ModalWindow.prototype.open = function() {
         else {
             this.containerDiv.style.visibility = '';
             this.overlayDiv.style.visibility = '';
-            this.containerDiv.style.display = '';
+            this.containerDiv.style.opacity = '';
             this.overlayDiv.style.display = '';
 
             this.properties.open = true;
@@ -4284,7 +4352,6 @@ ModalWindow.prototype.open = function() {
                 this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
                 this.lastImageWasNew = false;
             }
-            console.log("focusing");
             this.focus();
 
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
@@ -4311,6 +4378,7 @@ ModalWindow.prototype.close = function() {
     this.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
+    this.containerDiv.style.opacity = '0';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
@@ -4687,3 +4755,5 @@ ModalWindow.prototype.focus = function() {
 ModalWindow.prototype.fireEditorEvent = function(eventName) {
     _wrs_popupWindow.postMessage({'objectName' : 'editorEvent', 'eventName' : eventName, 'arguments': null}, this.iframeOrigin);
 }
+
+var _wrs_conf_core_loaded = true;
