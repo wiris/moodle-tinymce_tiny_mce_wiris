@@ -68,10 +68,5 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
 
         // Add JS file, which uses default name.
         $this->add_js_plugin($params);
-
-        $filterwiris = $CFG->dirroot . '/filter/wiris/filter.php';
-        if (!file_exists($filterwiris)) {
-            $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/js/message.js', false);
-        }
     }
 }
