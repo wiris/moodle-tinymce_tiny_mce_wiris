@@ -1855,6 +1855,7 @@ function wrs_mathmlToAccessible(mathml, language, data) {
     }
     else {
         data['service'] = 'mathml2accessible';
+        data['lang'] = _wrs_int_langCode;
         var accesibleJsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
         if (accesibleJsonResponse.status != 'error') {
             accessibleText = accesibleJsonResponse.result.text;
@@ -4331,7 +4332,7 @@ ModalWindow.prototype.open = function() {
                 self.lastImageWasNew = true;
             }
             else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
         }
@@ -4349,7 +4350,7 @@ ModalWindow.prototype.open = function() {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             } else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
             this.focus();
