@@ -95,23 +95,23 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
      *
      * @param  {String}   objectName object name (null to call a wrs_int_opener method).
      * @param  {String}   methodName method name.
-     * @param  {Array}    arguments  method arguments ([arg1,..,argn])
+     * @param  {Array}    argumentss  method arguments ([arg1,..,argn])
      * @param  {Function} callback   callback function.
      */
-    function getMethod(objectName, methodName, arguments, callback) {
+    function getMethod(objectName, methodName, argumentss, callback) {
         _wrs_callbacks.push({
             'id': _wrs_callId,
             'callback': callback
         });
         try {
-            wrs_int_opener.postMessage({'id': _wrs_callId++, 'objectName': objectName, 'methodName' : methodName, 'arguments': arguments}, '*');
+            wrs_int_opener.postMessage({'id': _wrs_callId++, 'objectName': objectName, 'methodName' : methodName, 'arguments': argumentss}, '*');
         }
         catch (err) { // Method postMessage not defined (I.E 7 & 8 ) or not competible with window object (I.E 9).
             var object = (objectName == null) ? wrs_int_opener : wrs_int_opener[objectName];
             if (objectName == null) {
-                callback(object[methodName].apply(object, arguments));
+                callback(object[methodName].apply(object, argumentss));
             } else { // Can't call apply method from some objects on old I.E.
-                var argumentsStrings = arguments.join(',');
+                var argumentsStrings = argumentss.join(',');
                 var result = object[methodName](argumentsStrings);
                 callback(result);
             }
@@ -175,7 +175,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             }
 
             // Editor stats.
-
             statEditor = _wrs_conf_editor;
             statSaveMode = _wrs_conf_saveMode;
             statVersion = _wrs_conf_version;
@@ -183,10 +182,23 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             script.src = editorUrl + "?lang=" + _wrs_int_langCode + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
             document.getElementsByTagName('head')[0].appendChild(script);
 
-            // Insert strings.
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = "../lang/" + _wrs_int_langCode + "/strings.js";
+            script.src = "../";
+            // Get lang path
+            var webScripts = document.getElementsByTagName("script");
+            var scriptName = "strings.js";
+            var found = false;
+            var i = 0;
+            while (!found && i < webScripts.length) {
+                if (webScripts[i].src.indexOf(scriptName) != -1) {
+                    var pathArray = webScripts[i].src.split("/");
+                    // We need to get the lang folder name of "../[lang_folder]/[lang_code]/strings.js"
+                    script.src += pathArray[pathArray.length - 3 ] + "/" + _wrs_int_langCode + "/strings.js";
+                    found = true;
+                }
+                i++
+            }
             document.getElementsByTagName('head')[0].appendChild(script);
         } else {
             setTimeout(wrs_waitForCore, 200);

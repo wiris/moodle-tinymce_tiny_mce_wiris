@@ -41,6 +41,21 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
             $filterwirisactive = array_key_exists('wiris', $activefilters) || array_key_exists('filter/wiris', $activefilters);
             if (!$filterwirisactive) {
                 return;
+            } else {
+                // Filter disabled at activity level.
+                $pagecontext = $PAGE->context;
+                // Check if context is context module.
+                // We need to check only module context. Other contexts (like block context)
+                // shouldn't be checked.
+                if ($pagecontext instanceof context_module) {
+                    $activefilters = filter_get_active_in_context($PAGE->context);
+                    // Moodle 2.4 array key: filter/wiris instead of wiris.
+                    $filterwirisactive = array_key_exists('wiris', $activefilters);
+                    $filterwirisactive = $filterwirisactive || array_key_exists('filter/wiris', $activefilters);
+                    if (!$filterwirisactive) {
+                        return;
+                    }
+                }
             }
         }
 
@@ -53,10 +68,5 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
 
         // Add JS file, which uses default name.
         $this->add_js_plugin($params);
-
-        $filterwiris = $CFG->dirroot . '/filter/wiris/filter.php';
-        if (!file_exists($filterwiris)) {
-            $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/js/message.js', false);
-        }
     }
 }

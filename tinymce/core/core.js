@@ -120,7 +120,7 @@ if (!(window._wrs_conf_CASClassName)) {
 if (typeof MutationObserver != 'undefined') {
     var wrs_observer = new MutationObserver(function(mutations) {
         mutations.forEach(function(mutation) {
-            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.targetpassName.indexOf(_wrs_conf_imageClassName) == -1 ) {
+            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1 ) {
                 mutation.target.className = _wrs_conf_imageClassName;
             }
         });
@@ -1855,6 +1855,7 @@ function wrs_mathmlToAccessible(mathml, language, data) {
     }
     else {
         data['service'] = 'mathml2accessible';
+        data['lang'] = _wrs_int_langCode;
         var accesibleJsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
         if (accesibleJsonResponse.status != 'error') {
             accessibleText = accesibleJsonResponse.result.text;
@@ -2227,7 +2228,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
     }
 
     var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
-    if (_wrs_conf_modalWindow != 'undefined' && _wrs_conf_modalWindow === false) {
+    if (typeof _wrs_conf_modalWindow != 'undefined' && _wrs_conf_modalWindow === false) {
         _wrs_popupWindow = window.open(path, title, _wrs_conf_editorAttributes);
         return _wrs_popupWindow;
     }
@@ -2702,9 +2703,9 @@ function wrs_loadConfiguration() {
 
     // JSON structure: {{jsVariableName, jsVariableValue}}.
 
-    variables = Object.keys(jsonConfiguration);
+    var variables = Object.keys(jsonConfiguration);
 
-    for (variable in variables) {
+    for (var variable in variables) {
         window[variables[variable]] = jsonConfiguration[variables[variable]];
     }
 
@@ -2734,7 +2735,7 @@ _wrs_conf_plugin_loaded = true;
 function wrs_getCorePath() {
     var scriptName = "core/core.js";
     var col = document.getElementsByTagName("script");
-    for (i = 0; i < col.length; i++) {
+    for (var i = 0; i < col.length; i++) {
         var d;
         var src;
         d = col[i];
@@ -4331,7 +4332,7 @@ ModalWindow.prototype.open = function() {
                 self.lastImageWasNew = true;
             }
             else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
         }
@@ -4349,7 +4350,7 @@ ModalWindow.prototype.open = function() {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             } else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute('data-mathml')));
+                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
             this.focus();
