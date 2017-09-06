@@ -1539,6 +1539,9 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         // help's WIRIS plugin to focus properly on the current editor window.
         if (typeof wrs_int_insertElementOnSelection != 'undefined') {
             wrs_int_insertElementOnSelection();
+            if (!_wrs_range) {
+                return;
+            }
         }
         else {
             focusElement.focus();
@@ -1606,6 +1609,14 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                     range.selectNode(element);
                     position = range.endOffset;
                     selection.collapse(node, position);
+                    // Integration function
+                    // If wrs_int_setCaretPosition function exists on
+                    // integration script can call caret method from the editor instance.
+                    // With this method we can call proper specific editor methods which in some scenarios
+                    // help's WIRIS plugin to set caret position properly on the current editor window.
+                    if (typeof wrs_int_selectRange != 'undefined') {
+                        wrs_int_selectRange(range);
+                    }
                 }
             }
         }
@@ -4224,6 +4235,7 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_iframe';
+    attributes['title'] = 'WIRIS Editor Modal Window';
     attributes['src'] = iframeAttributes['src'];
     attributes['frameBorder'] = "0";
     var iframeModal = wrs_createElement('iframe', attributes);
@@ -4293,10 +4305,6 @@ ModalWindow.prototype.open = function() {
     setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
 
     if (this.properties.open == true || this.properties.created) {
-
-        var editor = this.editor;
-
-        // TODO: Rewrite this method.
         var updateToolbar = function(object) {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
                 var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
@@ -4386,6 +4394,7 @@ ModalWindow.prototype.close = function() {
     // Properties to initial state.
     this.properties.state = '';
     this.properties.previousState = '';
+    setTimeout(function() {_wrs_currentEditor.focus()}, 100);
 }
 
 ModalWindow.prototype.addClass = function(cls) {
@@ -4689,7 +4698,10 @@ ModalWindow.prototype.hideKeyboard = function() {
                 field.setAttribute('style', 'display:none;');
                 setTimeout(function() {
                     document.body.removeChild(field);
-                    document.body.focus();
+                    // Focus workspace
+                    if (typeof _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0] != 'undefined') {
+                        _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0].focus();
+                    }
                 }, 14);
 
           }, 200);
