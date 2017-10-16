@@ -1,7 +1,7 @@
 var _wrs_popupWindow;
 
 wrs_addEvent(window, 'message', function (e) {
-    if (e.source = _wrs_popupWindow && typeof e.wrs_processed == 'undefined') {
+    if (e.source = _wrs_popupWindow && typeof e.wrs_processed == 'undefined' && typeof e.data.isWirisMessage != 'undefined') {
         e.wrs_processed = true;
         var postVariable = {};
         postVariable.id = e.data.id;
@@ -1539,6 +1539,9 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         // help's WIRIS plugin to focus properly on the current editor window.
         if (typeof wrs_int_insertElementOnSelection != 'undefined') {
             wrs_int_insertElementOnSelection();
+            if (!_wrs_range) {
+                focusElement.focus();
+            }
         }
         else {
             focusElement.focus();
@@ -1606,6 +1609,14 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                     range.selectNode(element);
                     position = range.endOffset;
                     selection.collapse(node, position);
+                    // Integration function
+                    // If wrs_int_setCaretPosition function exists on
+                    // integration script can call caret method from the editor instance.
+                    // With this method we can call proper specific editor methods which in some scenarios
+                    // help's WIRIS plugin to set caret position properly on the current editor window.
+                    if (typeof wrs_int_selectRange != 'undefined') {
+                        wrs_int_selectRange(range);
+                    }
                 }
             }
         }
@@ -1963,7 +1974,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
     var baseline;
     var imgObject = creator.createElement('img');
     imgObject.align = 'middle';
-
+    imgObject.style.maxWidth = 'none';
     var data = (wirisProperties) ? wirisProperties : {};
 
     if (window._wrs_conf_useDigestInsteadOfMathml && _wrs_conf_useDigestInsteadOfMathml) {
@@ -2006,7 +2017,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
         var result = JSON.parse(wrs_createShowImageSrc(mathml, data, language));
         if (result["status"] == 'warning') {
             // POST call.
-            // if the mathml is malformed, this function will throw an exception
+            // if the mathml is malformed, this function will throw an exception.
             try {
                 result = JSON.parse(wrs_getContent(_wrs_conf_showimagePath, data));
             }
@@ -2631,12 +2642,26 @@ function wrs_setImgSize(img, url, json) {
     if (json) {
         // Cleaning data:image/png;base64.
         if (_wrs_conf_imageFormat == 'svg') {
-            var ar = getMetricsFromSvgString(url);
+            // SVG format.
+            // If SVG is encoded in base64 we need to convert the base64 bytes into a SVG string.
+            if (_wrs_conf_saveMode != 'base64') {
+                var ar = getMetricsFromSvgString(url);
+            } else {
+                var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
+                var svgString = '';
+                var bytes = wrs_b64ToByteArray(base64String, base64String.length);
+                for (var i = 0; i < bytes.length; i++) {
+                    svgString += String.fromCharCode(bytes[i]);
+                }
+                var ar = getMetricsFromSvgString(svgString);
+            }
+            // PNG format: we store all metrics information in the first 88 bytes.
         } else {
             var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
-            bytes = wrs_b64ToByteArray(base64String, 88);
+            var bytes = wrs_b64ToByteArray(base64String, 88);
             var ar = wrs_getMetricsFromBytes(bytes);
         }
+        // Backwards compatibility: we store the metrics into createimage response.
     } else {
         var ar = wrs_urlToAssArray(url);
     }
@@ -2661,6 +2686,8 @@ function wrs_fixAfterResize(img) {
     img.removeAttribute('style');
     img.removeAttribute('width');
     img.removeAttribute('height');
+    // In order to avoid resize with max-width css property.
+    img.style.maxWidth = 'none';
     if (_wrs_conf_setSize) {
         if (img.src.indexOf("data:image") != -1) {
             if (_wrs_conf_imageFormat == 'svg') {
@@ -4224,6 +4251,7 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_iframe';
+    attributes['title'] = 'WIRIS Editor Modal Window';
     attributes['src'] = iframeAttributes['src'];
     attributes['frameBorder'] = "0";
     var iframeModal = wrs_createElement('iframe', attributes);
@@ -4293,10 +4321,6 @@ ModalWindow.prototype.open = function() {
     setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
 
     if (this.properties.open == true || this.properties.created) {
-
-        var editor = this.editor;
-
-        // TODO: Rewrite this method.
         var updateToolbar = function(object) {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
                 var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
@@ -4386,6 +4410,12 @@ ModalWindow.prototype.close = function() {
     // Properties to initial state.
     this.properties.state = '';
     this.properties.previousState = '';
+    setTimeout(
+        function() {
+            if (typeof _wrs_currentEditor != 'undefined' && _wrs_currentEditor) {
+                _wrs_currentEditor.focus();
+            }
+        }, 100);
 }
 
 ModalWindow.prototype.addClass = function(cls) {
@@ -4689,7 +4719,10 @@ ModalWindow.prototype.hideKeyboard = function() {
                 field.setAttribute('style', 'display:none;');
                 setTimeout(function() {
                     document.body.removeChild(field);
-                    document.body.focus();
+                    // Focus workspace.
+                    if (typeof _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0] != 'undefined') {
+                        _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0].focus();
+                    }
                 }, 14);
 
           }, 200);
