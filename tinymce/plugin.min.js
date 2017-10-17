@@ -69,6 +69,9 @@ var _wrs_int_langCode = 'en';
 (function () {
     tinymce.create('tinymce.plugins.tiny_mce_wiris', {
         init: function (editor, url) {
+            // Var to access to selected element from all the WIRIS tiny mce functions.
+            var element;
+
             _wrs_int_imagesDataimgFilterBackup[editor.id] = editor.settings.images_dataimg_filter;
             editor.settings.images_dataimg_filter = function(img) {
                 if (img.hasAttribute('class') && img.getAttribute('class').indexOf('Wirisformula') != -1) {
@@ -101,7 +104,6 @@ var _wrs_int_langCode = 'en';
             } else {
                 _wrs_int_editorIcon = _wrs_conf_path + 'icons/formula.png';
             }
-            var element;
 
             // Fix a Moodle 2.4 bug. data-mathml was lost without this.
             if (typeof _wrs_isMoodle24 !== 'undefined' && _wrs_isMoodle24){
@@ -131,6 +133,10 @@ var _wrs_int_langCode = 'en';
 
                 function whenDocReady() {
                     if (window.wrs_initParse && typeof _wrs_conf_plugin_loaded != 'undefined') {
+                        if(this.wrs_service_is_available() == false){
+                            this.wrs_notify('error_connection');
+                            return;
+                        }
                         var language = editor.getParam('language');
                         // The file editor.js gets this variable _wrs_int_langCode variable to set
                         // WIRIS Editor lang.
@@ -163,7 +169,6 @@ var _wrs_int_langCode = 'en';
                         // Bug fix: In Moodle2.x when TinyMCE is set to full screen
                         // the content doesn't need to be filtered.
                         if (!editor.getParam('fullscreen_is_enabled') && content !== ""){
-
                             editor.setContent(wrs_initParse(content, language), {format: "raw"});
                             // Init parsing OK. If a setContent method is called
                             // wrs_initParse is called again.
@@ -184,11 +189,11 @@ var _wrs_int_langCode = 'en';
                                 });
                             }
                         } else { // Inline.
-                            element = editorElement;
+                            element = editor.getElement();
                             wrs_addElementEvents(element, function (div, element) {
                                 wrs_int_doubleClickHandler(editor, div, false, element);
                             },  wrs_int_mousedownHandler, wrs_int_mouseupHandler);
-                            // Attaching obsevers to wiris images.
+                            // Attaching observers to wiris images.
                             Array.prototype.forEach.call(document.getElementsByClassName(_wrs_conf_imageClassName), function(wirisImages) {
                                 wrs_observer.observe(wirisImages, wrs_observer_config);
                             });
@@ -358,6 +363,39 @@ var _wrs_int_langCode = 'en';
 
     tinymce.PluginManager.add('tiny_mce_wiris', tinymce.plugins.tiny_mce_wiris);
 })();
+
+function wrs_service_is_available() {
+    var urlChecker = _wrs_conf_editorUrl;
+    // Replace url from editor to check online status with admin variables
+    urlChecker = urlChecker.replace('/editor/editor','/editor/status');
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", urlChecker, false);
+    try{
+        xhttp.send();
+    }catch(e){
+        xhttp.abort();
+        return false;
+    }
+    if (xhttp.status == 200) {
+        xhttp.abort();
+        return true;
+    }
+    xhttp.abort();
+    return false;
+}
+
+function wrs_notify(message){
+    if(_wrs_isMoodle24){
+        if(_wrs_conf_versionPlatform > 2016052300){
+            require(['core/notification'], function(notification) {
+                notification.addNotification({
+                    message:M.util.get_string(message, 'tinymce_tiny_mce_wiris'),
+                    type: "danger"
+                });
+            });
+        }
+    }
+}
 
 function wrs_intPath(intFile, confPath) {
     var intPath = intFile.split("/");
