@@ -58,6 +58,11 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
                 }
             }
         }
+        $PAGE->requires->strings_for_js(
+        array(
+        'error_connection'
+        ),
+        'tinymce_tiny_mce_wiris');
 
         $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/baseURL.js', false);
 
