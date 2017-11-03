@@ -184,7 +184,7 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             if(urlObject.port == '80' || urlObject.port == '443'){
                 editorUrl = urlObject.protocol + '//' + urlObject.hostname + urlObject.pathname;
             }else{
-                editorUrl = urlObject.protocol + '//' + urlObject.hostname + urlObject.port + urlObject.pathname;
+                editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + urlObject.pathname;
             }
 
             // Editor stats.
@@ -443,6 +443,17 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                 wrs_addEvent(window, 'mousedown', function(e) {
                     if (_wrs_conf_modalWindow) {
                         getMethod('_wrs_modalWindow', 'setOverlayDiv', [], null);
+                    }
+                });
+                // Event for close window and trap focus
+                wrs_addEvent(window, 'keydown', function(e) {
+                    if (_wrs_conf_modalWindow) {
+                        if (e.keyCode !== undefined && e.keyCode === 27 && e.repeat === false) {
+                            _wrs_closeFunction();
+                        }
+                        if (e.keyCode !== undefined && (e.keyCode === 9 ||  (e.shiftKey && e.keyCode === 9))) {
+                            e.preventDefault();
+                        }
                     }
                 });
 
