@@ -4212,6 +4212,8 @@ function ModalWindow(path, editorAttributes) {
     }
 
     this.properties.iframeAttributes = iframeAttributes;
+    this.modalHeight = parseInt(this.properties.iframeAttributes['height']);
+    this.modalWidth = parseInt(this.properties.iframeAttributes['width']);
 
     this.title = '';
 
@@ -4326,9 +4328,6 @@ ModalWindow.prototype.create = function() {
 
 ModalWindow.prototype.open = function() {
 
-    // Due to editor configurations we need to wait a few time.
-    setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
-
     if (this.properties.open == true || this.properties.created) {
         var updateToolbar = function(object) {
             if (customEditor = wrs_int_getCustomEditorEnabled()) {
@@ -4371,14 +4370,15 @@ ModalWindow.prototype.open = function() {
         }
         else {
             this.containerDiv.style.visibility = '';
-            this.overlayDiv.style.visibility = '';
             this.containerDiv.style.opacity = '';
+            this.containerDiv.style.display = '';
+            this.overlayDiv.style.visibility = '';
             this.overlayDiv.style.display = '';
-
+            
             this.properties.open = true;
-
+            
             updateToolbar(self);
-
+            
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
@@ -4396,10 +4396,15 @@ ModalWindow.prototype.open = function() {
         if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
             this.maximizeModalWindow();
         }
+        // Due to editor wait we need to wait until editor focus.
+        
+        setTimeout(function () { _wrs_modalWindow.hideKeyboard(); }, 300);
     } else {
         var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
         _wrs_modalWindow.setTitle(title);
         this.create();
+        // Due to editor wait we need to wait until editor focus. The modalwindow creation takes more time.
+        setTimeout(function () { _wrs_modalWindow.hideKeyboard(); }, 1500);
     }
 
 }
@@ -4416,6 +4421,7 @@ ModalWindow.prototype.close = function() {
     this.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
+    this.containerDiv.style.display = 'none';
     this.containerDiv.style.opacity = '0';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
@@ -4561,11 +4567,9 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.properties.previousState = this.properties.state;
     this.properties.state = 'maximized';
 
-    var modalHeight = parseInt(this.properties.iframeAttributes['height']);
-    var modalWidth = parseInt(this.properties.iframeAttributes['width']);
-    this.iframeContainer.style.width = modalWidth + 'px';
-    this.iframeContainer.style.height = modalHeight + 'px';
-    this.containerDiv.style.width = (modalWidth + 12) + 'px';
+    this.iframeContainer.style.width = this.modalWidth + 'px';
+    this.iframeContainer.style.height = this.modalHeight + 'px';
+    this.containerDiv.style.width = (this.modalWidth + 12) + 'px';
     this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
     this.iframe.style.height = (parseInt(this.properties.iframeAttributes['height']) + 3) + 'px';
     this.iframe.style.margin = '6px';
@@ -4712,37 +4716,10 @@ ModalWindow.prototype.stopDrag = function(ev) {
 
 /**
  * Hide soft keyboards.
- *
  * @ignore
  */
 ModalWindow.prototype.hideKeyboard = function() {
-    // ...creating temp field.
-    var field = document.createElement('input');
-    field.setAttribute('type', 'text');
-    // ...hiding temp field from peoples eyes.
-    // ...-webkit-user-modify is nessesary for Android 4.x.
-    field.setAttribute('style', 'position:absolute; top: 0px; opacity: 0; -webkit-user-modify: read-write-plaintext-only; left:0px;');
-    document.body.appendChild(field);
-
-    // ...adding onfocus event handler for out temp field.
-    field.onfocus = function(){
-          // ...this timeout of 200ms is nessasary for Android 2.3.x.
-          setTimeout(function() {
-
-                field.setAttribute('style', 'display:none;');
-                setTimeout(function() {
-                    document.body.removeChild(field);
-                    // Focus workspace.
-                    if (typeof _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0] != 'undefined') {
-                        _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0].focus();
-                    }
-                }, 14);
-
-          }, 200);
-    };
-    var keepScroll = window.pageYOffset;
-    field.focus();
-    window.scrollTo(0, keepScroll);
+    document.activeElement.blur();
 }
 
 
@@ -4806,4 +4783,34 @@ ModalWindow.prototype.fireEditorEvent = function(eventName) {
     _wrs_popupWindow.postMessage({'objectName' : 'editorEvent', 'eventName' : eventName, 'arguments': null}, this.iframeOrigin);
 }
 
+/**
+ * Add classes to show well the layout when there is a soft keyboard.
+ * @ignore
+ */
+ModalWindow.prototype.addClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_modal_ios');
+    // this.iframeContainer.classList.remove('wrs_modal_ios');
+    // this.overlayDiv.classList.remove('wrs_modal_ios');
+
+    this.containerDiv.classList.add('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.add('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.add('wrs_virtual_keyboard_opened');
+}
+
+/**
+ * Remove classes to show well the layout when there is a soft keyboard.
+ * @ignore
+ */
+ModalWindow.prototype.removeClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.remove('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.remove('wrs_virtual_keyboard_opened');
+
+    this.containerDiv.classList.add('wrs_modal_ios');
+    // this.iframeContainer.classList.add('wrs_modal_ios');
+    // this.overlayDiv.classList.add('wrs_modal_ios');
+}
+
+
+var _wrs_conf_core_loaded = true;
 var _wrs_conf_core_loaded = true;
