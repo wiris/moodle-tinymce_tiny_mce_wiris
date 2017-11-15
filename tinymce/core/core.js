@@ -3628,11 +3628,11 @@ if (!Array.prototype.forEach) {
 function EditorListener(){
     this.isContentChanged = false;
     this.waitingForChanges = false;
-
+}
 /**
  * EditorListener method set if content is changed
  * @ignore
- */}
+ */
 EditorListener.prototype.setIsContentChanged = function(value){
     this.isContentChanged = value;
 }
@@ -4377,7 +4377,7 @@ ModalWindow.prototype.create = function() {
     _wrs_popupWindow = this.iframe.contentWindow;
     this.properties.open = true;
     this.properties.created = true;
-    
+
     if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
         this.maximizeModalWindow();
     }
@@ -4436,11 +4436,11 @@ ModalWindow.prototype.open = function() {
             this.containerDiv.style.display = '';
             this.overlayDiv.style.visibility = '';
             this.overlayDiv.style.display = '';
-            
+
             this.properties.open = true;
-            
+
             updateToolbar(self);
-            
+
             if (_wrs_isNewElement) {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
@@ -4879,4 +4879,5 @@ ModalWindow.prototype.removeClassVirtualKeyboard = function () {
 
 
 var _wrs_conf_core_loaded = true;
+
 var _wrs_conf_core_loaded = true;
