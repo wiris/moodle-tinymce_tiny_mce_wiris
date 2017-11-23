@@ -1,7 +1,6 @@
 var _wrs_isNewElement; // Unfortunately we need this variabels as global variable for old I.E compatibility.
 
 (function(){
-
     var editor;
     // Set wrs_int_opener variable and close method.
     // For popup window opener is window.opener. For modal window window.parent.
@@ -181,10 +180,10 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                 }
             }
             // Check protocol and remove port if it's standard.
-            if(urlObject.port == '80' || urlObject.port == '443'){
-                editorUrl = urlObject.protocol + '//' + urlObject.hostname + urlObject.pathname;
-            }else{
-                editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + urlObject.pathname;
+            if (urlObject.port == '80' || urlObject.port == '443') {
+                editorUrl = urlObject.protocol + '//' + urlObject.hostname + '/' + urlObject.pathname;
+            } else {
+                editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + '/' + urlObject.pathname;
             }
 
             // Editor stats.
@@ -291,15 +290,17 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     if (wrs_int_getCustomEditorEnabled() == null && mathml.indexOf('class="wrs_') != -1) {
                         var classIndexStart = mathml.indexOf('class="wrs_');
                         classIndexEnd = mathml.indexOf(" ", classIndexStart);
-                        mathml = mathml.substring(0, classIndexStart) + mathml.substring(classIndexEnd, mathml.lenght);
+                        mathml = mathml.substring(0, classIndexStart) + mathml.substring(classIndexEnd, mathml.length);
                     }
 
-                    editor.setMathML(mathml);
+                    editor.setMathMLWithCallback(mathml, function(){window.editorListener.setWaitingForChanges(true);});
                 }
 
                 if (typeof strings == 'undefined') {
                     strings = new Object();
                 }
+
+                var popup = new PopUpMessage(strings);
 
                 if (isIOS) {
                     // Editor and controls container.
@@ -368,6 +369,8 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         });
                     });
 
+                    // Control buttons need to cause a editor blur in order to reset the state for the next time that it is opened.
+                    editor.blur();
                 });
 
                 var buttonContainer = document.getElementById('buttonContainer');
@@ -386,6 +389,8 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
 
                 wrs_addEvent(cancelButton, 'click', function () {
                     _wrs_closeFunction();
+                    // Control buttons need to cause a editor blur in order to reset the state for the next time that it is opened.
+                    editor.blur();
                 });
 
                 buttonContainer.appendChild(cancelButton);
@@ -398,16 +403,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         buttonContainer.className = buttonContainer.className + ' wrs_modalDesktop';
                     }
                 }
-
-                /*var manualLink = document.getElementById('a_manual');
-                if (typeof manualLink != 'undefined' && strings['manual'] != null){
-                    manualLink.innerHTML = strings['manual'];
-                }
-
-                var latexLink = document.getElementById('a_latex');
-                if (typeof latexLink != 'undefined' && strings['latex'] != null){
-                    latexLink.innerHTML = strings['latex'];
-                }*/
 
                 var queryLang = '';
                 if ('lang' in queryParams){
@@ -423,14 +418,23 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     controls.id = 'controls_rtl';
                 }
 
+                window.editorListener = new EditorListener();
+                editor.getEditorModel().addEditorListener(window.editorListener);
+                if(_wrs_isNewElement){
+                    window.editorListener.setWaitingForChanges(true);
+                }
+
                 // At this point we listen to execute editor methods or fire editor events.
                 wrs_addEvent(window, 'message', function (e) {
                     if (e.data.objectName != 'undefined' && e.data.objectName == 'editor') {
                         editor[e.data.methodName].apply(editor, e.data.arguments);
-                    }
-
-                    if (e.data.objectName != 'undefined' && e.data.objectName == 'editorEvent') {
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorCallback') {
+                        editor.setMathMLWithCallback(e.data.arguments[0], function(){window.editorListener.setIsContentChanged(false);window.editorListener.setWaitingForChanges(true);});
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorEvent') {
                         wrs_fireEvent(window.document, e.data.eventName);
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorClose') {
+                        window.editorListener.setWaitingForChanges(false);
+                        window.editorListener.setIsContentChanged(false);
                     }
                 });
 
@@ -445,14 +449,34 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         getMethod('_wrs_modalWindow', 'setOverlayDiv', [], null);
                     }
                 });
+
+                // Dynamic resize when it is a phone with float keyboard
+                if (_wrs_conf_modalWindow && isIOS) {
+                    var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
+                    wrs_addEvent(formulaDisplayDiv, 'focus', function (e) {
+                        if (_wrs_conf_modalWindow) {
+                            getMethod('_wrs_modalWindow', 'addClassVirtualKeyboard', [], null);
+                            editorElement.style.height = '100%';
+                        }
+                    });
+
+                    wrs_addEvent(formulaDisplayDiv, 'blur', function (e) {
+                        if (_wrs_conf_modalWindow) {
+                            getMethod('_wrs_modalWindow', 'removeClassVirtualKeyboard', [], null);
+                            editorElement.style.height = '10%';
+                        }
+                    });
+                }
+
                 // Event for close window and trap focus
                 wrs_addEvent(window, 'keydown', function(e) {
                     if (_wrs_conf_modalWindow) {
                         if (e.keyCode !== undefined && e.keyCode === 27 && e.repeat === false) {
-                            _wrs_closeFunction();
-                        }
-                        if (e.keyCode !== undefined && (e.keyCode === 9 ||  (e.shiftKey && e.keyCode === 9))) {
-                            e.preventDefault();
+                            if (editor.isFormulaEmpty() || window.editorListener.getIsContentChanged() === false) {
+                                _wrs_closeFunction();
+                            }else{
+                                popup.show();
+                            }
                         }
                     }
                 });
@@ -462,9 +486,10 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     editorElement.style.height = (document.getElementById('container').offsetHeight - controls.offsetHeight - 10) + 'px';
                 }, 100);
 
-                setTimeout(function () {
+                // Due to IOS use soft keyboard, we don't want to move the cursor to WIRIS editor.
+                if (!isIOS) {
                     editor.focus();
-                }, 100);
+                }
             } else {
                 setTimeout(wrs_waitForEditor, 100);
             }
@@ -476,4 +501,63 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
         getMethod(null, 'wrs_int_notifyWindowClosed', [], function(wrs_int_notifyWindowClosed){
         });
     });
+    // PopUpMessageClass definition
+    // This class generate a modal message to show information to user
+    // We should send a language strings to show messages
+    function PopUpMessage(strings)
+    {
+        this.strings = strings;
+        this.overlayEnvolture = document.body.appendChild(document.createElement("DIV"));
+        this.overlayEnvolture.setAttribute("style", "display: none;");
+
+        this.message = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+        this.message.setAttribute("style", "margin: auto;position: absolute;top: 0;left: 0;bottom: 0;right: 0;background: white;width: 65%;height: 69px;border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5;");
+
+        var overlay = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+        overlay.setAttribute("style", "position: fixed; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 4; cursor: pointer;");
+        self = this;
+        // We create a overlay that close popup message on click in there
+        overlay.addEventListener("click", function(){self.close();});
+
+        this.buttonArea = this.message.appendChild(document.createElement('p'));
+        // By default, popupwindow give close modal message with close and cancel buttons
+        // You can set other message with other buttons
+        this.setOptions('close_modal_warning','close,cancel');
+    }
+    PopUpMessage.prototype.setOptions = function(messageKey,values){
+        this.message.removeChild(this.buttonArea);
+        if(typeof this.strings[messageKey] != 'undefined'){
+            this.message.innerHTML = this.strings[messageKey];
+        }
+        this.buttonArea = this.message.appendChild(document.createElement('p'));
+        var types = values.split(',');
+        self = this;
+        // This is definition of buttons. You can create others.
+        types.forEach(function(type){
+            if(type == "close"){
+                var buttonClose = self.buttonArea.appendChild(document.createElement("BUTTON"));
+                buttonClose.setAttribute("style","margin: 0px;border: 0px;background: #567e93;border-radius: 4px;padding: 7px 11px;color: white;");
+                buttonClose.addEventListener('click',function(){self.close();_wrs_closeFunction();})
+                if(typeof this.strings['close'] != 'undefined'){
+                    buttonClose.innerHTML = this.strings['close'];
+                }
+            }
+            if(type == 'cancel'){
+                var buttonCancel = self.buttonArea.appendChild(document.createElement("BUTTON"));
+                buttonCancel.setAttribute("style","margin: 0px;border: 0px;border-radius: 4px;padding: 7px 11px;color: white;color: black;border: 1px solid silver;margin: 0px 5px;");
+                buttonCancel.addEventListener("click", function(){self.close();});
+                if(typeof this.strings['cancel'] != 'undefined'){
+                    buttonCancel.innerHTML = this.strings['cancel'];
+                }
+            }
+        });
+    }
+    // This method show popup message.
+    PopUpMessage.prototype.show = function(){
+        this.overlayEnvolture.setAttribute('style','display: block;')
+    }
+    // This method hide popup message
+    PopUpMessage.prototype.close = function(){
+        this.overlayEnvolture.setAttribute('style','display: none;')
+    }
 })();

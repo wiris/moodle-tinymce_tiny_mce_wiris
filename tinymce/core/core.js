@@ -1871,6 +1871,9 @@ function wrs_mathmlToAccessible(mathml, language, data) {
         if (accesibleJsonResponse.status != 'error') {
             accessibleText = accesibleJsonResponse.result.text;
         }
+        else {
+            accessibleText = 'Error converting from MathML to accessible text.';
+        }
     }
 
     return accessibleText;
@@ -3618,6 +3621,64 @@ if (!Array.prototype.forEach) {
         // 8. return undefined.
     };
 }
+/**
+ * EditorListener constructor
+ * @ignore
+ */
+function EditorListener(){
+    this.isContentChanged = false;
+    this.waitingForChanges = false;
+}
+/**
+ * EditorListener method set if content is changed
+ * @ignore
+ */
+EditorListener.prototype.setIsContentChanged = function(value){
+    this.isContentChanged = value;
+}
+/**
+ * EditorListener method to get if content is changed
+ * @ignore
+ */
+EditorListener.prototype.getIsContentChanged = function(value){
+    return this.isContentChanged;
+}
+/**
+ * EditorListener method to wait changes
+ * @ignore
+ */
+EditorListener.prototype.setWaitingForChanges = function(value){
+    this.waitingForChanges = value;
+}
+/**
+ * EditorListener method to overwrite
+ * @ignore
+ */
+EditorListener.prototype.caretPositionChanged = function(editor){};
+/**
+ * EditorListener method to overwrite
+ * @ignore
+ */
+EditorListener.prototype.clipboardChanged = function(editor){};
+/**
+ * EditorListener method to set if content is changed
+ * @ignore
+ */
+EditorListener.prototype.contentChanged = function(editor){
+    if(this.waitingForChanges === true && this.isContentChanged === false){
+        this.isContentChanged = true;
+    }
+}
+/**
+ * EditorListener method to overwrite
+ * @ignore
+ */
+EditorListener.prototype.styleChanged = function(editor){}
+/**
+ * EditorListener method to overwrite
+ * @ignore
+ */
+EditorListener.prototype.transformationReceived = function(editor){}
 // @codingStandardsIgnoreStart
 (function(){
 var HxOverrides = function() { }
@@ -4209,6 +4270,8 @@ function ModalWindow(path, editorAttributes) {
     }
 
     this.properties.iframeAttributes = iframeAttributes;
+    this.modalHeight = parseInt(this.properties.iframeAttributes['height']);
+    this.modalWidth = parseInt(this.properties.iframeAttributes['width']);
 
     this.title = '';
 
@@ -4231,19 +4294,22 @@ function ModalWindow(path, editorAttributes) {
     attributes = {};
     attributes['class'] = 'wrs_modal_close_button';
     attributes['title'] = strings['close'];
-    var closeModalDiv = wrs_createElement('div', attributes);
+    var closeModalDiv = wrs_createElement('a', attributes);
+    closeModalDiv.setAttribute('role','button');
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
     attributes['title'] = strings['fullscreen'];
-    var stackModalDiv = wrs_createElement('div', attributes);
+    var stackModalDiv = wrs_createElement('a', attributes);
+    stackModalDiv.setAttribute('role','button');
     this.stackDiv = stackModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
     attributes['title'] = strings['minimise'];
-    var minimizeModalDiv = wrs_createElement('div', attributes);
+    var minimizeModalDiv = wrs_createElement('a', attributes);
+    minimizeModalDiv.setAttribute('role','button');
     this.minimizeDiv = minimizeModalDiv;
 
     attributes = {};
@@ -4253,6 +4319,7 @@ function ModalWindow(path, editorAttributes) {
     this.containerDiv = containerDiv;
 
     attributes = {};
+    attributes['id'] = 'wrsModalIframe'; 
     attributes['class'] = 'wrs_modal_iframe';
     attributes['title'] = 'WIRIS Editor Modal Window';
     attributes['src'] = iframeAttributes['src'];
@@ -4315,13 +4382,14 @@ ModalWindow.prototype.create = function() {
     if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
         this.maximizeModalWindow();
     }
-
 }
 
 ModalWindow.prototype.open = function() {
 
-    // Due to editor configurations we need to wait a few time.
-    setTimeout(function() {_wrs_modalWindow.hideKeyboard(), 300});
+    if (this.deviceProperties['isIOS'] || this.deviceProperties['isAndroid'] || this.deviceProperties['isMobile']) {
+        // Due to editor wait we need to wait until editor focus.
+        setTimeout(function() { _wrs_modalWindow.hideKeyboard() }, 300);
+    }
 
     if (this.properties.open == true || this.properties.created) {
         var updateToolbar = function(object) {
@@ -4346,9 +4414,9 @@ ModalWindow.prototype.open = function() {
         // It controls cases where is needed to set an empty mathml or copy the current mathml value.
         var updateMathMLContent = function () {
             if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
-                self.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+                self.setMathMLWithCallback('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
             } else {
-                self.setMathML('<math/>');
+                self.setMathMLWithCallback('<math/>');
             }
         };
 
@@ -4359,14 +4427,15 @@ ModalWindow.prototype.open = function() {
                 self.lastImageWasNew = true;
             }
             else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
+                this.setMathMLWithCallback(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
         }
         else {
             this.containerDiv.style.visibility = '';
-            this.overlayDiv.style.visibility = '';
             this.containerDiv.style.opacity = '';
+            this.containerDiv.style.display = '';
+            this.overlayDiv.style.visibility = '';
             this.overlayDiv.style.display = '';
 
             this.properties.open = true;
@@ -4377,10 +4446,9 @@ ModalWindow.prototype.open = function() {
                 updateMathMLContent();
                 self.lastImageWasNew = true;
             } else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
+                this.setMathMLWithCallback(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
             }
-            this.focus();
 
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
                 this.stackModalWindow();
@@ -4410,6 +4478,7 @@ ModalWindow.prototype.close = function() {
     this.setMathML('<math/>');
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
+    this.containerDiv.style.display = 'none';
     this.containerDiv.style.opacity = '0';
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
@@ -4423,6 +4492,7 @@ ModalWindow.prototype.close = function() {
                 _wrs_currentEditor.focus();
             }
         }, 100);
+    _wrs_popupWindow.postMessage({'objectName' : 'editorClose'}, this.iframeOrigin);
 }
 
 ModalWindow.prototype.addClass = function(cls) {
@@ -4555,11 +4625,9 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.properties.previousState = this.properties.state;
     this.properties.state = 'maximized';
 
-    var modalHeight = parseInt(this.properties.iframeAttributes['height']);
-    var modalWidth = parseInt(this.properties.iframeAttributes['width']);
-    this.iframeContainer.style.width = modalWidth + 'px';
-    this.iframeContainer.style.height = modalHeight + 'px';
-    this.containerDiv.style.width = (modalWidth + 12) + 'px';
+    this.iframeContainer.style.width = this.modalWidth + 'px';
+    this.iframeContainer.style.height = this.modalHeight + 'px';
+    this.containerDiv.style.width = (this.modalWidth + 12) + 'px';
     this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
     this.iframe.style.height = (parseInt(this.properties.iframeAttributes['height']) + 3) + 'px';
     this.iframe.style.margin = '6px';
@@ -4705,38 +4773,11 @@ ModalWindow.prototype.stopDrag = function(ev) {
 }
 
 /**
- * Hide soft keyboards.
- *
+ * Hide soft keyboards on IOS systems.
  * @ignore
  */
 ModalWindow.prototype.hideKeyboard = function() {
-    // ...creating temp field.
-    var field = document.createElement('input');
-    field.setAttribute('type', 'text');
-    // ...hiding temp field from peoples eyes.
-    // ...-webkit-user-modify is nessesary for Android 4.x.
-    field.setAttribute('style', 'position:absolute; top: 0px; opacity: 0; -webkit-user-modify: read-write-plaintext-only; left:0px;');
-    document.body.appendChild(field);
-
-    // ...adding onfocus event handler for out temp field.
-    field.onfocus = function(){
-          // ...this timeout of 200ms is nessasary for Android 2.3.x.
-          setTimeout(function() {
-
-                field.setAttribute('style', 'display:none;');
-                setTimeout(function() {
-                    document.body.removeChild(field);
-                    // Focus workspace.
-                    if (typeof _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0] != 'undefined') {
-                        _wrs_modalWindow.containerDiv.getElementsByTagName('iframe')[0].contentDocument.body.getElementsByClassName('wrs_focusElement')[0].focus();
-                    }
-                }, 14);
-
-          }, 200);
-    };
-    var keepScroll = window.pageYOffset;
-    field.focus();
-    window.scrollTo(0, keepScroll);
+    document.activeElement.blur();
 }
 
 
@@ -4748,8 +4789,9 @@ ModalWindow.prototype.hideKeyboard = function() {
  * @ignore
  */
 ModalWindow.prototype.getOriginFromUrl = function(url) {
-    var hostNameIndex = url.indexOf("/", url.indexOf("/") + 2);
-    return url.substr(0, hostNameIndex);
+    var parser = document.createElement('a');
+    parser.href = url;
+    return parser.protocol.indexOf('//') == -1 ? parser.protocol + '//' + parser.host : parser.protocol + parser.host;
 }
 
 /**
@@ -4766,6 +4808,15 @@ ModalWindow.prototype.getOriginFromUrl = function(url) {
  */
 ModalWindow.prototype.setMathML = function(mathml) {
     _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'setMathML', 'arguments': [mathml]}, this.iframeOrigin);
+    this.focus();
+}
+/**
+ * Set a MathML into editor and call function in back.
+ * @param {string} mathml MathML string.
+ * @ignore
+ */
+ModalWindow.prototype.setMathMLWithCallback = function(mathml) {
+    _wrs_popupWindow.postMessage({'objectName' : 'editorCallback', 'arguments': [mathml]}, this.iframeOrigin);
     this.focus();
 }
 
@@ -4799,5 +4850,36 @@ ModalWindow.prototype.focus = function() {
 ModalWindow.prototype.fireEditorEvent = function(eventName) {
     _wrs_popupWindow.postMessage({'objectName' : 'editorEvent', 'eventName' : eventName, 'arguments': null}, this.iframeOrigin);
 }
+
+/**
+ * Add classes to show well the layout when there is a soft keyboard.
+ * @ignore
+ */
+ModalWindow.prototype.addClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_modal_ios');
+    // this.iframeContainer.classList.remove('wrs_modal_ios');
+    // this.overlayDiv.classList.remove('wrs_modal_ios');
+
+    this.containerDiv.classList.add('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.add('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.add('wrs_virtual_keyboard_opened');
+}
+
+/**
+ * Remove classes to show well the layout when there is a soft keyboard.
+ * @ignore
+ */
+ModalWindow.prototype.removeClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.remove('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.remove('wrs_virtual_keyboard_opened');
+
+    this.containerDiv.classList.add('wrs_modal_ios');
+    // this.iframeContainer.classList.add('wrs_modal_ios');
+    // this.overlayDiv.classList.add('wrs_modal_ios');
+}
+
+
+var _wrs_conf_core_loaded = true;
 
 var _wrs_conf_core_loaded = true;
