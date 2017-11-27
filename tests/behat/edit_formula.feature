@@ -16,7 +16,7 @@ Feature: TinyMCE WIRIS plugin
     And I click on "On" "option" in the "Math & Science by WIRIS" "table_row"
     And I open my profile in edit mode
     And I click on "WIRIS EDITOR math" "button"
-    And I switch to "wrsModalIframe" iframe
+    And I switch to "wrs_frame_id" iframe
     And I wait "5" seconds
     And I set wiris formula to "1+2"
     And I click on "//input[@class='wrs_button_accept']" "xpath_element"
