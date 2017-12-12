@@ -169,6 +169,8 @@ var _wrs_int_langCode = 'en';
                             // We set content in html because other tiny plugins need data-mce
                             // and this is not posibil with raw format
                             editor.setContent(wrs_initParse(content, language), {format: "html"});
+                            // This clean undoQueue for prevent onChange and Dirty state.
+                            editor.undoManager.clear();
                             // Init parsing OK. If a setContent method is called
                             // wrs_initParse is called again.
                             // Now if source code is edited the returned code is parsed.
@@ -263,10 +265,10 @@ var _wrs_int_langCode = 'en';
             const observerConfig = { attributes: true, childList: true, characterData: true, subtree: true };
             function onMutations(mutations) {
                 Array.prototype.forEach.call(mutations,function(mutation) {
-                    Array.prototype.forEach.call(mutation.addedNodes,function(node){
+                    Array.prototype.forEach.call(mutation.addedNodes,function(node) {
                         // We search only in element nodes
                         if(node.nodeType == 1){
-                            Array.prototype.forEach.call(node.getElementsByClassName(_wrs_conf_imageClassName),function(image){
+                            Array.prototype.forEach.call(node.getElementsByClassName(_wrs_conf_imageClassName),function(image) {
                                 image.removeAttribute('data-mce-src');
                                 image.removeAttribute('data-mce-style');
                             });
@@ -274,11 +276,11 @@ var _wrs_int_langCode = 'en';
                     });
                 });
             }
-            var mo = new MutationObserver(onMutations);
+            var mutationInstance = new MutationObserver(onMutations);
             // We wait for iframe definition for observe this
-            function waitForIframeBody(){
-                if(typeof editor.contentDocument != 'undefined'){
-                    mo.observe(editor.getBody(), observerConfig);
+            function waitForIframeBody() {
+                if(typeof editor.contentDocument != 'undefined') {
+                    mutationInstance.observe(editor.getBody(), observerConfig);
                 }else{
                     setTimeout(waitForIframeBody, 50);
                 }
