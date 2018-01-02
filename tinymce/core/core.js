@@ -2710,7 +2710,8 @@ function wrs_fixAfterResize(img) {
 
 function wrs_initSetSize() {
     // Override _wrs_conf_setSize to align formulas when xml or safeXml mode are enabled.
-    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default');
+    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default')
+     || (_wrs_conf_saveMode == 'image' && _wrs_conf_imageFormat == 'svg');
 }
 
 /**
@@ -4392,39 +4393,12 @@ ModalWindow.prototype.open = function() {
     }
 
     if (this.properties.open == true || this.properties.created) {
-        var updateToolbar = function(object) {
-            if (customEditor = wrs_int_getCustomEditorEnabled()) {
-                var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
-                _wrs_modalWindow.setTitle(customEditor.title);
-                if (object.toolbar == null || object.toolbar != toolbar) {
-                    object.setToolbar(toolbar);
-                }
-            } else {
-                var toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
-                _wrs_modalWindow.setTitle('WIRIS EDITOR math');
-                if (object.toolbar == null || object.toolbar != toolbar) {
-                    object.setToolbar(toolbar);
-                    wrs_int_disableCustomEditors();
-                }
-            }
-        };
-
-        var self = this;
-
-        // It controls cases where is needed to set an empty mathml or copy the current mathml value.
-        var updateMathMLContent = function () {
-            if (self.properties.deviceProperties.isAndroid || self.properties.deviceProperties.isIOS) {
-                self.setMathMLWithCallback('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
-            } else {
-                self.setMathMLWithCallback('<math/>');
-            }
-        };
 
         if (this.properties.open == true) {
-            updateToolbar(self);
+            this.updateToolbar();
             if (_wrs_isNewElement) {
-                updateMathMLContent();
-                self.lastImageWasNew = true;
+                this.updateMathMLContent();
+                this.lastImageWasNew = true;
             }
             else {
                 this.setMathMLWithCallback(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
@@ -4440,11 +4414,11 @@ ModalWindow.prototype.open = function() {
 
             this.properties.open = true;
 
-            updateToolbar(self);
+            this.updateToolbar();
 
             if (_wrs_isNewElement) {
-                updateMathMLContent();
-                self.lastImageWasNew = true;
+                this.updateMathMLContent();
+                this.lastImageWasNew = true;
             } else {
                 this.setMathMLWithCallback(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
                 this.lastImageWasNew = false;
@@ -4464,6 +4438,51 @@ ModalWindow.prototype.open = function() {
         this.create();
     }
 
+}
+
+/**
+ * It put correct toolbar depending if exist other custom toolbars at the same time (e.g: Chemistry)
+ * @ignore
+ */
+ModalWindow.prototype.updateToolbar = function() {
+    if (customEditor = wrs_int_getCustomEditorEnabled()) {
+        var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
+        _wrs_modalWindow.setTitle(customEditor.title);
+        if (this.toolbar == null || this.toolbar != toolbar) {
+            this.setToolbar(toolbar);
+        }
+    } else {
+        var toolbar = this.checkToolbar();
+        _wrs_modalWindow.setTitle('WIRIS EDITOR math');
+        if (this.toolbar == null || this.toolbar != toolbar) {
+            this.setToolbar(toolbar);
+            wrs_int_disableCustomEditors();
+        }
+    }
+}
+
+/**
+ * It returns correct toolbar depending on the configuration local or serverside.
+ * @ignore
+ */
+ModalWindow.prototype.checkToolbar = function() {
+    var toolbar = (typeof _wrs_conf_editorParameters == 'undefined' || typeof _wrs_conf_editorParameters['toolbar'] == 'undefined') ? 'general' : _wrs_conf_editorParameters['toolbar'];
+    if(toolbar == 'general'){
+        toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
+    }
+    return toolbar;
+}
+
+/**
+ * It controls cases where is needed to set an empty mathml or copy the current mathml value.
+ * @ignore
+ */
+ModalWindow.prototype.updateMathMLContent = function() {
+    if (this.properties.deviceProperties.isAndroid || this.properties.deviceProperties.isIOS) {
+        this.setMathMLWithCallback('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"');
+    } else {
+        this.setMathMLWithCallback('<math/>');
+    }
 }
 
 ModalWindow.prototype.isOpen = function() {
@@ -4767,6 +4786,8 @@ ModalWindow.prototype.stopDrag = function(ev) {
         // the absolute coords to relative removing the scroll.
         this.containerDiv.style.left = parseInt(this.containerDiv.style.left) - window.pageXOffset + "px";
         this.containerDiv.style.top = parseInt(this.containerDiv.style.top) - window.pageYOffset + "px";
+        // We make focus on editor after drag modal windows to prevent lose focus.
+        this.focus();
     }
     this.containerDiv.style.bottom = null;
     this.dragDataObject = null;
@@ -4837,7 +4858,9 @@ ModalWindow.prototype.setToolbar = function(toolbar) {
 ModalWindow.prototype.focus = function() {
     // Focus on iframe explicit
     // We add this focus in iframe beacuse tiny3 have a problem with focus in chrome and it can't focus iframe automaticly
-    this.iframe.focus();
+    if (navigator.userAgent.search("Chrome/") >= 0 && navigator.userAgent.search('Edge') == -1) {
+        this.iframe.focus();
+    }
     _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'focus', 'arguments': null}, this.iframeOrigin);
 }
 
