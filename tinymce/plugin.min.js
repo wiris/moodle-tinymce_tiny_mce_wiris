@@ -69,6 +69,7 @@ var _wrs_int_langCode = 'en';
 (function () {
     tinymce.create('tinymce.plugins.tiny_mce_wiris', {
         init: function (editor, url) {
+             _wrs_currentEditor = editor;
             // Var to access to selected element from all the WIRIS tiny mce functions.
             var element;
 
