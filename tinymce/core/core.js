@@ -4240,9 +4240,6 @@ function ModalWindow(path, editorAttributes) {
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1;
     var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
-    this.iosSoftkeyboardOpened = false;
-    this.iosMeasureUnit = ua.indexOf("crios") == -1 ? "%" : "vh";
-    this.iosDivHeight = "100" + this.iosMeasureUnit;
 
     var deviceWidth = window.outerWidth;
     var deviceHeight = window.outerHeight;
@@ -4435,11 +4432,6 @@ ModalWindow.prototype.open = function() {
         if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
             this.maximizeModalWindow();
         }
-
-        if (this.deviceProperties['isIOS']) {
-            this.iosSoftkeyboardOpened = false;
-            this.setIframeContainerHeight("100" + this.iosMeasureUnit);
-        }
     } else {
         var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'WIRIS EDITOR math';
         _wrs_modalWindow.setTitle(title);
@@ -4581,13 +4573,8 @@ ModalWindow.prototype.createModalWindowAndroid = function() {
  */
 
 ModalWindow.prototype.createModalWindowIos = function() {
+
     this.addClass('wrs_modal_ios');
-    // Refresh the size when the orientation is changed
-    window.addEventListener('resize', function (e) {
-        if (_wrs_conf_modalWindow) {
-            _wrs_modalWindow.orientationChangeIosSoftkeyboard();
-        }
-    });
 }
 
 ModalWindow.prototype.stackModalWindow = function () {
@@ -4617,10 +4604,6 @@ ModalWindow.prototype.stackModalWindow = function () {
         this.minimizeDiv.title = "Minimise";
         this.removeClass('wrs_minimized');
         this.addClass('wrs_stack');
-        if (typeof _wrs_popupWindow != 'undefined' && _wrs_popupWindow) {
-            _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
-        }
-
     }
 }
 
@@ -4680,7 +4663,6 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.overlayDiv.style.background = "rgba(0,0,0,0.8)";
     this.overlayDiv.style.display = '';
     this.addClass('wrs_maximized');
-    _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
 }
 
 /**
@@ -4893,63 +4875,34 @@ ModalWindow.prototype.fireEditorEvent = function(eventName) {
 }
 
 /**
- * Returns true when the device is on portrait mode.
+ * Add classes to show well the layout when there is a soft keyboard.
  * @ignore
  */
-ModalWindow.prototype.portraitMode = function () {
-    return window.innerHeight > window.innerWidth;
+ModalWindow.prototype.addClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_modal_ios');
+    // this.iframeContainer.classList.remove('wrs_modal_ios');
+    // this.overlayDiv.classList.remove('wrs_modal_ios');
+
+    this.containerDiv.classList.add('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.add('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.add('wrs_virtual_keyboard_opened');
 }
 
 /**
- * Change container sizes when the keyboard is opened on iOS.
+ * Remove classes to show well the layout when there is a soft keyboard.
  * @ignore
  */
-ModalWindow.prototype.openedIosSoftkeyboard = function () {
-    if (!this.iosSoftkeyboardOpened && this.iosDivHeight != null &&this.iosDivHeight == "100" + this.iosMeasureUnit) {
-        if (this.portraitMode()) {
-            this.setIframeContainerHeight("63" + this.iosMeasureUnit);
-        }
-        else {
-            this.setIframeContainerHeight("40" + this.iosMeasureUnit);
-        }
-    }
-    this.iosSoftkeyboardOpened = true;
+ModalWindow.prototype.removeClassVirtualKeyboard = function () {
+    this.containerDiv.classList.remove('wrs_virtual_keyboard_opened');
+    // this.iframeContainer.classList.remove('wrs_virtual_keyboard_opened');
+    // this.overlayDiv.classList.remove('wrs_virtual_keyboard_opened');
+
+    this.containerDiv.classList.add('wrs_modal_ios');
+    // this.iframeContainer.classList.add('wrs_modal_ios');
+    // this.overlayDiv.classList.add('wrs_modal_ios');
 }
 
-/**
- * Change container sizes when the keyboard is closed on iOS.
- * @ignore
- */
-ModalWindow.prototype.closedIosSoftkeyboard = function () {
-    this.iosSoftkeyboardOpened = false;
-    this.setIframeContainerHeight("100" + this.iosMeasureUnit);
-}
 
-/**
- * Change container sizes when orientation is changed on iOS.
- * @ignore
- */
-ModalWindow.prototype.orientationChangeIosSoftkeyboard = function () {
-    if (this.iosSoftkeyboardOpened) {
-        if (this.portraitMode()) {
-            this.setIframeContainerHeight("63" + this.iosMeasureUnit);
-        }
-        else {
-            this.setIframeContainerHeight("40" + this.iosMeasureUnit);
-        }
-    }
-    else {
-        this.setIframeContainerHeight("100" + this.iosMeasureUnit);
-    }
-}
+var _wrs_conf_core_loaded = true;
 
-/**
- * Set iframe container height.
- * @ignore
- */
-ModalWindow.prototype.setIframeContainerHeight = function (height) {
-    this.iosDivHeight = height;
-    _wrs_modalWindow.iframeContainer.style.height = height;
-    _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
-}
 var _wrs_conf_core_loaded = true;

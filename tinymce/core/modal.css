@@ -239,14 +239,6 @@
     margin: auto;
 }
 
-.wrs_virtual_keyboard {
-    height: 100%;
-    width: 100%;
-    top: 0;
-    left: 50%;
-    transform: translate(-50%, 0%);
-}
-
 @media all and (orientation: portrait) {
     .wrs_modal_dialogContainer.wrs_modal_mobile {
         width: 100vmin;
@@ -258,6 +250,11 @@
         width: 100vmin;
         height: 100vmin;
         margin: auto;
+    }
+    .wrs_virtual_keyboard_opened {
+        width: 100%;
+        height: 70%;
+        top: 0;
     }
 }
 
@@ -272,6 +269,11 @@
         width: 100vmin;
         height: 100vmin;
         margin: auto;
+    }
+    .wrs_virtual_keyboard_opened {
+        width: 100%;
+        height: 44%;
+        top: 0;
     }
 }
 
