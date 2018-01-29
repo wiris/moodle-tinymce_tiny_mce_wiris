@@ -219,17 +219,6 @@ var _wrs_int_langCode = 'en';
                 });
             }
 
-            if ('onActivate' in editor) {
-                editor.onActivate.add((editor) => {
-                    _wrs_currentEditor = editor;
-                });
-            }
-            else {
-                editor.on('focus', (event) => {
-                    _wrs_currentEditor = tinymce.activeEditor;
-                });
-            }
-
             var onSave = function (editor, params) {
                 if (typeof _wrs_conf_plugin_loaded !== 'undefined') {
                     var language = editor.getParam('language');

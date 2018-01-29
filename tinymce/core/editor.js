@@ -272,6 +272,9 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
 
                 var editorElement = editor.getElement();
                 var editorContainer = document.getElementById('editorContainer');
+                if (isIOS) {
+                    editorContainer.className += ' wrs_editorContainer wrs_modalIos';
+                }
                 editor.insertInto(editorContainer);
 
                 // Mathml content.
@@ -299,8 +302,17 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
 
                 var popup = new PopUpMessage(strings);
 
+                if (isIOS) {
+                    // Editor and controls container.
+                    var editorAndControlsContainer = document.getElementById('container');
+                    editorAndControlsContainer.className += ' wrs_container wrs_modalIos';
+                }
+
                 // Submit button.
                 var controls = document.getElementById('controls');
+                if (isIOS) {
+                    controls.className += ' wrs_controls wrs_modalIos';
+                }
                 var submitButton = document.createElement('input');
                 submitButton.type = 'button';
                 submitButton.className = 'wrs_button_accept';
@@ -423,8 +435,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorClose') {
                         window.editorListener.setWaitingForChanges(false);
                         window.editorListener.setIsContentChanged(false);
-                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorResize') {
-                        editor.getElement().style.height = (e.data.arguments[0] - controls.offsetHeight) + "px";
                     }
                 });
 
@@ -445,18 +455,17 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
                     wrs_addEvent(formulaDisplayDiv, 'focus', function (e) {
                         if (_wrs_conf_modalWindow) {
-                            getMethod('_wrs_modalWindow', 'openedIosSoftkeyboard', [], null);
+                            getMethod('_wrs_modalWindow', 'addClassVirtualKeyboard', [], null);
+                            editorElement.style.height = '100%';
                         }
                     });
 
                     wrs_addEvent(formulaDisplayDiv, 'blur', function (e) {
                         if (_wrs_conf_modalWindow) {
-                            getMethod('_wrs_modalWindow', 'closedIosSoftkeyboard', [], null);
+                            getMethod('_wrs_modalWindow', 'removeClassVirtualKeyboard', [], null);
+                            editorElement.style.height = '10%';
                         }
                     });
-
-                    // Set editor size
-                    getMethod('_wrs_modalWindow', 'closedIosSoftkeyboard', [], null);
                 }
 
                 // Event for close window and trap focus
@@ -472,11 +481,14 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     }
                 });
 
+                // Auto resizing.
+                setInterval(function () {
+                    editorElement.style.height = (document.getElementById('container').offsetHeight - controls.offsetHeight - 10) + 'px';
+                }, 100);
+
+                // Due to IOS use soft keyboard, we don't want to move the cursor to WIRIS editor.
                 if (!isIOS) {
-                    // Due to IOS use soft keyboard, we don't want to move the cursor to WIRIS editor.
                     editor.focus();
-                    // Set initial editor height.
-                    editorElement.style.height = (document.getElementById('container').offsetHeight - controls.offsetHeight - 20) + 'px';
                 }
             } else {
                 setTimeout(wrs_waitForEditor, 100);
