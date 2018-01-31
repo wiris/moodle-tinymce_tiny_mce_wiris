@@ -3513,48 +3513,48 @@ if (!Object.keys) {
 
 /*! http://mths.be/codepointat v0.1.0 by @mathias */
 if (!String.prototype.codePointAt) {
-  (function() {
-    'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
-    var codePointAt = function(position) {
-      if (this == null) {
-        throw TypeError();
-      }
-      var string = String(this);
-      var size = string.length;
-      // `ToInteger`
-      var index = position ? Number(position) : 0;
-      if (index != index) { // better `isNaN`
-        index = 0;
-      }
-      // Account for out-of-bounds indices:
-      if (index < 0 || index >= size) {
-        return undefined;
-      }
-      // Get the first code unit
-      var first = string.charCodeAt(index);
-      var second;
-      if ( // check if it’s the start of a surrogate pair
-        first >= 0xD800 && first <= 0xDBFF && // high surrogate
-        size > index + 1 // there is a next code unit
-      ) {
-        second = string.charCodeAt(index + 1);
-        if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
-          // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-          return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+    (function() {
+        'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
+        var codePointAt = function(position) {
+            if (this == null) {
+                throw TypeError();
+            }
+            var string = String(this);
+            var size = string.length;
+            // `ToInteger`
+            var index = position ? Number(position) : 0;
+            if (index != index) { // better `isNaN`
+                index = 0;
+            }
+            // Account for out-of-bounds indices:
+            if (index < 0 || index >= size) {
+                return undefined;
+            }
+            // Get the first code unit
+            var first = string.charCodeAt(index);
+            var second;
+            if ( // check if it’s the start of a surrogate pair
+                first >= 0xD800 && first <= 0xDBFF && // high surrogate
+                size > index + 1 // there is a next code unit
+            ) {
+                second = string.charCodeAt(index + 1);
+                if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
+                    // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+                    return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
+                }
+            }
+            return first;
+        };
+        if (Object.defineProperty) {
+            Object.defineProperty(String.prototype, 'codePointAt', {
+                'value': codePointAt,
+                'configurable': true,
+                'writable': true
+            });
+        } else {
+            String.prototype.codePointAt = codePointAt;
         }
-      }
-      return first;
-    };
-    if (Object.defineProperty) {
-      Object.defineProperty(String.prototype, 'codePointAt', {
-        'value': codePointAt,
-        'configurable': true,
-        'writable': true
-      });
-    } else {
-      String.prototype.codePointAt = codePointAt;
-    }
-  }());
+    }());
 }
 
 /**
@@ -4742,8 +4742,7 @@ ModalWindow.prototype.maximizeModalWindow = function() {
 
     this.containerDiv.style.bottom = window.innerHeight / 2 - this.containerDiv.offsetHeight / 2 + "px";
     this.containerDiv.style.right = window.innerWidth / 2 - this.containerDiv.offsetWidth / 2 + "px";
-    this.containerDiv.style.position = "absolute";
-
+    this.containerDiv.style.position = "fixed";
     _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
 
 }
@@ -4825,12 +4824,17 @@ ModalWindow.prototype.startDrag = function(ev) {
         return;
     }
     if (ev.target.className == 'wrs_modal_title') {
-        if(!this.dragDataobject) {
+        if(typeof this.dragDataObject === 'undefined' || this.dragDataObject === null) {
             ev = ev || event;
             // Save first click mouse point on screen
             this.dragDataObject = {
                 x: this.eventClient(ev).X,
                 y: this.eventClient(ev).Y
+            };
+            // Reset last drag position when start drag
+            this.lastDrag = {
+                x: "0px",
+                y: "0px"
             };
             // Init right and bottom values for window modal if it isn't exist.
             if(this.containerDiv.style.right == ''){
@@ -4849,7 +4853,7 @@ ModalWindow.prototype.startDrag = function(ev) {
             wrs_addClass(document.body, 'wrs_noselect');
             // Obtain screen limits for prevent overflow.
             this.limitWindow = this.getLimitWindow();
-        };
+        }
     }
 
 }
@@ -5124,4 +5128,5 @@ ModalWindow.prototype.setIframeContainerHeight = function (height) {
     _wrs_modalWindow.iframeContainer.style.height = height;
     _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
 }
+
 var _wrs_conf_core_loaded = true;
