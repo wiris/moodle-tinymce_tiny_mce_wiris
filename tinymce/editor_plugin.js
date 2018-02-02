@@ -24,10 +24,21 @@ var _wrs_int_path = wrs_intPath(_wrs_int_conf_file, _wrs_conf_path);
 // Load configuration synchronously.
 if (!_wrs_int_conf_async) {
     var httpRequest = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-    var configUrl = (_wrs_int_conf_file.indexOf('/') == 0 || _wrs_int_conf_file.indexOf('http') == 0) ? _wrs_int_conf_file : _wrs_conf_path + '/' + _wrs_int_conf_file;
+    var configUrl = _wrs_int_conf_file.indexOf("/") == 0 || _wrs_int_conf_file.indexOf("http") == 0 ? _wrs_int_conf_file : _wrs_conf_path + "/" + _wrs_int_conf_file;
     httpRequest.open('GET', configUrl, false);
     httpRequest.send(null);
-    eval(httpRequest.responseText);
+
+    var jsonConfiguration = JSON.parse(httpRequest.responseText);
+
+    // JSON structure: {{jsVariableName, jsVariableValue}}.
+
+    variables = Object.keys(jsonConfiguration);
+
+    for (variable in variables) {
+        window[variables[variable]] = jsonConfiguration[variables[variable]];
+    }
+
+    _wrs_conf_configuration_loaded = true;
 }
 
 var _wrs_conf_pluginBasePath = _wrs_conf_path;
@@ -41,6 +52,7 @@ var _wrs_int_window_opened = false;
 var _wrs_int_temporalImageResizing;
 var _wrs_int_wirisProperties;
 var _wrs_int_directionality;
+var _wrs_int_imagesDataimgFilterBackup = [];
 // Custom Editors.
 var _wrs_int_customEditors = {chemistry : {name: 'Chemistry', toolbar : 'chemistry', icon : 'chem.png', enabled : false, confVariable : '_wrs_conf_chemEnabled', title: 'WIRIS EDITOR chemistry'}}
 
@@ -57,10 +69,28 @@ var _wrs_int_langCode = 'en';
 (function () {
     tinymce.create('tinymce.plugins.tiny_mce_wiris', {
         init: function (editor, url) {
+             _wrs_currentEditor = editor;
+            // Var to access to selected element from all the WIRIS tiny mce functions.
+            var element;
+
+            _wrs_int_imagesDataimgFilterBackup[editor.id] = editor.settings.images_dataimg_filter;
+            editor.settings.images_dataimg_filter = function(img) {
+                if (img.hasAttribute('class') && img.getAttribute('class').indexOf('Wirisformula') != -1) {
+                    return img.hasAttribute('internal-blob');
+                }
+                else {
+                    // If the client put an image data filter, run. Otherwise default behaviour (put blob).
+                    if (typeof _wrs_int_imagesDataimgFilterBackup[editor.id] != 'undefined') {
+                        return _wrs_int_imagesDataimgFilterBackup[editor.id](img);
+                    }
+                    return true;
+                }
+            }
+
             // Including core.js
             // First of all: recalculating _wrs_conf_path if WIRIS plugin has been loaded as an external plugin.
             // Cant access editor params since now.
-            if (typeof editor.getParam('external_plugins') != 'undefined' && typeof editor.getParam('external_plugins')['tiny_mce_wiris'] != 'undefined') {
+            if (typeof editor.getParam('external_plugins') != 'undefined' && editor.getParam('external_plugins') != null && typeof editor.getParam('external_plugins')['tiny_mce_wiris'] != 'undefined') {
                 var external_url = editor.getParam('external_plugins')['tiny_mce_wiris'];
                 _wrs_conf_path = external_url.substring(0,external_url.lastIndexOf("/") + 1)
                 // New int path.
@@ -75,7 +105,6 @@ var _wrs_int_langCode = 'en';
             } else {
                 _wrs_int_editorIcon = _wrs_conf_path + 'icons/formula.png';
             }
-            var element;
 
             // Fix a Moodle 2.4 bug. data-mathml was lost without this.
             if (typeof _wrs_isMoodle24 !== 'undefined' && _wrs_isMoodle24){
@@ -98,16 +127,10 @@ var _wrs_int_langCode = 'en';
                 }
             }
 
-            // On inline mode, we can't recover unfiltered text
-            // mathml tags must be added to editor valid_elements.
-            if (editor.inline) {
-                editor.settings.extended_valid_elements += ",math[*],menclose[*],merror[*],mfenced[*],mfrac[*],mglyph[*],mi[*],mlabeledtr[*],mmultiscripts[*],mn[*],mo[*],mover[*],mpadded[*],mphantom[*],mroot[*],mrow[*],ms[*],mspace[*],msqrt[*],mstyle[*],msub[*],msubsup[*],msup[*],mtable[*],mtd[*],mtext[*],mtr[*],munder[*],munderover[*],semantics[*],maction[*]";
-                editor.settings.extended_valid_elements += ",annotation[*]"; // LaTeX parse.
-            }
+            editor.settings.extended_valid_elements += ",math[*],menclose[*],merror[*],mfenced[*],mfrac[*],mglyph[*],mi[*],mlabeledtr[*],mmultiscripts[*],mn[*],mo[*],mover[*],mpadded[*],mphantom[*],mroot[*],mrow[*],ms[*],mspace[*],msqrt[*],mstyle[*],msub[*],msubsup[*],msup[*],mtable[*],mtd[*],mtext[*],mtr[*],munder[*],munderover[*],semantics[*],maction[*]";
+            editor.settings.extended_valid_elements += ",annotation[*]"; // LaTeX parse.
 
             var onInit = function (editor) {
-                var editorElement = editor.getElement();
-                var content = ('value' in editorElement) ? editorElement.value : editorElement.innerHTML;
 
                 function whenDocReady() {
                     if (window.wrs_initParse && typeof _wrs_conf_plugin_loaded != 'undefined') {
@@ -138,11 +161,17 @@ var _wrs_int_langCode = 'en';
                             language = editor.settings['wirisformulaeditorlang'];
                         }
 
+                        var content = editor.getContent();
+
                         // Bug fix: In Moodle2.x when TinyMCE is set to full screen
                         // the content doesn't need to be filtered.
-                        if (!editor.getParam('fullscreen_is_enabled') && editor.getContent() !== ""){
+                        if (!editor.getParam('fullscreen_is_enabled') && content !== ""){
 
-                            editor.setContent(wrs_initParse(content, language), {format: "raw"});
+                            // We set content in html because other tiny plugins need data-mce
+                            // and this is not posibil with raw format
+                            editor.setContent(wrs_initParse(content, language), {format: "html"});
+                            // This clean undoQueue for prevent onChange and Dirty state.
+                            editor.undoManager.clear();
                             // Init parsing OK. If a setContent method is called
                             // wrs_initParse is called again.
                             // Now if source code is edited the returned code is parsed.
@@ -162,11 +191,11 @@ var _wrs_int_langCode = 'en';
                                 });
                             }
                         } else { // Inline.
-                            element = editorElement;
+                            element = editor.getElement();
                             wrs_addElementEvents(element, function (div, element) {
                                 wrs_int_doubleClickHandler(editor, div, false, element);
                             },  wrs_int_mousedownHandler, wrs_int_mouseupHandler);
-                            // Attaching obsevers to wiris images.
+                            // Attaching observers to wiris images.
                             Array.prototype.forEach.call(document.getElementsByClassName(_wrs_conf_imageClassName), function(wirisImages) {
                                 wrs_observer.observe(wirisImages, wrs_observer_config);
                             });
@@ -187,6 +216,17 @@ var _wrs_int_langCode = 'en';
             else {
                 editor.on('init', function () {
                     onInit(editor);
+                });
+            }
+
+            if ('onActivate' in editor) {
+                editor.onActivate.add( function (editor) {
+                    _wrs_currentEditor = editor;
+                });
+            }
+            else {
+                editor.on('focus', function (event) {
+                    _wrs_currentEditor = tinymce.activeEditor;
                 });
             }
 
@@ -233,7 +273,31 @@ var _wrs_int_langCode = 'en';
                     }
                 });
             }
-
+            // We use a mutation to oberseve iframe of tiny and filter to remove data-mce
+            const observerConfig = { attributes: true, childList: true, characterData: true, subtree: true };
+            function onMutations(mutations) {
+                Array.prototype.forEach.call(mutations,function(mutation) {
+                    Array.prototype.forEach.call(mutation.addedNodes,function(node) {
+                        // We search only in element nodes
+                        if(node.nodeType == 1){
+                            Array.prototype.forEach.call(node.getElementsByClassName(_wrs_conf_imageClassName),function(image) {
+                                image.removeAttribute('data-mce-src');
+                                image.removeAttribute('data-mce-style');
+                            });
+                        }
+                    });
+                });
+            }
+            var mutationInstance = new MutationObserver(onMutations);
+            // We wait for iframe definition for observe this
+            function waitForIframeBody() {
+                if(typeof editor.contentDocument != 'undefined') {
+                    mutationInstance.observe(editor.getBody(), observerConfig);
+                }else{
+                    setTimeout(waitForIframeBody, 50);
+                }
+            }
+            waitForIframeBody();
             if (_wrs_int_conf_async || _wrs_conf_editorEnabled) {
                 editor.addCommand('tiny_mce_wiris_openFormulaEditor', function () {
                     if ('wiriseditorparameters' in editor.settings) {

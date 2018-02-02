@@ -30,7 +30,40 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
 
     protected function update_init_params(array &$params, context $context,
                                           array $options = null) {
-        global $PAGE, $CFG;
+        global $PAGE, $CFG, $COURSE;
+        // We need to know if  WIRIS filter are active in the context of the course.
+        // If not WIRIS plugin should be disabled.
+
+        if (!get_config('filter_wiris', 'allow_editorplugin_active_course')) {
+            $context = context_course::instance($COURSE->id);
+            $activefilters = filter_get_active_in_context($context);
+            // Moodle 2.4 array key: filter/wiris instead of wiris.
+            $filterwirisactive = array_key_exists('wiris', $activefilters) || array_key_exists('filter/wiris', $activefilters);
+            if (!$filterwirisactive) {
+                return;
+            } else {
+                // Filter disabled at activity level.
+                $pagecontext = $PAGE->context;
+                // Check if context is context module.
+                // We need to check only module context. Other contexts (like block context)
+                // shouldn't be checked.
+                if ($pagecontext instanceof context_module) {
+                    $activefilters = filter_get_active_in_context($PAGE->context);
+                    // Moodle 2.4 array key: filter/wiris instead of wiris.
+                    $filterwirisactive = array_key_exists('wiris', $activefilters);
+                    $filterwirisactive = $filterwirisactive || array_key_exists('filter/wiris', $activefilters);
+                    if (!$filterwirisactive) {
+                        return;
+                    }
+                }
+            }
+        }
+        $PAGE->requires->strings_for_js(
+        array(
+        'error_connection'
+        ),
+        'tinymce_tiny_mce_wiris');
+
         $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/baseURL.js', false);
 
         // Add button after emoticon button in advancedbuttons3.
@@ -40,10 +73,5 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
 
         // Add JS file, which uses default name.
         $this->add_js_plugin($params);
-
-        $filterwiris = $CFG->dirroot . '/filter/wiris/filter.php';
-        if (!file_exists($filterwiris)) {
-            $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/js/message.js', false);
-        }
     }
 }

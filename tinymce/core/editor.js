@@ -1,7 +1,6 @@
 var _wrs_isNewElement; // Unfortunately we need this variabels as global variable for old I.E compatibility.
 
 (function(){
-
     var editor;
     // Set wrs_int_opener variable and close method.
     // For popup window opener is window.opener. For modal window window.parent.
@@ -70,12 +69,13 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
      */
     function getVars(varNames, callback) {
         _wrs_callbacks.push({
+            'isWirisMessage': true,
             'id': _wrs_callId,
             'callback': callback
         });
 
         try {
-            wrs_int_opener.postMessage({'id': _wrs_callId++, 'varNames' : varNames}, '*');
+            wrs_int_opener.postMessage({'isWirisMessage': true, 'id': _wrs_callId++, 'varNames' : varNames}, '*');
         }
         catch (err) { // Method postMessage not defined (I.E 7 & 8 ) or not competible with window object (I.E 9).
             _wrs_callbacks.splice(_wrs_callId, 1);
@@ -95,23 +95,24 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
      *
      * @param  {String}   objectName object name (null to call a wrs_int_opener method).
      * @param  {String}   methodName method name.
-     * @param  {Array}    arguments  method arguments ([arg1,..,argn])
+     * @param  {Array}    argumentss  method arguments ([arg1,..,argn])
      * @param  {Function} callback   callback function.
      */
-    function getMethod(objectName, methodName, arguments, callback) {
+    function getMethod(objectName, methodName, argumentss, callback) {
         _wrs_callbacks.push({
+            'isWirisMessage': true,
             'id': _wrs_callId,
             'callback': callback
         });
         try {
-            wrs_int_opener.postMessage({'id': _wrs_callId++, 'objectName': objectName, 'methodName' : methodName, 'arguments': arguments}, '*');
+            wrs_int_opener.postMessage({'isWirisMessage': true, 'id': _wrs_callId++, 'objectName': objectName, 'methodName' : methodName, 'arguments': argumentss}, '*');
         }
         catch (err) { // Method postMessage not defined (I.E 7 & 8 ) or not competible with window object (I.E 9).
             var object = (objectName == null) ? wrs_int_opener : wrs_int_opener[objectName];
             if (objectName == null) {
-                callback(object[methodName].apply(object, arguments));
+                callback(object[methodName].apply(object, argumentss));
             } else { // Can't call apply method from some objects on old I.E.
-                var argumentsStrings = arguments.join(',');
+                var argumentsStrings = argumentss.join(',');
                 var result = object[methodName](argumentsStrings);
                 callback(result);
             }
@@ -168,14 +169,24 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             script.type = 'text/javascript';
             var editorUrl = _wrs_conf_editorUrl;
             // Change to https if necessary.
+            // We create an object url for parse url string and work more efficiently.
+            var urlObject = document.createElement('a');
+            urlObject.href = editorUrl;
+
             if (window.location.href.indexOf("https://") == 0) {
-                if (editorUrl.indexOf("http://") == 0) {
-                    editorUrl = "https" + editorUrl.substring(4);
+                // It check if browser is https and configuration is http. If this is so, we will replace protocol.
+                if (urlObject.protocol == 'http:') {
+                    urlObject.protocol = 'https:';
                 }
+            }
+            // Check protocol and remove port if it's standard.
+            if (urlObject.port == '80' || urlObject.port == '443') {
+                editorUrl = urlObject.protocol + '//' + urlObject.hostname + '/' + urlObject.pathname;
+            } else {
+                editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + '/' + urlObject.pathname;
             }
 
             // Editor stats.
-
             statEditor = _wrs_conf_editor;
             statSaveMode = _wrs_conf_saveMode;
             statVersion = _wrs_conf_version;
@@ -183,10 +194,23 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
             script.src = editorUrl + "?lang=" + _wrs_int_langCode + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
             document.getElementsByTagName('head')[0].appendChild(script);
 
-            // Insert strings.
             var script = document.createElement('script');
             script.type = 'text/javascript';
-            script.src = "../lang/" + _wrs_int_langCode + "/strings.js";
+            script.src = "../";
+            // Get lang path.
+            var webScripts = document.getElementsByTagName("script");
+            var scriptName = "strings.js";
+            var found = false;
+            var i = 0;
+            while (!found && i < webScripts.length) {
+                if (webScripts[i].src.indexOf(scriptName) != -1) {
+                    var pathArray = webScripts[i].src.split("/");
+                    // We need to get the lang folder name of "../[lang_folder]/[lang_code]/strings.js".
+                    script.src += pathArray[pathArray.length - 3 ] + "/" + _wrs_int_langCode + "/strings.js";
+                    found = true;
+                }
+                i++
+            }
             document.getElementsByTagName('head')[0].appendChild(script);
         } else {
             setTimeout(wrs_waitForCore, 200);
@@ -248,9 +272,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
 
                 var editorElement = editor.getElement();
                 var editorContainer = document.getElementById('editorContainer');
-                if (isIOS) {
-                    editorContainer.className += ' wrs_editorContainer wrs_modalIos';
-                }
                 editor.insertInto(editorContainer);
 
                 // Mathml content.
@@ -266,27 +287,20 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     if (wrs_int_getCustomEditorEnabled() == null && mathml.indexOf('class="wrs_') != -1) {
                         var classIndexStart = mathml.indexOf('class="wrs_');
                         classIndexEnd = mathml.indexOf(" ", classIndexStart);
-                        mathml = mathml.substring(0, classIndexStart) + mathml.substring(classIndexEnd, mathml.lenght);
+                        mathml = mathml.substring(0, classIndexStart) + mathml.substring(classIndexEnd, mathml.length);
                     }
 
-                    editor.setMathML(mathml);
+                    editor.setMathMLWithCallback(mathml, function(){window.editorListener.setWaitingForChanges(true);});
                 }
 
                 if (typeof strings == 'undefined') {
                     strings = new Object();
                 }
 
-                if (isIOS) {
-                    // Editor and controls container.
-                    var editorAndControlsContainer = document.getElementById('container');
-                    editorAndControlsContainer.className += ' wrs_container wrs_modalIos';
-                }
+                var popup = new PopUpMessage(strings);
 
                 // Submit button.
                 var controls = document.getElementById('controls');
-                if (isIOS) {
-                    controls.className += ' wrs_controls wrs_modalIos';
-                }
                 var submitButton = document.createElement('input');
                 submitButton.type = 'button';
                 submitButton.className = 'wrs_button_accept';
@@ -343,6 +357,8 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         });
                     });
 
+                    // Control buttons need to cause a editor blur in order to reset the state for the next time that it is opened.
+                    editor.blur();
                 });
 
                 var buttonContainer = document.getElementById('buttonContainer');
@@ -361,6 +377,8 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
 
                 wrs_addEvent(cancelButton, 'click', function () {
                     _wrs_closeFunction();
+                    // Control buttons need to cause a editor blur in order to reset the state for the next time that it is opened.
+                    editor.blur();
                 });
 
                 buttonContainer.appendChild(cancelButton);
@@ -373,16 +391,6 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                         buttonContainer.className = buttonContainer.className + ' wrs_modalDesktop';
                     }
                 }
-
-                /*var manualLink = document.getElementById('a_manual');
-                if (typeof manualLink != 'undefined' && strings['manual'] != null){
-                    manualLink.innerHTML = strings['manual'];
-                }
-
-                var latexLink = document.getElementById('a_latex');
-                if (typeof latexLink != 'undefined' && strings['latex'] != null){
-                    latexLink.innerHTML = strings['latex'];
-                }*/
 
                 var queryLang = '';
                 if ('lang' in queryParams){
@@ -398,14 +406,25 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     controls.id = 'controls_rtl';
                 }
 
+                window.editorListener = new EditorListener();
+                editor.getEditorModel().addEditorListener(window.editorListener);
+                if(_wrs_isNewElement){
+                    window.editorListener.setWaitingForChanges(true);
+                }
+
                 // At this point we listen to execute editor methods or fire editor events.
                 wrs_addEvent(window, 'message', function (e) {
                     if (e.data.objectName != 'undefined' && e.data.objectName == 'editor') {
                         editor[e.data.methodName].apply(editor, e.data.arguments);
-                    }
-
-                    if (e.data.objectName != 'undefined' && e.data.objectName == 'editorEvent') {
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorCallback') {
+                        editor.setMathMLWithCallback(e.data.arguments[0], function(){window.editorListener.setIsContentChanged(false);window.editorListener.setWaitingForChanges(true);});
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorEvent') {
                         wrs_fireEvent(window.document, e.data.eventName);
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorClose') {
+                        window.editorListener.setWaitingForChanges(false);
+                        window.editorListener.setIsContentChanged(false);
+                    }else if (e.data.objectName != 'undefined' && e.data.objectName == 'editorResize') {
+                        editor.getElement().style.height = (e.data.arguments[0] - controls.offsetHeight) + "px";
                     }
                 });
 
@@ -421,14 +440,44 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
                     }
                 });
 
-                // Auto resizing.
-                setInterval(function () {
-                    editorElement.style.height = (document.getElementById('container').offsetHeight - controls.offsetHeight - 10) + 'px';
-                }, 100);
+                // Dynamic resize when it is a phone with float keyboard
+                if (_wrs_conf_modalWindow && isIOS) {
+                    var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
+                    wrs_addEvent(formulaDisplayDiv, 'focus', function (e) {
+                        if (_wrs_conf_modalWindow) {
+                            getMethod('_wrs_modalWindow', 'openedIosSoftkeyboard', [], null);
+                        }
+                    });
 
-                setTimeout(function () {
+                    wrs_addEvent(formulaDisplayDiv, 'blur', function (e) {
+                        if (_wrs_conf_modalWindow) {
+                            getMethod('_wrs_modalWindow', 'closedIosSoftkeyboard', [], null);
+                        }
+                    });
+
+                    // Set editor size
+                    getMethod('_wrs_modalWindow', 'closedIosSoftkeyboard', [], null);
+                }
+
+                // Event for close window and trap focus
+                wrs_addEvent(window, 'keydown', function(e) {
+                    if (_wrs_conf_modalWindow) {
+                        if (e.keyCode !== undefined && e.keyCode === 27 && e.repeat === false) {
+                            if (editor.isFormulaEmpty() || window.editorListener.getIsContentChanged() === false) {
+                                _wrs_closeFunction();
+                            }else{
+                                popup.show();
+                            }
+                        }
+                    }
+                });
+
+                if (!isIOS) {
+                    // Due to IOS use soft keyboard, we don't want to move the cursor to WIRIS editor.
                     editor.focus();
-                }, 100);
+                    // Set initial editor height.
+                    editorElement.style.height = (document.getElementById('container').offsetHeight - controls.offsetHeight - 20) + 'px';
+                }
             } else {
                 setTimeout(wrs_waitForEditor, 100);
             }
@@ -440,4 +489,63 @@ var _wrs_isNewElement; // Unfortunately we need this variabels as global variabl
         getMethod(null, 'wrs_int_notifyWindowClosed', [], function(wrs_int_notifyWindowClosed){
         });
     });
+    // PopUpMessageClass definition
+    // This class generate a modal message to show information to user
+    // We should send a language strings to show messages
+    function PopUpMessage(strings)
+    {
+        this.strings = strings;
+        this.overlayEnvolture = document.body.appendChild(document.createElement("DIV"));
+        this.overlayEnvolture.setAttribute("style", "display: none;");
+
+        this.message = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+        this.message.setAttribute("style", "margin: auto;position: absolute;top: 0;left: 0;bottom: 0;right: 0;background: white;width: 65%;height: 69px;border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5;");
+
+        var overlay = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+        overlay.setAttribute("style", "position: fixed; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 4; cursor: pointer;");
+        self = this;
+        // We create a overlay that close popup message on click in there
+        overlay.addEventListener("click", function(){self.close();});
+
+        this.buttonArea = this.message.appendChild(document.createElement('p'));
+        // By default, popupwindow give close modal message with close and cancel buttons
+        // You can set other message with other buttons
+        this.setOptions('close_modal_warning','close,cancel');
+    }
+    PopUpMessage.prototype.setOptions = function(messageKey,values){
+        this.message.removeChild(this.buttonArea);
+        if(typeof this.strings[messageKey] != 'undefined'){
+            this.message.innerHTML = this.strings[messageKey];
+        }
+        this.buttonArea = this.message.appendChild(document.createElement('p'));
+        var types = values.split(',');
+        self = this;
+        // This is definition of buttons. You can create others.
+        types.forEach(function(type){
+            if(type == "close"){
+                var buttonClose = self.buttonArea.appendChild(document.createElement("BUTTON"));
+                buttonClose.setAttribute("style","margin: 0px;border: 0px;background: #567e93;border-radius: 4px;padding: 7px 11px;color: white;");
+                buttonClose.addEventListener('click',function(){self.close();_wrs_closeFunction();})
+                if(typeof this.strings['close'] != 'undefined'){
+                    buttonClose.innerHTML = this.strings['close'];
+                }
+            }
+            if(type == 'cancel'){
+                var buttonCancel = self.buttonArea.appendChild(document.createElement("BUTTON"));
+                buttonCancel.setAttribute("style","margin: 0px;border: 0px;border-radius: 4px;padding: 7px 11px;color: white;color: black;border: 1px solid silver;margin: 0px 5px;");
+                buttonCancel.addEventListener("click", function(){self.close();});
+                if(typeof this.strings['cancel'] != 'undefined'){
+                    buttonCancel.innerHTML = this.strings['cancel'];
+                }
+            }
+        });
+    }
+    // This method show popup message.
+    PopUpMessage.prototype.show = function(){
+        this.overlayEnvolture.setAttribute('style','display: block;')
+    }
+    // This method hide popup message
+    PopUpMessage.prototype.close = function(){
+        this.overlayEnvolture.setAttribute('style','display: none;')
+    }
 })();
