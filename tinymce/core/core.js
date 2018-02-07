@@ -139,6 +139,9 @@ var _wrs_modalWindowProperties = typeof _wrs_modalWindowProperties != 'undefined
 var _wrs_editor = typeof _wrs_editor != 'undefined' ? _wrs_editor : null;
 var _wrs_modalWindow = typeof _wrs_modalWindow != 'undefined' ? _wrs_modalWindow : null;
 
+// If true all MathML should be parse despite of save mode.
+var _wrs_parseXml = true;
+
 /**
  * Adds element events.
  * @param {object} target Target
@@ -1325,12 +1328,6 @@ function wrs_initParse(code, language) {
     in Moodle.
  */
     wrs_initSetSize();
-    if (window._wrs_conf_saveMode) {
-        _wrs_parseXml = _wrs_conf_saveMode == 'safeXml'|| _wrs_conf_saveMode == 'xml';
-        if (window._wrs_conf_parseModes !== undefined) {
-            _wrs_parseXml = _wrs_parseXml || wrs_arrayContains(_wrs_conf_parseModes, 'xml') != -1;
-        }
-    }
     code = wrs_initParseSaveMode(code, language);
     return wrs_initParseEditMode(code);
 }
@@ -4762,6 +4759,7 @@ ModalWindow.prototype.addListeners = function() {
     wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mousemove', this.drag.bind(this));
+    wrs_addEvent(window, 'resize', this.recalculatePosition.bind(this));
 }
 
 /**
@@ -4778,6 +4776,7 @@ ModalWindow.prototype.removeListeners = function() {
     wrs_removeEvent(document, 'mouseup', this.stopDrag);
     wrs_removeEvent(document.getElementsByClassName("wrs_modal_iframe")[0], 'mouseup', this.stopDrag);
     wrs_removeEvent(document, 'mousemove', this.drag);
+    wrs_removeEvent(window, 'resize', this.recalculatePosition);
 }
 
 
@@ -4855,6 +4854,11 @@ ModalWindow.prototype.startDrag = function(ev) {
             wrs_addClass(document.body, 'wrs_noselect');
             // Obtain screen limits for prevent overflow.
             this.limitWindow = this.getLimitWindow();
+            // Prevent lost mouse events into other iframes
+            // Activate overlay div to prevent mouse events behind modal
+            if (_wrs_modalWindow.properties.state != "maximized") {
+                this.overlayDiv.style.display = "";
+            }
         }
     }
 
@@ -4977,8 +4981,28 @@ ModalWindow.prototype.stopDrag = function(ev) {
         }
         // Active text select event
         wrs_removeClass(document.body, 'wrs_noselect');
+        // Disable overlay for click behind modal
+        if (_wrs_modalWindow.properties.state != "maximized") {
+            this.overlayDiv.style.display = "none";
+        }
     }
     this.dragDataObject = null;
+}
+
+/**
+ * Recalculated position for modal when resize browser window
+ *
+ * @ignore
+ */
+ModalWindow.prototype.recalculatePosition = function() {
+    this.containerDiv.style.right = Math.min(parseInt(this.containerDiv.style.right),window.innerWidth - this.scrollbarWidth - this.containerDiv.offsetWidth) + "px";
+    if(parseInt(this.containerDiv.style.right) < 0) {
+        this.containerDiv.style.right = "0px";
+    }
+    this.containerDiv.style.bottom = Math.min(parseInt(this.containerDiv.style.bottom),window.innerHeight - this.containerDiv.offsetHeight) + "px";
+    if(parseInt(this.containerDiv.style.bottom) < 0) {
+        this.containerDiv.style.bottom = "0px";
+    }
 }
 
 /**
