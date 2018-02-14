@@ -1,5 +1,6 @@
 // Define variables needed by core/core.js.
 var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
+var _wrs_plugin_version = "4.12.0.1384";
 var _wrs_int_conf_async = true;
 var _wrs_baseURL;
 
@@ -115,13 +116,13 @@ var _wrs_int_langCode = 'en';
                 // Moodle call scriptLoader multiple times. _wrs_addCoreQueue global variable avoid core multiple loading.
                 if (!_wrs_addCoreQueue) {
                     var scriptLoader = new tinymce.dom.ScriptLoader();
-                    scriptLoader.add(_wrs_conf_path + 'core/core.js');
+                    scriptLoader.add(_wrs_conf_path + 'core/core.js?v=' + _wrs_plugin_version);
                     scriptLoader.loadQueue();
                     _wrs_addCoreQueue = true;
                 }
             } else {
                 if (!_wrs_addCoreQueue) {
-                    tinymce.ScriptLoader.load(_wrs_conf_path + 'core/core.js');
+                    tinymce.ScriptLoader.load(_wrs_conf_path + 'core/core.js?v=' + _wrs_plugin_version);
                     tinymce.ScriptLoader.loadQueue();
                     _wrs_addCoreQueue = true;
                 }
