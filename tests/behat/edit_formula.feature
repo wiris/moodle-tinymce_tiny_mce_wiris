@@ -1,5 +1,5 @@
 @editor @tinymce @tinymce_tiny_mce_wiris
-Feature: TinyMCE WIRIS plugin
+Feature: MathType for TinyMCE
 
   @javascript
   Scenario: Create a formulas
@@ -13,12 +13,12 @@ Feature: TinyMCE WIRIS plugin
     And I press "Save changes"
     And I navigate to "Plugins" in site administration
     And I click on "Manage filters" "link"
-    And I click on "On" "option" in the "Math & Science by WIRIS" "table_row"
+    And I click on "On" "option" in the "MathType" "table_row"
     And I open my profile in edit mode
-    And I click on "WIRIS EDITOR math" "button"
+    And I click on "MathType" "button"
     And I switch to "wrs_modal_iframe_id" iframe
     And I wait "5" seconds
-    And I set wiris formula to "1+2"
+    And I set mathtype formula to "1+2"
     And I click on "//input[@class='wrs_button_accept']" "xpath_element"
     And I switch to the main frame
     And I click on "Update profile" "button"

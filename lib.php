@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library functions for WIRIS plugin for Atto.
+ * Library functions for MathType for TinyMCE.
  *
  * @package    tinymce
  * @subpackage tiny_mce_wiris
@@ -31,8 +31,8 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
     protected function update_init_params(array &$params, context $context,
                                           array $options = null) {
         global $PAGE, $CFG, $COURSE;
-        // We need to know if  WIRIS filter are active in the context of the course.
-        // If not WIRIS plugin should be disabled.
+        // We need to know if MathType filter are active in the context of the course.
+        // If not MathTYPe filter should be disabled.
 
         if (!get_config('filter_wiris', 'allow_editorplugin_active_course')) {
             $context = context_course::instance($COURSE->id);
