@@ -1540,7 +1540,11 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
             }
         }
         else {
-            focusElement.focus();
+            if(typeof focusElement.frameElement != 'undefined'){
+                focusElement.frameElement.focus();
+            }else{
+                focusElement.focus();
+            }
         }
 
         if (_wrs_isNewElement) {
@@ -1633,6 +1637,17 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 _wrs_temporalImage.parentNode.removeChild(_wrs_temporalImage);
             }
             _wrs_temporalImage.parentNode.replaceChild(element, _wrs_temporalImage);
+            function placeCaretAfterNode(node) {
+                if (typeof window.getSelection != "undefined") {
+                    var range = windowTarget.document.createRange();
+                    range.setStartAfter(node);
+                    range.collapse(true);
+                    var selection = windowTarget.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+            placeCaretAfterNode(element);
         }
     }
     catch (e) {
@@ -4556,7 +4571,8 @@ ModalWindow.prototype.isOpen = function() {
  * @ignore
  */
 ModalWindow.prototype.close = function() {
-    this.setMathML('<math/>');
+    // Set disabled focus to prevent lost focus.
+    this.setMathML('<math/>',true);
     this.overlayDiv.style.visibility = 'hidden';
     this.containerDiv.style.visibility = 'hidden';
     this.containerDiv.style.display = 'none';
@@ -5042,9 +5058,12 @@ ModalWindow.prototype.getOriginFromUrl = function(url) {
  * @param {string} mathml MathML string.
  * @ignore
  */
-ModalWindow.prototype.setMathML = function(mathml) {
+ModalWindow.prototype.setMathML = function(mathml, focusDisabled) {
     _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'setMathML', 'arguments': [mathml]}, this.iframeOrigin);
-    this.focus();
+    // Check if focus is not necessary when clean modal on close
+    if(!focusDisabled){
+        this.focus();
+    }
 }
 /**
  * Set a MathML into editor and call function in back.
