@@ -1,21 +1,21 @@
-WIRIS plugin for Moodle
+MathType for TinyMCE
 ==========
 ### Master Build Status
 [![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=master)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
 ### Development Build Status
 [![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=development)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
 
-Add a fully WYSIWYG editor for scientific expressions ([WIRIS EDITOR](http://www.wiris.com/editor)) and, optionally, an advanced calculator tool ([WIRIS CAS](http://www.wiris.com/cas)). Enabled editing to STEM related topics (Science, Technology, Engineering and Mathematics).
+## Description
 
-[WIRIS EDITOR](http://www.wiris.com/editor) is a mathematical **visual (WYSIWYG) editor**. You can use a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. You can create and edit your formulas in a visual environment, just click on the WIRIS editor icon for creation or double-click on the formula for edition. It is based on JavaScript and compatible with HTML 5.
+MathType for TinyMCE adds a fully WYSIWYG editor for scientific expressions ([MathType](http://www.wiris.com/editor)). Enabled editing to STEM related topics (Science, Technology, Engineering and Mathematics).
 
-WIRIS EDITOR offers a **chemistry** toolbar. The maths and the chemistry palette are available from different icons in the rich text editor.
+[MathType](http://www.wiris.com/editor) is a mathematical **visual (WYSIWYG) editor**. You can use a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. You can create and edit your formulas in a visual environment, just click on the WIRIS editor icon for creation or double-click on the formula for edition. It is based on JavaScript and compatible with HTML 5.
 
-[WIRIS CAS](http://www.wiris.com/cas) is an online platform for **mathematical calculations** designed for education. You can access a powerful calculation toolbar through an HTML page that includes integrals and limits calculation, function graphing in 2D or 3D and symbolic matrices manipulation, among others. WIRIS cas covers **all mathematical topics** from primary school to university level (Calculus, Algebra, Geometry, Differential Equations...).
+MathType offers a **chemistry** toolbar. Maths and the chemistry toolbars are available from different icons in Atto toolbar.
 
-WIRIS tools can be used for **free** up to a certain level of use per natural year. Please read **license** conditions and prices at [WIRIS store](http://www.wiris.com/store).
+MathType for TinyMCE can be used for **free** up to a certain level of use per natural year. Please read **license** conditions and prices at [WIRIS Store](http://www.wiris.com/store).
 
-In order to use WIRIS tools for editing you need to combine **[WIRIS filter](https://github.com/wiris/moodle-filter_wiris)** with **[WIRIS plugin for Atto](https://github.com/wiris/mooodle-atto_wiris)** and/or **[WIRIS plugin for TinyMCE](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris)**.
+In order to use MathType for TinyMCE need to combine it with **[WIRIS filter](https://github.com/wiris/moodle-filter_wiris)**
 
 ## Install instructions
 To install it using git, type this command in the root of your Moodle install:
