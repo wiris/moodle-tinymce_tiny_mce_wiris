@@ -13,7 +13,7 @@ Feature: MathType for TinyMCE
     And I press "Save changes"
     And I navigate to "Plugins" in site administration
     And I click on "Manage filters" "link"
-    And I click on "On" "option" in the "MathType" "table_row"
+    And I click on "On" "option" in the "MathType by WIRIS" "table_row"
     And I open my profile in edit mode
     And I click on "MathType" "button"
     And I switch to "wrs_modal_iframe_id" iframe
