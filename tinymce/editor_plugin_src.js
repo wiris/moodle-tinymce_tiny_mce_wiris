@@ -1,6 +1,6 @@
 // Define variables needed by core/core.js.
 var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
-var _wrs_plugin_version = "4.12.0.1384";
+var _wrs_plugin_version = "7.0.0.1386";
 var _wrs_int_conf_async = true;
 var _wrs_baseURL;
 
