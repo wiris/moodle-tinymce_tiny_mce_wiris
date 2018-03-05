@@ -17,9 +17,15 @@ WIRIS tools can be used for **free** up to a certain level of use per natural ye
 
 In order to use WIRIS tools for editing you need to combine **[WIRIS filter](https://github.com/wiris/moodle-filter_wiris)** with **[WIRIS plugin for Atto](https://github.com/wiris/mooodle-atto_wiris)** and/or **[WIRIS plugin for TinyMCE](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris)**.
 
-###### More than editing, better quizzes
-Interested in mathematical quizzes with random parameters and automated evaluation?
-Must check our new STEM question types at WIRIS quizzes plugin.
+## Install instructions
+To install it using git, type this command in the root of your Moodle install:
+```
+git clone https://github.com/wiris/moodle-tinymce_tiny_mce_wiris.git lib/editor/tinymce/plugins/tiny_mce_wiris
+```
+Then add /filter/wiris to your git ignore.
 
-###### Previous version of Moodle?
-Running a **previous version** of Moodle? You can download the components from [wiris.com](http://www.wiris.com/plugins/moodle/download) 
+Alternatively, download the zip from <https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/archive/master.zip> it into the TinyMCE plugins folder, and then rename the new folder to "tiny_mce_wiris".
+
+## License
+
+MathType for Atto is Licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).

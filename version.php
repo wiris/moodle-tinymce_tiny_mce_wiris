@@ -20,15 +20,15 @@
  *
  * @package    tinymce
  * @subpackage tiny_mce_wiris
- * @copyright  Maths for More S.L. <info@wiris.com>
+ * @copyright  WIRIS Europe (Maths for more S.L)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018020100;
-$plugin->release = '4.12.0.1384';
+$plugin->version = 2018030500;
+$plugin->release = '7.0.0.1386';
 $plugin->requires = 2012120300;
 $plugin->component = 'tinymce_tiny_mce_wiris';
-$plugin->dependencies = array ('filter_wiris' => 2018020100);
+$plugin->dependencies = array ('filter_wiris' => 2018030500);
 $plugin->maturity = MATURITY_STABLE;

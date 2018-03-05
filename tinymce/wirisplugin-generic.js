@@ -1,5 +1,6 @@
 // Configuration.
-var _wrs_int_conf_file = '../../../../../../filter/wiris/integration/configurationjs.php';
+var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
+var _wrs_plugin_version = "7.0.0.1386";
 var _wrs_int_conf_async = true;
 
 // Stats editor (needed by core/editor.js).
@@ -45,7 +46,7 @@ var _wrs_int_temporalImageResizing;
 var _wrs_int_langCode;
 var _wrs_int_directionality = '';
 // Custom Editors.
-var _wrs_int_customEditors = {chemistry : {name: 'Chemistry', toolbar : 'chemistry', icon : 'chem.png', enabled : false, confVariable : '_wrs_conf_chemEnabled', title: 'WIRIS EDITOR chemistry'}}
+var _wrs_int_customEditors = {chemistry : {name: 'Chemistry', toolbar : 'chemistry', icon : 'chem.png', enabled : false, confVariable : '_wrs_conf_chemEnabled', title: 'ChemType', tooltip: 'Insert a chemistry formula - ChemType'}}
 
 
 if (typeof _wrs_int_langCode == 'undefined') {
@@ -63,7 +64,7 @@ if (typeof _wrs_int_langCode == 'undefined') {
 // Including core.js.
 var script = document.createElement('script');
 script.type = 'text/javascript';
-script.src = _wrs_conf_path + '/core/core.js';
+script.src = _wrs_conf_path + '/core/core.js?v=' + _wrs_plugin_version;
 document.getElementsByTagName('head')[0].appendChild(script);
 
 // Load configuration synchronously.
@@ -78,7 +79,7 @@ if (!_wrs_int_conf_async) {
 // Plugin integration.
 
 /**
- * Inits the WIRIS plugin for this demo.
+ * Inits the MathType for this demo.
  * @param iframe editable iframe
  * @param toolbar HTML element where icons will be inserted
  */
