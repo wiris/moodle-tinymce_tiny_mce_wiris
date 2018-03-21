@@ -1601,21 +1601,31 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         // help's MathType to focus properly on the current editor window.
         if (typeof wrs_int_insertElementOnSelection != 'undefined') {
             wrs_int_insertElementOnSelection();
-            if (!_wrs_range) {
-                focusElement.focus();
-            }
         }
-        else {
-            if(typeof focusElement.frameElement != 'undefined'){
-                // Iexplorer can't focus into iframe
-                if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0 ) {
-                    focusElement.focus();
-                }else{
-                    focusElement.frameElement.focus();
+        if(typeof focusElement.frameElement != 'undefined'){
+            function get_browser(){
+                var ua = navigator.userAgent;
+                if(ua.search("Edge/") >= 0){
+                    return "EDGE";
+                }else if(ua.search("Chrome/") >= 0){
+                    return "CHROME";
+                }else if(ua.search("Trident/") >= 0){
+                    return "IE";
+                }else if(ua.search("Firefox/") >= 0){
+                    return "FIREFOX";
+                }else if(ua.search("Safari/") >= 0){
+                    return "SAFARI";
                 }
-            }else{
-                focusElement.focus();
             }
+            var browserName = get_browser();
+            // Iexplorer, Edge and Safari can't focus into iframe
+            if (browserName == 'SAFARI' || browserName == 'IE' || browserName == 'EDGE') {
+                focusElement.focus();
+            }else{
+                focusElement.frameElement.focus();
+            }
+        }else{
+            focusElement.focus();
         }
 
         if (_wrs_isNewElement) {
@@ -1645,10 +1655,8 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 }
             }
             else {
-                var ua = navigator.userAgent.toLowerCase();
-                var isAndroid = ua.indexOf("android") > -1;
-                var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
                 var selection = windowTarget.getSelection();
+                // We have use wrs_range beacuse IExplorer delete selection when select another part of text.
                 if (_wrs_range) {
                     var range = _wrs_range;
                     _wrs_range = null;
@@ -1677,20 +1685,17 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 else if (node.nodeType == 1) { // ELEMENT_NODE.
                     node.insertBefore(element, node.childNodes[position]);
                 }
-
-                if (!isAndroid && !isIOS){
-                    // Fix to set the caret after the inserted image.
-                    range.selectNode(element);
-                    position = range.endOffset;
-                    selection.collapse(node, position);
-                    // Integration function
-                    // If wrs_int_setCaretPosition function exists on
-                    // integration script can call caret method from the editor instance.
-                    // With this method we can call proper specific editor methods which in some scenarios
-                    // help's MathType to set caret position properly on the current editor window.
-                    if (typeof wrs_int_selectRange != 'undefined') {
-                        wrs_int_selectRange(range);
-                    }
+                // Fix to set the caret after the inserted image.
+                range.selectNode(element);
+                position = range.endOffset;
+                selection.collapse(node, position);
+                // Integration function
+                // If wrs_int_setCaretPosition function exists on
+                // integration script can call caret method from the editor instance.
+                // With this method we can call proper specific editor methods which in some scenarios
+                // help's MathType to set caret position properly on the current editor window.
+                if (typeof wrs_int_selectRange != 'undefined') {
+                    wrs_int_selectRange(range);
                 }
             }
         }
@@ -2978,6 +2983,17 @@ function wrs_closeModalWindow() {
         _wrs_editMode = (window._wrs_conf_defaultEditMode) ? _wrs_conf_defaultEditMode : 'images';
         _wrs_modalWindow.close();
     }
+}
+
+/**
+ * Check content of editor before close action
+ * @ignore
+ */
+function wrs_showPopUpMessage() {
+    if (_wrs_modalWindow.properties.state == 'minimized') {
+        _wrs_modalWindow.stackModalWindow();
+    }
+    _wrs_modalWindow.popup.show();
 }
 
 /**
@@ -4549,7 +4565,9 @@ ModalWindow.prototype.create = function() {
     document.body.appendChild(this.containerDiv);
     document.body.appendChild(this.overlayDiv);
 
-    wrs_addEvent(this.closeDiv, 'click', this.close.bind(this));
+    wrs_addEvent(this.closeDiv, 'click', function(){
+        _wrs_popupWindow.postMessage({'objectName' : 'checkCloseCondition'}, this.iframeOrigin);
+    }.bind(this));
 
     if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isIOS'] && !this.deviceProperties['isAndroid']) { // Desktop.
         this.stackDiv.addEventListener('click', this.stackModalWindow.bind(this), true);
@@ -4572,6 +4590,8 @@ ModalWindow.prototype.create = function() {
     }
     // This method obtain a width of scrollBar
     this.scrollbarWidth = this.getScrollBarWidth();
+
+    this.popup = new PopUpMessage(strings);
 }
 
 ModalWindow.prototype.open = function() {
@@ -5295,6 +5315,83 @@ ModalWindow.prototype.setIframeContainerHeight = function (height) {
     this.iosDivHeight = height;
     _wrs_modalWindow.iframeContainer.style.height = height;
     _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
+}
+// PopUpMessageClass definition
+// This class generate a modal message to show information to user
+// We should send a language strings to show messages
+function PopUpMessage(strings)
+{
+    this.strings = strings;
+    this.overlayEnvolture = document.getElementsByClassName('wrs_modal_iframeContainer')[0].appendChild(document.createElement("DIV"));
+    this.overlayEnvolture.setAttribute("style", "display: none;width: 100%;");
+
+    this.message = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+    this.message.setAttribute("style", "margin: auto;position: absolute;top: 0;left: 0;bottom: 0;right: 0;background: white;width: 75%;height: 130px;border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5;");
+
+    var overlay = this.overlayEnvolture.appendChild(document.createElement("DIV"));
+    overlay.setAttribute("style", "position: absolute; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 4; cursor: pointer;");
+    self = this;
+    // We create a overlay that close popup message on click in there
+    overlay.addEventListener("click", function(){self.close();});
+
+    this.buttonArea = this.message.appendChild(document.createElement('p'));
+    // By default, popupwindow give close modal message with close and cancel buttons
+    // You can set other message with other buttons
+    this.setOptions('close_modal_warning','close,cancel');
+    document.addEventListener('keydown',function(e) {
+        if (e.key !== undefined && e.repeat === false) {
+            if (e.key == "Escape" || e.key === 'Esc') {
+                _wrs_popupWindow.postMessage({'objectName' : 'checkCloseCondition'}, _wrs_modalWindow.iframeOrigin);
+            }
+        }
+    });
+}
+PopUpMessage.prototype.setOptions = function(messageKey,values){
+    this.message.removeChild(this.buttonArea);
+    if(typeof this.strings[messageKey] != 'undefined'){
+        this.message.innerHTML = this.strings[messageKey];
+    }
+    this.buttonArea = this.message.appendChild(document.createElement('p'));
+    var types = values.split(',');
+    self = this;
+    // This is definition of buttons. You can create others.
+    types.forEach(function(type){
+        if(type == "close"){
+            var buttonClose = self.buttonArea.appendChild(document.createElement("BUTTON"));
+            buttonClose.setAttribute("style","margin: 0px;border: 0px;background: #567e93;border-radius: 4px;padding: 7px 11px;color: white;");
+            buttonClose.addEventListener('click',function(){self.close();wrs_closeModalWindow();})
+            if(typeof this.strings['close'] != 'undefined'){
+                buttonClose.innerHTML = this.strings['close'];
+            }
+        }
+        if(type == 'cancel'){
+            var buttonCancel = self.buttonArea.appendChild(document.createElement("BUTTON"));
+            buttonCancel.setAttribute("style","margin: 0px;border: 0px;border-radius: 4px;padding: 7px 11px;color: white;color: black;border: 1px solid silver;margin: 0px 5px;");
+            buttonCancel.addEventListener("click", function(){self.close();});
+            if(typeof this.strings['cancel'] != 'undefined'){
+                buttonCancel.innerHTML = this.strings['cancel'];
+            }
+        }
+    });
+}
+// This method show popup message.
+PopUpMessage.prototype.show = function(){
+    if (this.overlayEnvolture.style.display != 'block') {
+        // Clear focus with blur for prevent press anykey
+        document.activeElement.blur();
+        _wrs_popupWindow.postMessage({'objectName' : 'blur'}, _wrs_modalWindow.iframeOrigin);
+        // For works with Safari
+        window.focus();
+        this.overlayEnvolture.style.display = 'block';
+    }else{
+        this.overlayEnvolture.style.display = 'none';
+        _wrs_modalWindow.focus();
+    }
+}
+// This method hide popup message
+PopUpMessage.prototype.close = function(){
+    this.overlayEnvolture.style.display = 'none';
+    _wrs_modalWindow.focus();
 }
 
 var _wrs_conf_core_loaded = true;
