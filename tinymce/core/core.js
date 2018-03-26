@@ -4468,6 +4468,7 @@ function ModalWindow(path, editorAttributes) {
     deviceProperties['isAndroid'] = isAndroid ? true : false;
     deviceProperties['isIOS'] = isIOS ? true : false;
     deviceProperties['isMobile'] = isMobile;
+    deviceProperties['isDesktop'] = !isMobile && !isIOS && !isAndroid;
 
     this.deviceProperties = deviceProperties;
     this.properties = {
@@ -4561,7 +4562,7 @@ ModalWindow.prototype.create = function() {
         }
     });
 
-    if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isAndroid'] && !this.deviceProperties['isIOS']) {
+    if (this.deviceProperties['isDesktop']) {
         this.containerDiv.appendChild(this.titleBardDiv);
     }
     this.containerDiv.appendChild(this.iframeContainer);
@@ -4575,7 +4576,7 @@ ModalWindow.prototype.create = function() {
         _wrs_popupWindow.postMessage({'objectName' : 'checkCloseCondition'}, this.iframeOrigin);
     }.bind(this));
 
-    if (!this.deviceProperties['isMobile'] && !this.deviceProperties['isIOS'] && !this.deviceProperties['isAndroid']) { // Desktop.
+    if (this.deviceProperties['isDesktop']) { // Desktop.
         this.stackDiv.addEventListener('click', this.stackModalWindow.bind(this), true);
         this.minimizeDiv.addEventListener('click', this.minimizeModalWindow.bind(this), true);
         this.createModalWindowDesktop();
@@ -4591,9 +4592,11 @@ ModalWindow.prototype.create = function() {
     this.properties.open = true;
     this.properties.created = true;
 
-    if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
-        this.maximizeModalWindow();
+    // Maximize window only when the configuration is set and the device is not ios or android.
+    if (this.deviceProperties['isDesktop'] && typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
+            this.maximizeModalWindow();
     }
+    this.popup = new PopUpMessage(strings);
 }
 
 ModalWindow.prototype.open = function() {
@@ -4640,7 +4643,8 @@ ModalWindow.prototype.open = function() {
             }
         }
 
-        if (typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
+        // Maximize window only when the configuration is set and the device is not ios or android.
+        if (this.deviceProperties['isDesktop'] && typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
             this.maximizeModalWindow();
         }
 
