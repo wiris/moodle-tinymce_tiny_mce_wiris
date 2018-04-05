@@ -1,6 +1,6 @@
 // Define variables needed by core/core.js.
 var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
-var _wrs_plugin_version = "7.0.0.1386";
+var _wrs_plugin_version = "7.1.0.1387";
 var _wrs_int_conf_async = true;
 var _wrs_baseURL;
 
@@ -86,6 +86,12 @@ var _wrs_int_langCode = 'en';
                     }
                     return true;
                 }
+            }
+
+            // Updating integration paths if context path is overwrited by editor javascript configuration.
+            if (typeof tinyMCE.activeEditor.getParam('wiriscontextpath') != 'undefined') {
+                _wrs_int_conf_file = tinyMCE.activeEditor.getParam('wiriscontextpath') + _wrs_int_conf_file;
+                _wrs_int_path = wrs_intPath(_wrs_int_conf_file, tinyMCE.activeEditor.getParam('wiriscontextpath'));
             }
 
             // Including core.js
