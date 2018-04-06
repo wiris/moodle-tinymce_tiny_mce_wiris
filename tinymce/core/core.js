@@ -5414,5 +5414,4 @@ PopUpMessage.prototype.close = function(){
     this.overlayEnvolture.style.display = 'none';
     _wrs_modalWindow.focus();
 }
-
 var _wrs_conf_core_loaded = true;
