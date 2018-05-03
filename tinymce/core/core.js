@@ -664,24 +664,20 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
         var output = '';
         var endPosition = 0;
         var startPosition = code.indexOf('$$');
-
         while (startPosition != -1) {
             output += code.substring(endPosition, startPosition);
             endPosition = code.indexOf('$$', startPosition + 2);
 
             if (endPosition != -1) {
+                /**
+                 * Before, it was a condition here to execute the next codelines 'latex.indexOf('<') == -1'.
+                 * We don't know why it was used, but seems to have a conflict with latex formulas that contains '<'.
+                 */
                 var latex = code.substring(startPosition + 2, endPosition);
-
-                if (latex.indexOf('<') == -1) {
-                    latex = wrs_htmlentitiesDecode(latex);
-                    var mathml = wrs_getMathMLFromLatex(latex, true);
-                    output += mathml;
-                    endPosition += 2;
-                }
-                else {
-                    output += '$$';
-                    endPosition = startPosition + 2;
-                }
+                latex = wrs_htmlentitiesDecode(latex);
+                var mathml = wrs_getMathMLFromLatex(latex, true);
+                output += mathml;
+                endPosition += 2;
             }
             else {
                 output += '$$';
@@ -1271,7 +1267,9 @@ function wrs_getSelectedItemOnTextarea(textarea) {
     if (typeof mathml == 'undefined') {
         mathml = wrs_getMathMLFromLatex(latex);
     }
-    var img = wrs_parseMathmlToImg(mathml, _wrs_xmlCharacters, _wrs_int_langCode);
+
+    var mathmlWithoutSemantics = wrs_removeSemanticsMathml(mathml);
+    var img = wrs_parseMathmlToImg(mathmlWithoutSemantics, _wrs_xmlCharacters, _wrs_int_langCode);
     var div = document.createElement('div');
     div.innerHTML = img;
 
@@ -2424,7 +2422,7 @@ function wrs_parseMathmlToLatex(content, characters){
 
 /**
  * Converts all occurrences of mathml code to the corresponding image.
- * @param {string} content An string with valid MathML code.
+ * @param {string} content An string with valid MathML code. The matml code doesn't contain semantics.
  * @param {object} characters An object containing xmlCharacters or safeXmlCharacters relation.
  * @param {string} language String containging a valid language code in order to generate formula accesibilty.
  * @return {string} The input string with all the MathML ocurrences replaced by the corresponding image.
@@ -3198,6 +3196,11 @@ function wrs_populateAccessibleCache(mathml, accessibleText) {
  */
 function wrs_insertSemanticsMathml(mathml, latex) {
 
+    // If latex is empty, insert semantics doesn't provide information. We can avoid semantics insertion and return the mathml.
+    if (latex == "") {
+        return mathml;
+    }
+
     var firstEndTag = '>';
     var mathTagEnd = '<' + '/math' + '>';
     var openSemantics = '<' + 'semantics' + '>';
@@ -3223,6 +3226,27 @@ function wrs_insertSemanticsMathml(mathml, latex) {
         return mathml;
     }
 
+}
+
+/**
+ * Removes annotation tag to mathml.
+ * @param {*} mathml Valid MathML.
+ */
+function wrs_removeSemanticsMathml(mathml) {
+    var mathTagEnd = '<' + '/math' + '>';
+    var openSemantics = '<' + 'semantics' + '>';
+    var openAnnotation = '<annotation encoding="LaTeX">';
+
+    var mathmlWithoutSemantics = mathml;
+    var startSemantics = mathml.indexOf(openSemantics);
+    if (startSemantics != -1) {
+        var startAnnotation = mathml.indexOf(openAnnotation, startSemantics + openSemantics.length);
+        if (startAnnotation != -1) {
+            mathmlWithoutSemantics = mathml.substring(0, startSemantics) + mathml.substring(startSemantics + openSemantics.length, startAnnotation) + mathTagEnd;
+        }
+    }
+
+    return mathmlWithoutSemantics;
 }
 
 /**
@@ -4475,7 +4499,9 @@ function ModalWindow(path, editorAttributes) {
         created : false,
         state : '',
         previousState : '',
-        deviceProperties: deviceProperties
+        deviceProperties: deviceProperties,
+        position : {bottom: 0, right: 10},
+        size :  {height: 338, width: 580}
     }
 
     this.properties.iframeAttributes = iframeAttributes;
@@ -4515,6 +4541,13 @@ function ModalWindow(path, editorAttributes) {
     this.stackDiv = stackModalDiv;
 
     attributes = {};
+    attributes['class'] = 'wrs_modal_maximize_button';
+    attributes['title'] = strings['fullscreen'];
+    var maximizeModalDiv = wrs_createElement('a', attributes);
+    maximizeModalDiv.setAttribute('role','button');
+    this.maximizeDiv = maximizeModalDiv;
+
+    attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
     attributes['title'] = strings['minimise'];
     var minimizeModalDiv = wrs_createElement('a', attributes);
@@ -4524,7 +4557,6 @@ function ModalWindow(path, editorAttributes) {
     attributes = {};
     attributes['class'] = 'wrs_modal_dialogContainer';
     var containerDiv = wrs_createElement('div', attributes);
-    containerDiv.style.overflow = 'hidden';
     this.containerDiv = containerDiv;
 
     attributes = {};
@@ -4552,6 +4584,7 @@ function ModalWindow(path, editorAttributes) {
 ModalWindow.prototype.create = function() {
     this.titleBardDiv.appendChild(this.closeDiv);
     this.titleBardDiv.appendChild(this.stackDiv);
+    this.titleBardDiv.appendChild(this.maximizeDiv);
     this.titleBardDiv.appendChild(this.minimizeDiv);
     this.titleBardDiv.appendChild(this.titleDiv);
     this.iframeContainer.appendChild(this.iframe);
@@ -4577,9 +4610,11 @@ ModalWindow.prototype.create = function() {
     }.bind(this));
 
     if (this.deviceProperties['isDesktop']) { // Desktop.
+        this.maximizeDiv.addEventListener('click', this.maximizeModalWindow.bind(this), true);
         this.stackDiv.addEventListener('click', this.stackModalWindow.bind(this), true);
         this.minimizeDiv.addEventListener('click', this.minimizeModalWindow.bind(this), true);
         this.createModalWindowDesktop();
+        this.createResizeButtons();
     }
     else if (this.deviceProperties['isAndroid']) {
         this.createModalWindowAndroid();
@@ -4597,6 +4632,84 @@ ModalWindow.prototype.create = function() {
             this.maximizeModalWindow();
     }
     this.popup = new PopUpMessage(strings);
+}
+
+/**
+ * Method to create resize buttons in modal DOM
+ * @ignore
+ */
+ModalWindow.prototype.createResizeButtons = function() {
+    // This is a definition of Resize Button Bottom-Right
+    this.resizerBR = document.createElement('div');
+    this.resizerBR.className  = 'wrs_bottom_right_resizer';
+    this.resizerBR.innerHTML = '◢';
+    // This is a definition of Resize Button Top-Left
+    this.resizerTL = document.createElement('div');
+    this.resizerTL.className  = 'wrs_bottom_left_resizer';
+    // Append resize buttons to modal
+    this.containerDiv.appendChild(this.resizerBR);
+    this.titleBardDiv.appendChild(this.resizerTL);
+    // Add events to resize on click and drag
+    wrs_addEvent(this.resizerBR, 'mousedown', this.activateResizeStateBR.bind(this));
+    wrs_addEvent(this.resizerTL, 'mousedown', this.activateResizeStateTL.bind(this));
+}
+/**
+ * Method to initialize variables for Bottom-Right resize button
+ * @param {event} ev mouse
+ * @ignore
+ */
+ModalWindow.prototype.activateResizeStateBR = function(ev) {
+    this.initializeResizeProperties(ev, false);
+}
+
+/**
+ * Method to initialize variables for Top-Left resize button
+ * @param {event} ev mouse
+ * @ignore
+ */
+ModalWindow.prototype.activateResizeStateTL = function(ev) {
+    this.initializeResizeProperties(ev, true);
+}
+
+/**
+ * Common method to initialize variables at resize
+ * @param {event} ev mouse
+ * @ignore
+ */
+ModalWindow.prototype.initializeResizeProperties = function(ev, leftOption) {
+    // Apply class for disable involuntary select text when drag.
+    wrs_addClass(document.body, 'wrs_noselect');
+    this.resizeDataObject = {
+        x: this.eventClient(ev).X,
+        y: this.eventClient(ev).Y
+    };
+    // Save Initial state of modal to compare on drag and obtain the difference.
+    this.initialWidth = parseInt(this.containerDiv.style.width);
+    this.initialHeight = parseInt(this.containerDiv.style.height);
+    if (!leftOption) {
+        this.initialRight = parseInt(this.containerDiv.style.right);
+        this.initialBottom = parseInt(this.containerDiv.style.bottom);
+    } else {
+        this.leftScale = true;
+    }
+    if (!this.initialRight){
+        this.initialRight = 0;
+    }
+    if (!this.initialBottom){
+        this.initialBottom = 0;
+    }
+    // Disable mouse events on editor when we start to drag modal.
+    this.iframe.style['pointer-events'] = 'none';
+    document.body.style['user-select'] = 'none';
+    // Needed for IE11 for apply disabled mouse events on editor because iexplorer need a dinamic object to apply this property.
+    if (this.isIE11()) {
+        this.iframe.style['position'] = 'relative';
+    }
+    // Prevent lost mouse events into other iframes
+    // Activate overlay div to prevent mouse events behind modal
+    if (_wrs_modalWindow.properties.state != "maximized") {
+        this.overlayDiv.style.display = "";
+    }
 }
 
 ModalWindow.prototype.open = function() {
@@ -4639,7 +4752,7 @@ ModalWindow.prototype.open = function() {
             }
 
             if (!this.properties.deviceProperties.isAndroid && !this.properties.deviceProperties.isIOS) {
-                this.stackModalWindow();
+                this.restoreStateModalWindow();
             }
         }
 
@@ -4714,6 +4827,7 @@ ModalWindow.prototype.isOpen = function() {
  * @ignore
  */
 ModalWindow.prototype.close = function() {
+    this.saveModalProperties();
     // Set disabled focus to prevent lost focus.
     this.setMathML('<math/>',true);
     this.overlayDiv.style.visibility = 'hidden';
@@ -4723,9 +4837,6 @@ ModalWindow.prototype.close = function() {
     this.overlayDiv.style.display = 'none';
     this.properties.open = false;
     wrs_int_disableCustomEditors();
-    // Properties to initial state.
-    this.properties.state = '';
-    this.properties.previousState = '';
     setTimeout(
         function() {
             if (typeof _wrs_currentEditor != 'undefined' && _wrs_currentEditor) {
@@ -4733,6 +4844,18 @@ ModalWindow.prototype.close = function() {
             }
         }, 100);
     _wrs_popupWindow.postMessage({'objectName' : 'editorClose'}, this.iframeOrigin);
+}
+
+/**
+ * Util function for know if user is using iexplorer v11.
+ * @return {boolean} return true if browser is iexplorer v11 or false in others.
+ * @ignore
+ */
+ModalWindow.prototype.isIE11 = function() {
+    if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0 ) {
+        return true;
+    }
+    return false;
 }
 
 ModalWindow.prototype.addClass = function(cls) {
@@ -4744,6 +4867,7 @@ ModalWindow.prototype.addClass = function(cls) {
     wrs_addClass(this.iframe, cls);
     wrs_addClass(this.stackDiv, cls);
     wrs_addClass(this.minimizeDiv, cls);
+    wrs_addClass(this.maximizeDiv, cls);
 }
 
 ModalWindow.prototype.removeClass = function(cls) {
@@ -4755,6 +4879,7 @@ ModalWindow.prototype.removeClass = function(cls) {
     wrs_removeClass(this.iframe, cls);
     wrs_removeClass(this.stackDiv, cls);
     wrs_removeClass(this.minimizeDiv, cls);
+    wrs_removeClass(this.maximizeDiv, cls);
 }
 
 ModalWindow.prototype.setTitle = function(title) {
@@ -4764,10 +4889,6 @@ ModalWindow.prototype.setTitle = function(title) {
 }
 /**
  * Create modal dialog for desktop OS.
- * @param  {modalDiv} modal overlay div.
- * @param  {containerDiv} modal window div.
- * @param  {iframe} embedded iframe.
- * @param  {iframeParams}  embedded iframe params (height, width).
  * @ignore
  */
 ModalWindow.prototype.createModalWindowDesktop = function() {
@@ -4777,10 +4898,6 @@ ModalWindow.prototype.createModalWindowDesktop = function() {
 
 /**
  * Create modal dialog for non mobile android devices.
- * @param  {modalDiv} modal overlay div.
- * @param  {containerDiv} modal window div.
- * @param  {iframe} embedded iframe.
- * @param  {iframeParams}  embedded iframe params (height, width).
  * @ignore
  */
 
@@ -4808,43 +4925,56 @@ ModalWindow.prototype.createModalWindowIos = function() {
     });
 }
 
-ModalWindow.prototype.stackModalWindow = function () {
-    if (this.properties.state == 'stack' || (this.properties.state == 'minimized') && !this.properties.previousState == 'stack') {
+/**
+ * Restore previous state, position and size of previous stacked modal window
+ * @ignore
+ */
+
+ModalWindow.prototype.restoreStateModalWindow = function() {
+    if (this.properties.state == 'maximized') {
+        // Reseting states for prevent return to stack state.
         this.maximizeModalWindow();
+    } else if (this.properties.state == 'minimized') {
+        // Reseting states for prevent return to stack state.
+        this.properties.state = this.properties.previousState;
+        this.properties.previousState = '';
+        this.minimizeModalWindow();
     } else {
-        this.properties.previousState = this.properties.state;
-        this.properties.state = 'stack';
-        this.containerDiv.style.top = null;
-        this.containerDiv.style.left = null;
-        this.containerDiv.style.position = null;
-        this.containerDiv.style.bottom = '0px';
-        this.containerDiv.style.right = '10px';
+        this.stackModalWindow();
+    }
+}
 
-        this.overlayDiv.style.background = "rgba(0,0,0,0)";
+ModalWindow.prototype.stackModalWindow = function () {
+    this.properties.previousState = this.properties.state;
+    this.properties.state = 'stack';
+    // Change cursor to dragable
+    this.titleDiv.style.cursor = '';
+    this.stackDiv.title = "Full-screen";
+    this.overlayDiv.style.background = "rgba(0,0,0,0)";
+    this.removeClass('wrs_maximized');
+    this.minimizeDiv.title = "Minimise";
+    this.removeClass('wrs_minimized');
+    this.addClass('wrs_stack');
 
-        this.stackDiv.title = "Full-screen";
-
-        var modalWidth = parseInt(this.properties.iframeAttributes['width']);
-        this.iframeContainer.style.width = modalWidth + 'px';
-        this.iframeContainer.style.height = 300 + 'px';
-        this.containerDiv.style.width = (modalWidth + 12) + 'px';
-        this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
-        this.iframe.style.height = (parseInt(300) + 3) + 'px';
-        this.iframe.style.margin = '6px';
-        this.removeClass('wrs_maximized');
-        this.minimizeDiv.title = "Minimise";
-        this.removeClass('wrs_minimized');
-        this.addClass('wrs_stack');
-        if (typeof _wrs_popupWindow != 'undefined' && _wrs_popupWindow) {
-            _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
-        }
-        if (typeof _wrs_popupWindow != 'undefined' && _wrs_popupWindow) {
-            this.focus();
-        }
+    this.restoreModalProperties();
+    // Sending sizes to iframe
+    if (typeof _wrs_popupWindow != 'undefined' && _wrs_popupWindow) {
+        this.containerDiv.style.position = "fixed";
+        this.setResizeButtonsVisibility();
+        this.applyIframeSize();
+    }
+    // Need recalculate position of actual modal because window can was changed in fullscreenmode
+    this.recalculateScrollBar();
+    this.recalculatePosition();
+    this.recalculateScale();
+    if (typeof _wrs_popupWindow != 'undefined' && _wrs_popupWindow) {
+        this.focus();
     }
 }
 
 ModalWindow.prototype.minimizeModalWindow = function() {
+    // Saving width, height, top and bottom parameters to restore when open
+    this.saveModalProperties();
     if (this.properties.state == 'minimized' && this.properties.previousState == 'stack') {
         this.stackModalWindow();
     }
@@ -4852,15 +4982,13 @@ ModalWindow.prototype.minimizeModalWindow = function() {
         this.maximizeModalWindow();
     }
     else {
+        // Change cursor to non-dragable
+        this.titleDiv.style.cursor = 'auto';
+
         this.removeListeners();
         this.properties.previousState = this.properties.state;
         this.properties.state = "minimized";
-        this.containerDiv.style.width = null;
-        this.containerDiv.style.left = null;
-        this.containerDiv.style.top = null;
-        this.containerDiv.style.position = null;
-        this.containerDiv.style.right = "10px";
-        this.containerDiv.style.bottom = "0px";
+        this.setResizeButtonsVisibility();
         this.overlayDiv.style.background = "rgba(0,0,0,0)";
         this.minimizeDiv.title = "Maximise";
 
@@ -4870,30 +4998,32 @@ ModalWindow.prototype.minimizeModalWindow = function() {
         else {
             this.removeClass('wrs_maximized');
         }
-
         this.addClass('wrs_minimized');
     }
 }
 
 /**
- * Minimizes modal window.
+ * Maximize modal window.
  * @ignore
  */
 ModalWindow.prototype.maximizeModalWindow = function() {
-    this.properties.previousState = this.properties.state;
-    this.properties.state = 'maximized';
+    // Saving width, height, top and bottom parameters to restore when open
+    this.saveModalProperties();
 
-    this.iframeContainer.style.width = this.modalWidth + 'px';
-    this.iframeContainer.style.height = this.modalHeight + 'px';
-    this.containerDiv.style.width = (this.modalWidth + 12) + 'px';
-    this.iframe.style.width = this.properties.iframeAttributes['width'] + 'px';
-    this.iframe.style.height = (parseInt(this.properties.iframeAttributes['height']) + 3) + 'px';
-    this.iframe.style.margin = '6px';
-    this.removeClass('wrs_drag');
+    // Change cursor to dragable
+    this.titleDiv.style.cursor = '';
+    if (this.properties.state != 'maximized') {
+        this.properties.previousState = this.properties.state;
+        this.properties.state = 'maximized';
+    }
+    // Don't permit resize on maximize mode.
+    this.setResizeButtonsVisibility();
+
     if (wrs_containsClass(this.overlayDiv, 'wrs_minimized')) {
         this.minimizeDiv.title = "Minimise";
         this.removeClass('wrs_minimized');
-    } else if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
+    }
+    else if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
         this.containerDiv.style.left = null;
         this.containerDiv.style.top = null;
         this.removeClass('wrs_stack');
@@ -4903,19 +5033,107 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.overlayDiv.style.display = '';
     this.addClass('wrs_maximized');
 
-    this.containerDiv.style.bottom = window.innerHeight / 2 - this.containerDiv.offsetHeight / 2 + "px";
-    this.containerDiv.style.right = window.innerWidth / 2 - this.containerDiv.offsetWidth / 2 + "px";
-    this.containerDiv.style.position = "fixed";
-    _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
-    this.focus();
+    // Set size to 80% screen with a max size.
+    this.setSize(parseInt(window.innerHeight * 0.8) , parseInt(window.innerWidth * 0.8));
+    var sizeModificated = false;
+    if (this.containerDiv.clientHeight > 700) {
+        this.containerDiv.style.height = '700px';
+        sizeModificated = true;
+    }
+    if (this.containerDiv.clientWidth > 1200) {
+        this.containerDiv.style.width  = '1200px';
+        sizeModificated = true;
+    }
 
+    // Setting modal position in center on screen.
+    this.setPosition(window.innerHeight / 2 - this.containerDiv.offsetHeight / 2, window.innerWidth / 2 - this.containerDiv.offsetWidth / 2);
+    this.recalculateScale();
+    this.recalculatePosition();
+    this.applyIframeSize();
+    this.focus();
+}
+
+/**
+ * Set modal size.
+ * @param  {integer} height set a height of modal with an integer
+ * @param  {integer} width set a width of modal with an integer
+ * @ignore
+ */
+ModalWindow.prototype.setSize = function(height, width) {
+    this.containerDiv.style.height = height + 'px';
+    this.containerDiv.style.width = width + 'px';
+    this.applyIframeSize();
+}
+
+/**
+ * Set modal position.
+ * @param  {integer} bottom set a bottom of div modal with an integer
+ * @param  {integer} right set a right of div modal with an integer
+ * @ignore
+ */
+ModalWindow.prototype.setPosition = function(bottom, right) {
+    this.containerDiv.style.bottom = bottom + 'px';
+    this.containerDiv.style.right = right + 'px';
+}
+
+/**
+ * Save actual parameters of opened modal (like size and position...) to restore when modal will open.
+ * @ignore
+ */
+ModalWindow.prototype.saveModalProperties = function() {
+    // Saving values of modal only when modal is in stack state.
+    if (this.properties.state == 'stack') {
+        this.properties.position.bottom = parseInt(this.containerDiv.style.bottom);
+        this.properties.position.right = parseInt(this.containerDiv.style.right);
+        this.properties.size.width = parseInt(this.containerDiv.style.width);
+        this.properties.size.height = parseInt(this.containerDiv.style.height);
+    }
+}
+
+/**
+ * Restore previous parameters values of closed modal (like size and position) and apply this parameters in actual modal.
+ * @ignore
+ */
+ModalWindow.prototype.restoreModalProperties = function() {
+    if (this.properties.state == 'stack') {
+        // Restoring Bottom and Right values from last modal
+        this.setPosition(this.properties.position.bottom, this.properties.position.right);
+        // Restoring Height and Left values from last modal
+        this.setSize(this.properties.size.height, this.properties.size.width);
+    }
+}
+
+/**
+ * Set modal size.
+ * @ignore
+ */
+ModalWindow.prototype.applyIframeSize = function() {
+    this.iframeContainer.style.width = this.containerDiv.clientWidth + 'px';
+    this.iframeContainer.style.height = this.containerDiv.clientHeight - 38 + 'px';
+    this.iframe.style.width = parseInt(this.iframeContainer.style.width) - 12 + 'px';
+    this.iframe.style.height = this.iframeContainer.style.height;
+    if ( typeof _wrs_popupWindow != 'undefined') {
+        _wrs_popupWindow.postMessage({'objectName' : 'editorResize', 'arguments': [_wrs_modalWindow.iframeContainer.offsetHeight - 10]}, this.iframeOrigin);
+    }
+}
+
+/**
+ * Active and disable visibility of resize buttons in modal window depend on state.
+ * @ignore
+ */
+ModalWindow.prototype.setResizeButtonsVisibility = function() {
+    if (this.properties.state == 'stack') {
+        this.resizerTL.style.visibility = 'visible';
+        this.resizerBR.style.visibility = 'visible';
+    }
+    else {
+        this.resizerTL.style.visibility = 'hidden';
+        this.resizerBR.style.visibility = 'hidden';
+    }
 }
 
 /**
  * Makes an object draggable adding mouse and touch events.
- *
- * @param  {object} draggable object (for example modal dialog).
- * @param  {target} target to add the events (for example de titlebar of a modal dialog)
  * @ignore
  */
 ModalWindow.prototype.addListeners = function() {
@@ -4924,14 +5142,11 @@ ModalWindow.prototype.addListeners = function() {
     wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mouseup', this.stopDrag.bind(this));
     wrs_addEvent(document, 'mousemove', this.drag.bind(this));
-    wrs_addEvent(window, 'resize', this.recalculatePosition.bind(this));
+    wrs_addEvent(window, 'resize', this.onWindowResize.bind(this));
 }
 
 /**
  * Removes draggable events from an object.
- *
- * @param  {object} draggable object (for example modal dialog).
- * @param  {target} target to add the events (for example de titlebar of a modal dialog)
  * @ignore
  */
 ModalWindow.prototype.removeListeners = function() {
@@ -4941,13 +5156,13 @@ ModalWindow.prototype.removeListeners = function() {
     wrs_removeEvent(document, 'mouseup', this.stopDrag);
     wrs_removeEvent(document.getElementsByClassName("wrs_modal_iframe")[0], 'mouseup', this.stopDrag);
     wrs_removeEvent(document, 'mousemove', this.drag);
-    wrs_removeEvent(window, 'resize', this.recalculatePosition);
+    wrs_removeEvent(window, 'resize', this.onWindowResize);
 }
 
 
 /**
  * Returns mouse or touch coordinates (on touch events ev.ClientX doesn't exists)
- * @param {event} ev mnouse or touch event
+ * @param {event} ev mouse or touch event
  * @return {object} with the X and Y coordinates.
  * @ignore
  */
@@ -4958,7 +5173,8 @@ ModalWindow.prototype.eventClient = function(ev) {
             Y : ev.changedTouches[0].clientY
         };
         return client;
-    } else {
+    }
+    else {
         client = {
             X : ev.clientX,
             Y : ev.clientY
@@ -5012,7 +5228,7 @@ ModalWindow.prototype.startDrag = function(ev) {
             // Disable mouse events on editor when we start to drag modal.
             this.iframe.style['pointer-events'] = 'none';
             // Needed for IE11 for apply disabled mouse events on editor because iexplorer need a dinamic object to apply this property.
-            if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0 ) {
+            if (this.isIE11()) {
                 this.iframe.style['position'] = 'relative';
             }
             // Apply class for disable involuntary select text when drag.
@@ -5036,7 +5252,7 @@ ModalWindow.prototype.startDrag = function(ev) {
  * @ignore
  */
 ModalWindow.prototype.drag = function(ev) {
-    if(this.dragDataObject) {
+    if (this.dragDataObject) {
         ev.preventDefault();
         ev = ev || event;
         // Calculate max and min between actual mouse position and limit of screeen. It restric the movement of modal into window.
@@ -5055,6 +5271,45 @@ ModalWindow.prototype.drag = function(ev) {
         // This move modal with hadware acceleration.
         this.containerDiv.style.transform = "translate3d(" + dragX + "," + dragY + ",0)";
         this.containerDiv.style.position = 'absolute';
+    }
+    if (this.resizeDataObject) {
+        var limitX = Math.min(this.eventClient(ev).X,window.innerWidth - this.scrollbarWidth - 7);
+        var limitY = Math.min(this.eventClient(ev).Y,window.innerHeight - 7);
+        if (limitX < 0) {
+            limitX = 0;
+        }
+
+        if (limitY < 0) {
+            limitY = 0;
+        }
+
+        var scaleMultiplier;
+        if (this.leftScale) {
+            scaleMultiplier = -1;
+        }
+        else {
+            scaleMultiplier = 1;
+        }
+        this.containerDiv.style.width = this.initialWidth + scaleMultiplier * (limitX - this.resizeDataObject.x) + 'px';
+        this.containerDiv.style.height = this.initialHeight + scaleMultiplier * (limitY - this.resizeDataObject.y) + 'px';
+        if (!this.leftScale) {
+            if (this.resizeDataObject.x - limitX - this.initialWidth < -580) {
+                this.containerDiv.style.right = this.initialRight - (limitX - this.resizeDataObject.x) + 'px';
+            }
+            else {
+                this.containerDiv.style.right  = this.initialRight + this.initialWidth - 580 + "px";
+                this.containerDiv.style.width = "580px";
+            }
+            if (this.resizeDataObject.y - limitY < this.initialHeight - 338) {
+                this.containerDiv.style.bottom = this.initialBottom - (limitY - this.resizeDataObject.y) + 'px';
+            }
+            else {
+                this.containerDiv.style.bottom  = this.initialBottom + this.initialHeight - 338 + "px";
+                this.containerDiv.style.height = "338px";
+            }
+        }
+        this.recalculateScale();
+        this.recalculatePosition();
     }
 }
 /**
@@ -5126,22 +5381,25 @@ ModalWindow.prototype.getScrollBarWidth = function() {
 ModalWindow.prototype.stopDrag = function(ev) {
     // Due to we have multiple events that call this function, we need only to execute the next modifiers one time,
     // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
-    if (this.dragDataObject) {
+    if (this.dragDataObject || this.resizeDataObject) {
         // If modal doesn't change, it's not necessary to set position with interpolation
         if(this.containerDiv.style.position != 'fixed'){
             this.containerDiv.style.position = 'fixed';
             // Fixed position makes the coords relative to the main window. So that, we need to transform
             // the absolute coords to relative.
             this.containerDiv.style.transform = '';
-            this.containerDiv.style.right = parseInt(this.containerDiv.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
-            this.containerDiv.style.bottom = parseInt(this.containerDiv.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
+            if (this.dragDataObject) {
+                this.containerDiv.style.right = parseInt(this.containerDiv.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
+                this.containerDiv.style.bottom = parseInt(this.containerDiv.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
+            }
         }
         // We make focus on editor after drag modal windows to prevent lose focus.
         this.focus();
         // Restore mouse events on iframe
         this.iframe.style['pointer-events'] = 'auto';
+        document.body.style['user-select'] = '';
         // Restore static state of iframe if we use iexplorer
-        if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0 ) {
+        if (this.isIE11()) {
             this.iframe.style['position'] = null;
         }
         // Active text select event
@@ -5152,27 +5410,68 @@ ModalWindow.prototype.stopDrag = function(ev) {
         }
     }
     this.dragDataObject = null;
+    this.resizeDataObject = null;
+    this.initialWidth = null;
+    this.leftScale = null;
 }
 
 /**
- * Recalculated position for modal when resize browser window
+ * Recalculating scale for modal when resize browser window
+ *
+ * @ignore
+ */
+ModalWindow.prototype.onWindowResize = function() {
+    this.recalculateScrollBar();
+    this.recalculatePosition();
+    this.recalculateScale();
+}
+
+/**
+ * Recalculating position for modal when resize browser window
  *
  * @ignore
  */
 ModalWindow.prototype.recalculatePosition = function() {
-    this.recalculateScrollBar();
-    this.containerDiv.style.right = Math.min(parseInt(this.containerDiv.style.right),window.innerWidth - this.scrollbarWidth - this.containerDiv.offsetWidth) + "px";
+    this.containerDiv.style.right = Math.min(parseInt(this.containerDiv.style.right), window.innerWidth - this.scrollbarWidth - this.containerDiv.offsetWidth) + "px";
     if(parseInt(this.containerDiv.style.right) < 0) {
         this.containerDiv.style.right = "0px";
     }
-    this.containerDiv.style.bottom = Math.min(parseInt(this.containerDiv.style.bottom),window.innerHeight - this.containerDiv.offsetHeight) + "px";
+    this.containerDiv.style.bottom = Math.min(parseInt(this.containerDiv.style.bottom), window.innerHeight - this.containerDiv.offsetHeight) + "px";
     if(parseInt(this.containerDiv.style.bottom) < 0) {
         this.containerDiv.style.bottom = "0px";
     }
 }
 
 /**
- * Recalculated width of scrollBar browser
+ * Recalculating scale for modal when resize browser window
+ *
+ * @ignore
+ */
+ModalWindow.prototype.recalculateScale = function() {
+    var sizeModificated = false;
+    if (parseInt(this.containerDiv.style.width) > 580) {
+        this.containerDiv.style.width = Math.min(parseInt(this.containerDiv.style.width), window.innerWidth - this.scrollbarWidth) + "px";
+        sizeModificated = true;
+    }
+    else {
+        this.containerDiv.style.width = "580px";
+        sizeModificated = true;
+    }
+    if (parseInt(this.containerDiv.style.height) > 338) {
+        this.containerDiv.style.height = Math.min(parseInt(this.containerDiv.style.height), window.innerHeight) + "px";
+        sizeModificated = true;
+    }
+    else {
+        this.containerDiv.style.height = "338px";
+        sizeModificated = true;
+    }
+    if (sizeModificated) {
+        this.applyIframeSize();
+    }
+}
+
+/**
+ * Recalculating width of scrollBar browser
  *
  * @ignore
  */
@@ -5180,7 +5479,8 @@ ModalWindow.prototype.recalculateScrollBar = function() {
     this.hasScrollBar = window.innerWidth > document.documentElement.clientWidth;
     if(this.hasScrollBar){
         this.scrollbarWidth = this.getScrollBarWidth();
-    }else{
+    }
+    else {
         this.scrollbarWidth = 0;
     }
 }
@@ -5222,7 +5522,7 @@ ModalWindow.prototype.getOriginFromUrl = function(url) {
 ModalWindow.prototype.setMathML = function(mathml, focusDisabled) {
     _wrs_popupWindow.postMessage({'objectName' : 'editor', 'methodName' : 'setMathML', 'arguments': [mathml]}, this.iframeOrigin);
     // Check if focus is not necessary when clean modal on close
-    if(!focusDisabled){
+    if (!focusDisabled){
         this.focus();
     }
 }
@@ -5347,7 +5647,7 @@ function PopUpMessage(strings)
     this.overlayEnvolture.setAttribute("style", "display: none;width: 100%;");
 
     this.message = this.overlayEnvolture.appendChild(document.createElement("DIV"));
-    this.message.setAttribute("style", "margin: auto;position: absolute;top: 0;left: 0;bottom: 0;right: 0;background: white;width: 75%;height: 130px;border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5;");
+    this.message.setAttribute("style", "top:50%; left: 50%; transform: translate(-50%,-50%); position: absolute; background: white; max-width: 500px; width: 75%; border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5; max-height: 75%; overflow: auto;");
 
     var overlay = this.overlayEnvolture.appendChild(document.createElement("DIV"));
     overlay.setAttribute("style", "position: absolute; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 4; cursor: pointer;");
@@ -5373,6 +5673,7 @@ PopUpMessage.prototype.setOptions = function(messageKey,values){
         this.message.innerHTML = this.strings[messageKey];
     }
     this.buttonArea = this.message.appendChild(document.createElement('p'));
+    this.buttonArea.style.margin = '10px 0 0 0';
     var types = values.split(',');
     self = this;
     // This is definition of buttons. You can create others.
@@ -5404,7 +5705,8 @@ PopUpMessage.prototype.show = function(){
         // For works with Safari
         window.focus();
         this.overlayEnvolture.style.display = 'block';
-    }else{
+    }
+    else {
         this.overlayEnvolture.style.display = 'none';
         _wrs_modalWindow.focus();
     }
