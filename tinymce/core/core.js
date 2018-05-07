@@ -669,10 +669,8 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
             endPosition = code.indexOf('$$', startPosition + 2);
 
             if (endPosition != -1) {
-                /**
-                 * Before, it was a condition here to execute the next codelines 'latex.indexOf('<') == -1'.
-                 * We don't know why it was used, but seems to have a conflict with latex formulas that contains '<'.
-                 */
+                // Before, it was a condition here to execute the next codelines 'latex.indexOf('<') == -1'.
+                // We don't know why it was used, but seems to have a conflict with latex formulas that contains '<'.
                 var latex = code.substring(startPosition + 2, endPosition);
                 latex = wrs_htmlentitiesDecode(latex);
                 var mathml = wrs_getMathMLFromLatex(latex, true);
@@ -4981,6 +4979,12 @@ ModalWindow.prototype.minimizeModalWindow = function() {
         this.maximizeModalWindow();
     }
     else {
+        // Setting css to prevent important tag into css style
+        this.containerDiv.style.height = "30px";
+        this.containerDiv.style.width = "250px";
+        this.containerDiv.style.bottom = "0px";
+        this.containerDiv.style.right = "10px";
+
         this.removeListeners();
         this.properties.previousState = this.properties.state;
         this.properties.state = "minimized";
