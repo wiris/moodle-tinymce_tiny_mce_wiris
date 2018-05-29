@@ -1,5 +1,45 @@
 var _wrs_popupWindow;
 
+/**
+ * StringManager class to use strings in code correctly with control.
+ * @ignore
+ */
+function StringManager() {
+    // Strings are empty when it creates, it set when calls load method.
+    this.strings = null;
+    this.stringsLoaded = false;
+}
+
+/**
+ * This method return a string passing a key.
+ * @param  {string} key of array strings that you want.
+ * @return string A text that you want or key if it doesn't exist.
+ * @ignore
+ */
+StringManager.prototype.getString = function(key) {
+    // Wait 200ms and recall this method if strings aren't load.
+    if (!this.stringsLoaded) {
+        setTimeout(this.getString.bind(this, key), 100);
+        return;
+    }
+    if (key in this.strings) {
+        return this.strings[key];
+    }
+    return key;
+}
+/**
+ * This method load all strings to the manager and unset it for prevent bad usage.
+ * @param  {array} String array of language
+ * @ignore
+ */
+StringManager.prototype.loadStrings = function(langStrings) {
+    if (!this.stringsLoaded) {
+        this.strings = langStrings;
+        // Activate variable to unlock getStrings
+        this.stringsLoaded = true;
+    }
+}
+
 wrs_addEvent(window, 'message', function (e) {
     if (e.source = _wrs_popupWindow && typeof e.wrs_processed == 'undefined' && typeof e.data.isWirisMessage != 'undefined') {
         e.wrs_processed = true;
@@ -48,14 +88,21 @@ wrs_addEvent(window, 'mouseup', function (e) {
     }
 });
 
+// Translated languages.
+var _wrs_languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
+
+// Load lang file at first to replace some variables
+wrs_loadLangFile()
+
 // Vars.
+var _wrs_stringManager = new StringManager();
 var _wrs_currentPath = window.location.toString().substr(0, window.location.toString().lastIndexOf('/') + 1);
 var _wrs_editMode = typeof _wrs_editMode != 'undefined' ? _wrs_editMode : undefined;
 var _wrs_isNewElement = typeof _wrs_isNewElement != 'undefined' ? _wrs_isNewElement : true;
 var _wrs_temporalImage;
 var _wrs_temporalFocusElement;
 var _wrs_range;
-var _wrs_latex_formula_name = "Latex Formula";
+var _wrs_latex_formula_name = _wrs_stringManager.getString('latex_name_label');
 var _wrs_latex_formula_number = 1;
 
 // Tags used for LaTeX formulas.
@@ -111,9 +158,6 @@ var _wrs_staticNodeLengths = {
     'IMG': 1,
     'BR': 1
 }
-
-// Translated languages.
-var _wrs_languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
 
 // Backwards compatibily.
 
@@ -419,7 +463,7 @@ function wrs_createElement(elementName, attributes, creator) {
  */
 function wrs_createHttpRequest() {
     if (_wrs_currentPath.substr(0, 7) == 'file://') {
-        throw 'Cross site scripting is only allowed for HTTP.';
+        throw _wrs_stringManager.getString('exception_cross_site');
     }
 
     if (typeof XMLHttpRequest != 'undefined') {
@@ -873,7 +917,7 @@ function wrs_getContent(url, postVariables) {
             return httpRequest.responseText;
         }
 
-        alert('Your browser is not compatible with AJAX technology. Please, use the latest version of Mozilla Firefox.');
+        alert(_wrs_stringManager.getString('browser_no_compatible'));
     }
     catch (e) {
     }
@@ -1937,7 +1981,7 @@ function wrs_fixedCharCodeAt(str, idx) {
         hi = code;
         low = str.charCodeAt(idx + 1);
         if (isNaN(low)) {
-            throw 'High surrogate not followed by low surrogate in fixedCharCodeAt()';
+            throw _wrs_stringManager.getString('exception_high_surrogate');
         }
         return ((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
     }
@@ -1971,7 +2015,7 @@ function wrs_mathmlToAccessible(mathml, language, data) {
             accessibleText = accesibleJsonResponse.result.text;
         }
         else {
-            accessibleText = 'Error converting from MathML to accessible text.';
+            accessibleText = _wrs_stringManager.getString('error_convert_accessibility');
         }
     }
 
@@ -2167,19 +2211,6 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
             wrs_populateAccessibleCache(mathml, imgObject.alt);
         }
     }
-    /* if (_wrs_conf_setSize) {
-        var ar = wrs_urlToAssArray(result);
-        width = ar['cw'];
-        height = ar['ch'];
-        baseline = ar['cb'];
-        dpi = ar['dpi'];
-        if (dpi) {
-            width = width * 96/dpi;
-            height = height * 96/dpi;
-            baseline = baseline * 96/dpi;
-        }
-        // result = wrs_assArrayToUrl(ar);
-    }*/
 
     if (typeof wrs_observer != 'undefined') {
         wrs_observer.observe(imgObject, wrs_observer_config);
@@ -2343,7 +2374,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
         }
     }
 
-    var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'MathType';
+    var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : _wrs_stringManager.getString('mathtype');
     if (typeof _wrs_conf_modalWindow != 'undefined' && _wrs_conf_modalWindow === false) {
         _wrs_popupWindow = window.open(path, title, _wrs_conf_editorAttributes);
         return _wrs_popupWindow;
@@ -2924,6 +2955,12 @@ function wrs_loadLangFile() {
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = wrs_getCorePath() + "/lang/" + _wrs_int_langCode + "/strings.js";
+    // When strings are loaded, it loads into stringManager
+    script.onload = function() {
+        _wrs_stringManager.loadStrings(wrs_strings);
+        // Unseting global language strings array to prevent access.
+        wrs_strings = null;
+    };
     document.getElementsByTagName('head')[0].appendChild(script);
 }
 
@@ -2944,8 +2981,6 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
     wrs_loadServicePaths(configUrl);
     _wrs_conf_plugin_loaded = true;
 }
-
-wrs_loadLangFile()
 
 /**
  * Create modal window with embebbed iframe
@@ -3385,7 +3420,7 @@ function wrs_b64ToByteArray(b64String, len) {
     var tmp;
 
     if (b64String.length % 4 > 0) {
-        throw new Error('Invalid string. Length must be a multiple of 4'); // Tipped base64. Length is fixed.
+        throw new Error(_wrs_stringManager.getString('exception_string_length')); // Tipped base64. Length is fixed.
     }
 
     var arr = new Array()
@@ -3663,7 +3698,7 @@ if (!Object.keys) {
 
         return function (obj) {
             if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
-                throw new TypeError('Object.keys called on non-object');
+                throw new TypeError(_wrs_stringManager.getString('exception_key_nonobject'));
             }
 
             var result = [], prop, i;
@@ -3796,7 +3831,7 @@ if (!Array.prototype.forEach) {
         var T, k;
 
         if (this == null) {
-            throw new TypeError(' this is null or not defined');
+            throw new TypeError(_wrs_stringManager.getString('exception_null_or_undefined'));
         }
 
         // 1. Let O be the result of calling ToObject passing the |this| value as the argument.
@@ -3812,7 +3847,7 @@ if (!Array.prototype.forEach) {
         // 4. If IsCallable(callback) is false, throw a TypeError exception.
         // See: http://es5.github.com/#x9.11 .
         if (typeof callback !== "function") {
-            throw new TypeError(callback + ' is not a function');
+            throw new TypeError(callback + _wrs_stringManager.getString('exception_not_function'));
         }
 
         // 5. If thisArg was supplied, let T be thisArg; else let T be undefined.
@@ -4526,28 +4561,28 @@ function ModalWindow(path, editorAttributes) {
 
     attributes = {};
     attributes['class'] = 'wrs_modal_close_button';
-    attributes['title'] = strings['close'];
+    attributes['title'] = _wrs_stringManager.getString('close');
     var closeModalDiv = wrs_createElement('a', attributes);
     closeModalDiv.setAttribute('role','button');
     this.closeDiv = closeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_stack_button';
-    attributes['title'] = "Exit full-screen";
+    attributes['title'] = _wrs_stringManager.getString('exit_fullscreen');
     var stackModalDiv = wrs_createElement('a', attributes);
     stackModalDiv.setAttribute('role','button');
     this.stackDiv = stackModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_maximize_button';
-    attributes['title'] = strings['fullscreen'];
+    attributes['title'] = _wrs_stringManager.getString('fullscreen');
     var maximizeModalDiv = wrs_createElement('a', attributes);
     maximizeModalDiv.setAttribute('role','button');
     this.maximizeDiv = maximizeModalDiv;
 
     attributes = {};
     attributes['class'] = 'wrs_modal_minimize_button';
-    attributes['title'] = strings['minimise'];
+    attributes['title'] = _wrs_stringManager.getString('minimize');
     var minimizeModalDiv = wrs_createElement('a', attributes);
     minimizeModalDiv.setAttribute('role','button');
     this.minimizeDiv = minimizeModalDiv;
@@ -4560,7 +4595,7 @@ function ModalWindow(path, editorAttributes) {
     attributes = {};
     attributes['id'] = 'wrs_modal_iframe_id';
     attributes['class'] = 'wrs_modal_iframe';
-    attributes['title'] = 'MathType modal window';
+    attributes['title'] = _wrs_stringManager.getString('mathtype');
     attributes['src'] = iframeAttributes['src'];
     attributes['frameBorder'] = "0";
     var iframeModal = wrs_createElement('iframe', attributes);
@@ -4631,7 +4666,9 @@ ModalWindow.prototype.create = function() {
     if (this.deviceProperties['isDesktop'] && typeof _wrs_conf_modalWindow != "undefined" && _wrs_conf_modalWindow && _wrs_conf_modalWindowFullScreen) {
             this.maximizeModalWindow();
     }
-    this.popup = new PopUpMessage(strings);
+
+    var popUpAtributes = {'cancelString' : _wrs_stringManager.getString('cancel'), 'submitString' : _wrs_stringManager.getString('close'), 'message' : _wrs_stringManager.getString('close_modal_warning')};
+    this.popup = new PopUpMessage(popUpAtributes);
 }
 
 /**
@@ -4766,7 +4803,7 @@ ModalWindow.prototype.open = function() {
             this.setIframeContainerHeight("100" + this.iosMeasureUnit);
         }
     } else {
-        var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : 'MathType';
+        var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : _wrs_stringManager.getString('mathtype');
         _wrs_modalWindow.setTitle(title);
         this.create();
     }
@@ -4786,7 +4823,7 @@ ModalWindow.prototype.updateToolbar = function() {
         }
     } else {
         var toolbar = this.checkToolbar();
-        _wrs_modalWindow.setTitle('MathType');
+        _wrs_modalWindow.setTitle(_wrs_stringManager.getString('mathtype'));
         if (this.toolbar == null || this.toolbar != toolbar) {
             this.setToolbar(toolbar);
             wrs_int_disableCustomEditors();
@@ -4949,7 +4986,7 @@ ModalWindow.prototype.stackModalWindow = function () {
     this.properties.state = 'stack';
     this.overlayDiv.style.background = "rgba(0,0,0,0)";
     this.removeClass('wrs_maximized');
-    this.minimizeDiv.title = "Minimise";
+    this.minimizeDiv.title = _wrs_stringManager.getString('minimize');
     this.removeClass('wrs_minimized');
     this.addClass('wrs_stack');
 
@@ -4990,7 +5027,7 @@ ModalWindow.prototype.minimizeModalWindow = function() {
         this.properties.state = "minimized";
         this.setResizeButtonsVisibility();
         this.overlayDiv.style.background = "rgba(0,0,0,0)";
-        this.minimizeDiv.title = "Maximise";
+        this.minimizeDiv.title = _wrs_stringManager.getString('maximize');
 
         if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
             this.removeClass('wrs_stack');
@@ -5017,7 +5054,7 @@ ModalWindow.prototype.maximizeModalWindow = function() {
     this.setResizeButtonsVisibility();
 
     if (wrs_containsClass(this.overlayDiv, 'wrs_minimized')) {
-        this.minimizeDiv.title = "Minimise";
+        this.minimizeDiv.title = _wrs_stringManager.getString('minimize');
         this.removeClass('wrs_minimized');
     }
     else if (wrs_containsClass(this.overlayDiv, 'wrs_stack')) {
@@ -5635,26 +5672,43 @@ ModalWindow.prototype.setIframeContainerHeight = function (height) {
 }
 // PopUpMessageClass definition
 // This class generate a modal message to show information to user
-// We should send a language strings to show messages
-function PopUpMessage(strings)
+function PopUpMessage(popupAttributes)
 {
-    this.strings = strings;
     this.overlayEnvolture = document.getElementsByClassName('wrs_modal_iframeContainer')[0].appendChild(document.createElement("DIV"));
-    this.overlayEnvolture.setAttribute("style", "display: none;width: 100%;");
+    this.overlayEnvolture.setAttribute("class", "wrs_popupmessage_overlay_envolture");
 
-    this.message = this.overlayEnvolture.appendChild(document.createElement("DIV"));
-    this.message.setAttribute("style", "top:50%; left: 50%; transform: translate(-50%,-50%); position: absolute; background: white; max-width: 500px; width: 75%; border-radius: 2px;padding: 20px;font-family: sans-serif;font-size: 15px;text-align: left;color: #2e2e2e;z-index: 5; max-height: 75%; overflow: auto;");
+    this.message = this.overlayEnvolture.appendChild(document.createElement("div"));
+    this.message.id = "wrs_popupmessage"
+    this.message.setAttribute("class", "wrs_popupmessage_panel");
+    this.message.innerHTML = popupAttributes.message;
 
-    var overlay = this.overlayEnvolture.appendChild(document.createElement("DIV"));
-    overlay.setAttribute("style", "position: absolute; width: 100%; height: 100%; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 4; cursor: pointer;");
-    self = this;
+    var overlay = this.overlayEnvolture.appendChild(document.createElement("div"));
+    overlay.setAttribute("class", "wrs_popupmessage_overlay");
     // We create a overlay that close popup message on click in there
-    overlay.addEventListener("click", function(){self.close();});
+    overlay.addEventListener("click", this.close.bind(this));
 
-    this.buttonArea = this.message.appendChild(document.createElement('p'));
+    this.buttonArea = this.message.appendChild(document.createElement('div'));
+    this.buttonArea.setAttribute("class", "wrs_popupmessage_button_area");
+    this.buttonArea.id = 'wrs_popup_button_area';
+
+    // Buttons creation
+    buttonSubmitArguments = {
+        class: "wrs_button_accept",
+        innerHTML: popupAttributes.submitString,
+        id: 'wrs_popup_accept_button'
+    };
+    this.acceptButton = this.createButton(buttonSubmitArguments, this.closeModal.bind(this));
+    this.buttonArea.appendChild(this.acceptButton);
+
+    buttonCancelArguments = {
+        class: "wrs_button_cancel",
+        innerHTML: popupAttributes.cancelString,
+        id: 'wrs_popup_cancel_button'
+    };
+    this.cancelButton = this.createButton(buttonCancelArguments, this.close.bind(this));
+    this.buttonArea.appendChild(this.cancelButton);
     // By default, popupwindow give close modal message with close and cancel buttons
     // You can set other message with other buttons
-    this.setOptions('close_modal_warning','close,cancel');
     document.addEventListener('keydown',function(e) {
         if (e.key !== undefined && e.repeat === false) {
             if (e.key == "Escape" || e.key === 'Esc') {
@@ -5663,34 +5717,21 @@ function PopUpMessage(strings)
         }
     });
 }
-PopUpMessage.prototype.setOptions = function(messageKey,values){
-    this.message.removeChild(this.buttonArea);
-    if(typeof this.strings[messageKey] != 'undefined'){
-        this.message.innerHTML = this.strings[messageKey];
+// This method create a button with arguments and return button dom object
+PopUpMessage.prototype.createButton = function(parameters, callback) {
+    function popUpButton(parameters) {
+        this.element = document.createElement("button");
+        this.element.setAttribute("id", parameters.id);
+        this.element.setAttribute("class", parameters.class);
+        this.element.innerHTML = parameters.innerHTML;
+        this.element.addEventListener("click", callback);
     }
-    this.buttonArea = this.message.appendChild(document.createElement('p'));
-    this.buttonArea.style.margin = '10px 0 0 0';
-    var types = values.split(',');
-    self = this;
-    // This is definition of buttons. You can create others.
-    types.forEach(function(type){
-        if(type == "close"){
-            var buttonClose = self.buttonArea.appendChild(document.createElement("BUTTON"));
-            buttonClose.setAttribute("style","margin: 0px;border: 0px;background: #567e93;border-radius: 4px;padding: 7px 11px;color: white;");
-            buttonClose.addEventListener('click',function(){self.close();wrs_closeModalWindow();})
-            if(typeof this.strings['close'] != 'undefined'){
-                buttonClose.innerHTML = this.strings['close'];
-            }
-        }
-        if(type == 'cancel'){
-            var buttonCancel = self.buttonArea.appendChild(document.createElement("BUTTON"));
-            buttonCancel.setAttribute("style","margin: 0px;border: 0px;border-radius: 4px;padding: 7px 11px;color: white;color: black;border: 1px solid silver;margin: 0px 5px;");
-            buttonCancel.addEventListener("click", function(){self.close();});
-            if(typeof this.strings['cancel'] != 'undefined'){
-                buttonCancel.innerHTML = this.strings['cancel'];
-            }
-        }
-    });
+
+    popUpButton.prototype.getElement = function() {
+        return this.element;
+    }
+
+    return new popUpButton(parameters).getElement();
 }
 // This method show popup message.
 PopUpMessage.prototype.show = function(){
@@ -5711,5 +5752,10 @@ PopUpMessage.prototype.show = function(){
 PopUpMessage.prototype.close = function(){
     this.overlayEnvolture.style.display = 'none';
     _wrs_modalWindow.focus();
+}
+// This method close modal and close popupmessage
+PopUpMessage.prototype.closeModal = function(){
+    this.close();
+    wrs_closeModalWindow();
 }
 var _wrs_conf_core_loaded = true;
