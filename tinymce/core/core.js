@@ -4283,6 +4283,30 @@ var ModalWindow = function () {
         this.lastImageWasNew = true;
 
         this.contentManager = null;
+
+        // Overlay popup.
+        var popupStrings = {
+            'cancelString': _wrs_stringManager.getString('cancel'),
+            'submitString': _wrs_stringManager.getString('close'),
+            'message': _wrs_stringManager.getString('close_modal_warning')
+        };
+
+        var callbacks = {
+            'closeCallback': function () {
+                this.close();
+            }.bind(this),
+            'cancelCallback': function () {
+                this.focus();
+            }.bind(this)
+        };
+
+        var popupupProperties = {
+            'overlayElement': this.container,
+            'callbacks': callbacks,
+            'strings': popupStrings
+        };
+
+        this.popup = new PopUpMessage(popupupProperties);
     }
     /**
      * This method sets the contentElement object. A contentElement object
@@ -4443,29 +4467,6 @@ var ModalWindow = function () {
                 if (_wrs_conf_modalWindowFullScreen) {
                     this.maximize();
                 }
-                // Overlay popup.
-                var popupStrings = {
-                    'cancelString': _wrs_stringManager.getString('cancel'),
-                    'submitString': _wrs_stringManager.getString('close'),
-                    'message': _wrs_stringManager.getString('close_modal_warning')
-                };
-
-                var callbacks = {
-                    'closeCallback': function () {
-                        this.close();
-                    }.bind(this),
-                    'cancelCallback': function () {
-                        this.focus();
-                    }.bind(this)
-                };
-
-                var popupupProperties = {
-                    'overlayElement': this.container,
-                    'callbacks': callbacks,
-                    'strings': popupStrings
-                };
-
-                this.popup = new PopUpMessage(popupupProperties);
             } else if (this.deviceProperties['isAndroid']) {
                 this.createModalWindowAndroid();
             } else if (this.deviceProperties['isIOS'] && !this.deviceProperties['isMobile']) {
