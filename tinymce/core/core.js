@@ -3233,23 +3233,23 @@ function wrs_readBytes(bytes, pos, len) {
  */
 function wrs_getMetricsFromBytes(bytes) {
     wrs_readBytes(bytes, 0, 8);
-    alloc = 10;
-    i = 0;
+    var alloc = 10;
+    var i = 0;
     while (bytes.length >= 4) {
-        len = wrs_readInt32(bytes);
-        typ = wrs_readInt32(bytes);
+        var len = wrs_readInt32(bytes);
+        var typ = wrs_readInt32(bytes);
         if (typ == 0x49484452) {
-            width = wrs_readInt32(bytes);
-            height = wrs_readInt32(bytes);
+            var width = wrs_readInt32(bytes);
+            var height = wrs_readInt32(bytes);
             // Read 5 bytes.
             wrs_readInt32(bytes);
             wrs_readByte(bytes);
         } else if (typ == 0x62615345) {
             // Baseline: 'baSE'.
-            baseline = wrs_readInt32(bytes);
+            var baseline = wrs_readInt32(bytes);
         } else if (typ == 0x70485973) {
             // Dpis: 'pHYs'.
-            dpi = wrs_readInt32(bytes);
+            var dpi = wrs_readInt32(bytes);
             dpi = Math.round(dpi / 39.37);
             wrs_readInt32(bytes);
             wrs_readByte(bytes);
@@ -4538,6 +4538,7 @@ var ModalWindow = function () {
         value: function initializeResizeProperties(ev, leftOption) {
             // Apply class for disable involuntary select text when drag.
             wrs_addClass(document.body, 'wrs_noselect');
+            wrs_addClass(this.overlay, 'wrs_overlay_active');
             this.resizeDataObject = {
                 x: this.eventClient(ev).X,
                 y: this.eventClient(ev).Y
@@ -5054,6 +5055,7 @@ var ModalWindow = function () {
 
                     // Apply class for disable involuntary select text when drag.
                     wrs_addClass(document.body, 'wrs_noselect');
+                    wrs_addClass(this.overlay, 'wrs_overlay_active');
                     // Obtain screen limits for prevent overflow.
                     this.limitWindow = this.getLimitWindow();
                 }
@@ -5228,6 +5230,7 @@ var ModalWindow = function () {
 
                 // Active text select event
                 wrs_removeClass(document.body, 'wrs_noselect');
+                wrs_removeClass(this.overlay, 'wrs_overlay_active');
             }
             this.dragDataObject = null;
             this.resizeDataObject = null;
@@ -5793,7 +5796,6 @@ var contentManager = function () {
         value: function onFocus() {
             // TODO: Check editor avaliable.
             if (typeof this.editor !== 'undefined' && this.editor != null) {
-                console.log('focus');
                 this.editor.focus();
             }
         }

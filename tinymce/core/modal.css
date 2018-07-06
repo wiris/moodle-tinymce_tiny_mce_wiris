@@ -366,6 +366,7 @@
     height: 42px;
     margin: 3px 0;
     overflow: hidden;
+    line-height: normal;
 }
 
 .wrs_modal_links {
@@ -430,6 +431,11 @@
 
 .wrs_modal_buttons_container.wrs_modalDesktop {
     padding-left: 0;
+}
+
+.wrs_modal_buttons_container > button {
+    line-height: normal;
+    background-image: none;
 }
 
 .wrs_modal_wrapper {
@@ -513,4 +519,18 @@
     background: #778e9a;
     cursor: pointer;
     font-family: arial, sans-serif;
+}
+
+.wrs_editor button{
+    box-shadow: none;
+}
+
+.wrs_editor .wrs_header button{
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_stack.wrs_overlay_active {
+    display: block;
 }
