@@ -4956,6 +4956,8 @@ class ModalWindow {
         wrs_removeEvent(window, 'mouseup', this.stopDrag);
         wrs_removeEvent(window, 'mousemove', this.drag);
         wrs_removeEvent(window, 'resize', this.onWindowResize);
+        // Key events
+        wrs_removeEvent(window, 'keydown', this.onKeyDown);
     }
 
 
@@ -5215,7 +5217,9 @@ class ModalWindow {
         if (ev.key !== undefined && ev.repeat === false) {
             // Code for detect Esc event
             if (ev.key === "Escape" || ev.key === 'Esc') {
-                this.cancelAction();
+                if (this.properties.open) {
+                    this.cancelAction();
+                }
             }
             // Code for detect Tab event
             if (ev.key === "Tab") {
@@ -5439,15 +5443,6 @@ class PopUpMessage {
         };
         this.cancelButton = this.createButton(buttonCancelArguments, this.cancelAction.bind(this));
         this.buttonArea.appendChild(this.cancelButton);
-
-        // "Esc" key cancels the PopupMessage.
-        document.addEventListener('keydown',function(e) {
-            if (e.key !== undefined && e.repeat === false) {
-                if (e.key == "Escape" || e.key === 'Esc') {
-                    this.cancelAction();
-                }
-            }
-        }.bind(this));
     }
 
     /**
