@@ -1695,9 +1695,7 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 }
                 // Fix to set the caret after the inserted image.
                 range.selectNode(element);
-                position = range.endOffset;
-                selection.collapse(node, position);
-                // Integration function
+                // Integration function.
                 // If wrs_int_setCaretPosition function exists on
                 // integration script can call caret method from the editor instance.
                 // With this method we can call proper specific editor methods which in some scenarios
@@ -1705,6 +1703,10 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 if (typeof wrs_int_selectRange != 'undefined') {
                     wrs_int_selectRange(range);
                 }
+                // Selection collapse must have to do it after the function 'wrs_int_selectRange' because
+                // can be that the range was changed and the selection needs to be updated.
+                position = range.endOffset;
+                selection.collapse(node, position);
             }
         }
         else if (_wrs_temporalRange) {
@@ -2358,11 +2360,21 @@ function wrs_openEditorWindow(language, target, isIframe) {
             }
         }
     }
+    // Parse atributes of editor into object
+    var splitterEditorAtributes = _wrs_conf_editorAttributes.split(", ");
+    var resultEditorAtributes = {};
+    for (var i = 0, len = splitterEditorAtributes.length; i < len; i++) {
+      var tempAtribute = splitterEditorAtributes[i].split('=');
+      var key = tempAtribute[0];
+      var value = tempAtribute[1];
+      resultEditorAtributes[key] = value;
+    }
+    resultEditorAtributes.language = _wrs_int_langCode;
 
     var title = wrs_int_getCustomEditorEnabled() != null ? wrs_int_getCustomEditorEnabled().title : _wrs_stringManager.getString('mathtype');
     if (_wrs_modalWindow == null) {
         _wrs_modalWindow = new ModalWindow(_wrs_conf_editorAttributes);
-        _wrs_modalWindow.setContentManager(new contentManager(_wrs_conf_editorAttributes));
+        _wrs_modalWindow.setContentManager(new contentManager(resultEditorAtributes));
     }
     if (!_wrs_css_loaded) {
         var fileref = document.createElement("link");
@@ -4599,7 +4611,7 @@ class ModalWindow {
         // Hiding keyboard for mobile devices.
         if (this.deviceProperties['isIOS'] || this.deviceProperties['isAndroid'] || this.deviceProperties['isMobile']) {
             // Due to editor wait we need to wait until editor focus.
-            setTimeout(function() { this.hideKeyboard }.bind(this), 300);
+            setTimeout(function() { this.hideKeyboard() }.bind(this), 400);
         }
 
         // New modal window. He need to create the whole object.
@@ -5563,7 +5575,7 @@ class contentManager {
 
             // iOS events.
             if (modalObject.deviceProperties['isIOS']) {
-                setTimeout(function() { _wrs_modalWindow.hideKeyboard() }, 300);
+                setTimeout(function() { _wrs_modalWindow.hideKeyboard() }, 400);
                 var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
                 wrs_addEvent(formulaDisplayDiv, 'focus', modalObject.openedIosSoftkeyboard.bind(modalObject));
                 wrs_addEvent(formulaDisplayDiv, 'blur', modalObject.closedIosSoftkeyboard.bind(modalObject));
