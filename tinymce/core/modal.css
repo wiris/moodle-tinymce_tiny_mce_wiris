@@ -11,8 +11,37 @@
     pointer-events: auto;
 }
 
+.wrs_modal_overlay.wrs_modal_ios {
+    visibility: hidden;
+    display: none;
+}
+
+.wrs_modal_overlay.wrs_modal_android {
+    visibility: hidden;
+    display: none;
+}
+
 .wrs_modal_overlay.wrs_modal_ios.moodle {
     position: fixed;
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_stack {
+    background: rgba(0, 0, 0, 0);
+    display: none;
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_maximized {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_minimized {
+    background: rgba(0, 0, 0, 0);
+    display: none;
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_closed {
+    background: rgba(0, 0, 0, 0);
+    display: none;
 }
 
 .wrs_modal_title {
@@ -115,7 +144,7 @@
     background-image: url('icons/hover/fulls_icon_h.png');
 }
 
-.wrs_modal_iframe {
+.wrs_modal_wrapper {
     display: block;
     margin: 6px;
 }
@@ -126,7 +155,6 @@
 }
 
 .wrs_modal_dialogContainer {
-    overflow: hidden;
     border: none;
     background: #fafafa;
     z-index: 999999;
@@ -145,6 +173,12 @@
     top: inherit;
     margin: 0;
     margin-right: 10px;
+}
+
+.wrs_modal_dialogContainer.wrs_closed {
+    visibility: hidden;
+    display: none;
+    opacity: 0;
 }
 
 
@@ -190,35 +224,63 @@
 
 
 /* Class that exists but hasn't got css properties defined
-.wrs_modal_iframeContainer.wrs_maximized {} */
+.wrs_content_container.wrs_maximized {} */
 
-.wrs_modal_iframeContainer.wrs_minimized {
+.wrs_content_container.wrs_minimized {
     display: none;
 }
 
-.wrs_modal_iframeContainer.wrs_modal_android {
+/* .wrs_editor {
+    flex-grow: 1;
+} */
+
+.wrs_content_container.wrs_modal_android {
     width: 100%;
-    height: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-.wrs_modal_iframe.wrs_modal_android {
+.wrs_content_container.wrs_modal_android > div:first-child {
+    flex-grow: 1;
+}
+
+.wrs_content_container.wrs_modal_ios > div:first-child {
+    flex-grow: 1;
+}
+
+.wrs_content_container.wrs_modal_desktop > div:first-child {
+    flex-grow: 1;
+}
+
+.wrs_modal_wrapper.wrs_modal_android {
     margin: auto;
-}
-
-.wrs_modal_iframeContainer.wrs_modal_ios {
-    width: 100%;
-    height: 100%;
-}
-
-.wrs_modal_iframe.wrs_modal_ios {
-    width: 100%;
-    height: 100%;
-}
-
-.wrs_modal_iframe.wrs_modal_android {
+    display: flex;
+    flex-direction: column;
     height: 100%;
     width: 100%;
+}
+
+.wrs_content_container.wrs_modal_desktop {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrs_content_container.wrs_modal_ios {
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrs_modal_wrapper.wrs_modal_ios {
     margin: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
 }
 
 .wrs_virtual_keyboard {
@@ -236,7 +298,7 @@
         margin: auto;
         border-width: 0;
     }
-    .wrs_modal_iframe.wrs_modal_mobile {
+    .wrs_modal_wrapper.wrs_modal_mobile {
         width: 100vmin;
         height: 100vmin;
         margin: auto;
@@ -250,7 +312,7 @@
         margin: auto;
         border-width: 0;
     }
-    .wrs_modal_iframe.wrs_modal_mobile {
+    .wrs_modal_wrapper.wrs_modal_mobile {
         width: 100vmin;
         height: 100vmin;
         margin: auto;
@@ -264,7 +326,7 @@
     border-width: 0;
 }
 
-.wrs_modal_iframe.wrs_modal_badStock {
+.wrs_modal_wrapper.wrs_modal_badStock {
     width: 100%;
     height: 280px;
     margin: 0 auto;
@@ -300,7 +362,34 @@
     cursor: se-resize;
 }
 
-.wrs_button_cancel {
+.wrs_modal_controls {
+    height: 42px;
+    margin: 3px 0;
+    overflow: hidden;
+    line-height: normal;
+}
+
+.wrs_modal_links {
+    margin: 10px auto;
+    margin-bottom: 0;
+    font-family: arial, sans-serif;
+    padding: 6px;
+    display: inline;
+    float: right;
+    text-align: right;
+}
+
+.wrs_modal_links > a {
+    text-decoration: none;
+    color: #778e9a;
+    font-size: 16px;
+}
+
+.wrs_modal_button_cancel,
+.wrs_modal_button_cancel:hover,
+.wrs_modal_button_cancel:visited,
+.wrs_modal_button_cancel:active,
+.wrs_modal_button_cancel:focus {
     min-width: 80px;
     font-size: 14px;
     border-radius: 3px;
@@ -311,9 +400,14 @@
     margin-bottom: 0;
     cursor: pointer;
     font-family: arial, sans-serif;
+    background-color: #DDDDDD;
 }
 
-.wrs_button_accept {
+.wrs_modal_button_accept,
+.wrs_modal_button_accept:hover,
+.wrs_modal_button_accept:visited,
+.wrs_modal_button_accept:active,
+.wrs_modal_button_accept:focus {
     min-width: 80px;
     font-size: 14px;
     border-radius: 3px;
@@ -327,6 +421,48 @@
     cursor: pointer;
     font-family: arial, sans-serif;
 }
+
+.wrs_editor_vertical_bar {
+    height: 20px;
+    float: right;
+    background: none;
+    width: 20px;
+    cursor: pointer;
+}
+
+.wrs_modal_buttons_container {
+    display: inline;
+}
+
+.wrs_modal_buttons_container.wrs_modalAndroid {
+    padding-left: 6px;
+}
+
+.wrs_modal_buttons_container.wrs_modalDesktop {
+    padding-left: 0;
+}
+
+.wrs_modal_buttons_container > button {
+    line-height: normal;
+    background-image: none;
+}
+
+.wrs_modal_wrapper {
+    margin: 6px;
+    display: flex;
+    flex-direction: column;
+}
+
+.wrs_modal_wrapper.wrs_modal_desktop.wrs_minimized {
+    display: none;
+}
+
+@media only screen and (max-device-width: 480px) and (orientation: portrait) {
+    #wrs_modal_wrapper {
+        width: 140%;
+    }
+}
+
 .wrs_popupmessage_overlay_envolture {
     display: none;
     width: 100%;
@@ -364,4 +500,50 @@
 
 .wrs_popupmessage_button_area {
     margin: 10px 0 0 0;
+}
+
+.wrs_panelContainer * {
+    border: 0;
+}
+
+.wrs_button_cancel {
+    min-width: 80px;
+    font-size: 14px;
+    border-radius: 3px;
+    border: 1px solid #778e9a;
+    padding: 6px 8px;
+    margin: 10px auto;
+    margin-left: 5px;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-family: arial, sans-serif;
+}
+
+.wrs_button_accept {
+    min-width: 80px;
+    font-size: 14px;
+    border-radius: 3px;
+    border: 1px solid #778e9a;
+    padding: 6px 8px;
+    margin: 10px auto;
+    margin-right: 5px;
+    margin-bottom: 0;
+    color: #fff;
+    background: #778e9a;
+    cursor: pointer;
+    font-family: arial, sans-serif;
+}
+
+.wrs_editor button{
+    box-shadow: none;
+}
+
+.wrs_editor .wrs_header button{
+    border-bottom: none;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.wrs_modal_overlay.wrs_modal_desktop.wrs_stack.wrs_overlay_active {
+    display: block;
 }

@@ -1,11 +1,3 @@
-"use strict";
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 var _wrs_popupWindow;
 /**
  * Global variables (strict mode)
@@ -47,21 +39,22 @@ var _wrs_corePath = wrs_getCorePath();
  * @ignore
  */
 function wrs_fireEvent(element, event) {
-    if (document.createEvent) {
+    if (document.createEvent){
         var eventObject = document.createEvent('HTMLEvents');
         eventObject.initEvent(event, true, true);
         return !element.dispatchEvent(eventObject);
     }
 
     var eventObject = document.createEventObject();
-    return element.fireEvent('on' + event, eventObject);
+    return element.fireEvent('on' + event, eventObject)
 }
+
 
 // Translated languages.
 var _wrs_languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
 
 // Load lang file at first to replace some variables
-wrs_loadLangFile();
+wrs_loadLangFile()
 
 // Vars.
 var _wrs_stringManager;
@@ -73,10 +66,10 @@ var _wrs_temporalFocusElement;
 var _wrs_range;
 // TODO: String Manager not loaded.
 function loadStringLatex() {
-    if (_wrs_conf_core_loaded) {
+    if(_wrs_conf_core_loaded) {
         var _wrs_latex_formula_name = _wrs_stringManager.getString('latex_name_label');
     } else {
-        setTimeout(loadStringLatex, 100);
+        setTimeout(loadStringLatex,100);
     }
 }
 loadStringLatex();
@@ -97,19 +90,19 @@ var _wrs_int_nonLatexCache = {};
 var _wrs_int_AccessibleCache = {};
 
 var _wrs_xmlCharacters = {
-    'tagOpener': '<', // Hex: \x3C.
-    'tagCloser': '>', // Hex: \x3E.
-    'doubleQuote': '"', // Hex: \x22.
-    'ampersand': '&', // Hex: \x26.
-    'quote': '\'' // Hex: \x27.
+    'tagOpener': '<',       // Hex: \x3C.
+    'tagCloser': '>',       // Hex: \x3E.
+    'doubleQuote': '"',     // Hex: \x22.
+    'ampersand': '&',       // Hex: \x26.
+    'quote': '\''           // Hex: \x27.
 };
 
 var _wrs_safeXmlCharacters = {
-    'tagOpener': '«', // Hex: \xAB.
-    'tagCloser': '»', // Hex: \xBB.
-    'doubleQuote': '¨', // Hex: \xA8.
-    'ampersand': '§', // Hex: \xA7.
-    'quote': '`', // Hex: \x60.
+    'tagOpener': '«',       // Hex: \xAB.
+    'tagCloser': '»',       // Hex: \xBB.
+    'doubleQuote': '¨',     // Hex: \xA8.
+    'ampersand': '§',       // Hex: \xA7.
+    'quote': '`',           // Hex: \x60.
     'realDoubleQuote': '¨'
 };
 
@@ -118,45 +111,46 @@ var _wrs_safeXmlCharactersEntities = {
     'tagCloser': '&raquo;',
     'doubleQuote': '&uml;',
     'realDoubleQuote': '&quot;'
-};
+}
 
 var _wrs_safeBadBlackboardCharacters = {
     'ltElement': '«mo»<«/mo»',
     'gtElement': '«mo»>«/mo»',
     'ampElement': '«mo»&«/mo»'
-};
+}
 
 var _wrs_safeGoodBlackboardCharacters = {
     'ltElement': '«mo»§lt;«/mo»',
     'gtElement': '«mo»§gt;«/mo»',
     'ampElement': '«mo»§amp;«/mo»'
-};
+}
 
 var _wrs_staticNodeLengths = {
     'IMG': 1,
     'BR': 1
+}
 
-    // Backwards compatibily.
+// Backwards compatibily.
 
-};if (!window._wrs_conf_imageClassName) {
+if (!(window._wrs_conf_imageClassName)) {
     var _wrs_conf_imageClassName = 'Wirisformula';
 }
 
-if (!window._wrs_conf_CASClassName) {
+if (!(window._wrs_conf_CASClassName)) {
     var _wrs_conf_CASClassName = 'Wiriscas';
 }
 
 // Mutation observers to avoid wiris image formulas class be removed.
 if (typeof MutationObserver != 'undefined') {
-    var wrs_observer = new MutationObserver(function (mutations) {
-        mutations.forEach(function (mutation) {
-            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1) {
+    var wrs_observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.oldValue == _wrs_conf_imageClassName && mutation.attributeName == 'class' && mutation.target.className.indexOf(_wrs_conf_imageClassName) == -1 ) {
                 mutation.target.className = _wrs_conf_imageClassName;
             }
         });
     });
 
-    var wrs_observer_config = { attributes: true, attributeOldValue: true };
+    var wrs_observer_config = { attributes: true, attributeOldValue:true };
 }
 
 // Plugin listeners for custom callbacks. This variable
@@ -183,7 +177,7 @@ var _wrs_parseXml = true;
 function wrs_addElementEvents(target, doubleClickHandler, mousedownHandler, mouseupHandler) {
     if (doubleClickHandler) {
         wrs_addEvent(target, 'dblclick', function (event) {
-            var realEvent = event ? event : window.event;
+            var realEvent = (event) ? event : window.event;
             var element = realEvent.srcElement ? realEvent.srcElement : realEvent.target;
             doubleClickHandler(target, element, realEvent);
         });
@@ -191,7 +185,7 @@ function wrs_addElementEvents(target, doubleClickHandler, mousedownHandler, mous
 
     if (mousedownHandler) {
         wrs_addEvent(target, 'mousedown', function (event) {
-            var realEvent = event ? event : window.event;
+            var realEvent = (event) ? event : window.event;
             var element = realEvent.srcElement ? realEvent.srcElement : realEvent.target;
             _wrs_temporalFocusElement = element;
             mousedownHandler(target, element, realEvent);
@@ -200,7 +194,7 @@ function wrs_addElementEvents(target, doubleClickHandler, mousedownHandler, mous
 
     if (mouseupHandler) {
         wrs_addEvent(target, 'mouseup', function (event) {
-            var realEvent = event ? event : window.event;
+            var realEvent = (event) ? event : window.event;
             var element = realEvent.srcElement ? realEvent.srcElement : realEvent.target;
             mouseupHandler(target, element, realEvent);
         });
@@ -217,7 +211,8 @@ function wrs_addElementEvents(target, doubleClickHandler, mousedownHandler, mous
 function wrs_addEvent(element, event, func) {
     if (element.addEventListener) {
         element.addEventListener(event, func, true);
-    } else if (element.attachEvent) {
+    }
+    else if (element.attachEvent) {
         element.attachEvent('on' + event, func);
     }
 }
@@ -232,13 +227,17 @@ function wrs_addEvent(element, event, func) {
  */
 function wrs_addIframeEvents(iframe, doubleClickHandler, mousedownHandler, mouseupHandler) {
     wrs_initSetSize();
-    wrs_addElementEvents(iframe.contentWindow.document, function (target, element, event) {
-        doubleClickHandler(iframe, element, event);
-    }, function (target, element, event) {
-        mousedownHandler(iframe, element, event);
-    }, function (target, element, event) {
-        mouseupHandler(iframe, element, event);
-    });
+    wrs_addElementEvents(iframe.contentWindow.document,
+        function (target, element, event) {
+            doubleClickHandler(iframe, element, event);
+        },
+        function (target, element, event) {
+            mousedownHandler(iframe, element, event);
+        },
+        function (target, element, event) {
+            mouseupHandler(iframe, element, event);
+        }
+    );
 }
 
 /**
@@ -250,7 +249,7 @@ function wrs_addIframeEvents(iframe, doubleClickHandler, mousedownHandler, mouse
 function wrs_addTextareaEvents(textarea, clickHandler) {
     if (clickHandler) {
         wrs_addEvent(textarea, 'click', function (event) {
-            var realEvent = event ? event : window.event;
+            var realEvent = (event) ? event : window.event;
             clickHandler(textarea, realEvent);
         });
     }
@@ -343,7 +342,7 @@ function wrs_removeClass(element, className) {
     var classes = element.className.split(" ");
 
     for (var i = 0; i < classes.length; i++) {
-        if (classes[i] != className) {
+        if(classes[i] != className) {
             newClassName += classes[i] + " ";
         }
     }
@@ -356,7 +355,7 @@ function wrs_removeClass(element, className) {
  * @return {string} String with the safeXml charaters parsed.
  * @ignore
  */
-function wrs_convertOldXmlinitialtextAttribute(text) {
+function wrs_convertOldXmlinitialtextAttribute(text){
     // Used to fix a bug with Cas imported from Moodle 1.9 to Moodle 2.x.
     // This could be removed in future.
     var val = 'value=';
@@ -416,7 +415,8 @@ function wrs_createElement(elementName, attributes, creator) {
 
         html += '>';
         element = creator.createElement(html);
-    } catch (e) {
+    }
+    catch (e) {
         element = creator.createElement(elementName);
 
         for (var attributeName in attributes) {
@@ -443,10 +443,13 @@ function wrs_createHttpRequest() {
 
     try {
         return new ActiveXObject('Msxml2.XMLHTTP');
-    } catch (e) {
+    }
+    catch (e) {
         try {
             return new ActiveXObject('Microsoft.XMLHTTP');
-        } catch (oc) {}
+        }
+        catch (oc) {
+        }
     }
 
     return false;
@@ -493,7 +496,7 @@ function wrs_createImageSrc(mathml, data) {
 }
 
 function wrs_createShowImageSrc(mathml, data, language) {
-    var dataMd5 = [];
+    var dataMd5 = []
     var renderParams = 'mml,color,centerbaseline,zoom,dpi,fontSize,fontFamily,defaultStretchy,backgroundColor,format';
     var renderParamsArray = renderParams.split(',');
     for (var key in renderParamsArray) {
@@ -511,7 +514,7 @@ function wrs_createShowImageSrc(mathml, data, language) {
         }
     }
     dataObject.formula = com.wiris.js.JsPluginTools.md5encode(wrs_propertiesToString(dataMd5));
-    dataObject.lang = typeof language == 'undefined' ? 'en' : language;
+    dataObject.lang = (typeof language == 'undefined') ? 'en' : language;
     dataObject.version = _wrs_conf_version;
 
     var result = wrs_getContent(_wrs_conf_showimagePath + '?' + wrs_httpBuildQuery(dataObject));
@@ -530,10 +533,10 @@ function wrs_createObject(objectCode, creator) {
     }
 
     // Internet Explorer can't include "param" tag when is setting an innerHTML property.
-    objectCode = objectCode.split('<applet ').join('<span wirisObject="WirisApplet" ').split('<APPLET ').join('<span wirisObject="WirisApplet" '); // It is a 'span' because 'span' objects can contain 'br' nodes.
+    objectCode = objectCode.split('<applet ').join('<span wirisObject="WirisApplet" ').split('<APPLET ').join('<span wirisObject="WirisApplet" ');  // It is a 'span' because 'span' objects can contain 'br' nodes.
     objectCode = objectCode.split('</applet>').join('</span>').split('</APPLET>').join('</span>');
 
-    objectCode = objectCode.split('<param ').join('<br wirisObject="WirisParam" ').split('<PARAM ').join('<br wirisObject="WirisParam" '); // It is a 'br' because 'br' can't contain nodes.
+    objectCode = objectCode.split('<param ').join('<br wirisObject="WirisParam" ').split('<PARAM ').join('<br wirisObject="WirisParam" ');          // It is a 'br' because 'br' can't contain nodes.
     objectCode = objectCode.split('</param>').join('</br>').split('</PARAM>').join('</br>');
 
     var container = wrs_createElement('div', {}, creator);
@@ -559,7 +562,8 @@ function wrs_createObject(objectCode, creator) {
 
             param.removeAttribute('wirisObject');
             object.parentNode.replaceChild(param, object);
-        } else if (object.getAttribute && object.getAttribute('wirisObject') == 'WirisApplet') {
+        }
+        else if (object.getAttribute && object.getAttribute('wirisObject') == 'WirisApplet') {
             var attributesParsed = {};
 
             for (var i = 0; i < object.attributes.length; ++i) {
@@ -576,12 +580,13 @@ function wrs_createObject(objectCode, creator) {
 
                 if (object.childNodes[i].nodeName.toLowerCase() == 'param') {
                     applet.appendChild(object.childNodes[i]);
-                    --i; // When we insert the object child into the applet, object loses one child.
+                    --i;    // When we insert the object child into the applet, object loses one child.
                 }
             }
 
             object.parentNode.replaceChild(applet, object);
-        } else {
+        }
+        else {
             for (var i = 0; i < object.childNodes.length; ++i) {
                 recursiveParamsFix(object.childNodes[i]);
             }
@@ -605,8 +610,7 @@ function wrs_createObjectCode(object) {
         return;
     }
 
-    if (object.nodeType == 1) {
-        // ELEMENT_NODE.
+    if (object.nodeType == 1) { // ELEMENT_NODE.
         var output = '<' + object.tagName;
 
         for (var i = 0; i < object.attributes.length; ++i) {
@@ -623,17 +627,18 @@ function wrs_createObjectCode(object) {
             }
 
             output += '</' + object.tagName + '>';
-        } else if (object.nodeName == 'DIV' || object.nodeName == 'SCRIPT') {
+        }
+        else if (object.nodeName == 'DIV' || object.nodeName == 'SCRIPT') {
             output += '></' + object.tagName + '>';
-        } else {
+        }
+        else {
             output += '/>';
         }
 
         return output;
     }
 
-    if (object.nodeType == 3) {
-        // TEXT_NODE.
+    if (object.nodeType == 3) { // TEXT_NODE.
         return wrs_htmlentities(object.nodeValue);
     }
 
@@ -656,7 +661,7 @@ function wrs_endParse(code, wirisProperties, language) {
 
 function wrs_regexpIndexOf(input, regexp, start) {
     var index = input.substring(start || 0).search(regexp);
-    return index >= 0 ? index + (start || 0) : index;
+    return (index >= 0) ? (index + (start || 0)) : index;
 }
 
 /**
@@ -686,7 +691,8 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
                 var mathml = wrs_getMathMLFromLatex(latex, true);
                 output += mathml;
                 endPosition += 2;
-            } else {
+            }
+            else {
                 output += '$$';
                 endPosition = startPosition + 2;
             }
@@ -711,18 +717,19 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
             var i = formulaPosition;
             var startTagFound = false;
 
-            while (i >= 0 && !startTagFound) {
-                // Going backwards until the start tag '<' is found.
+            while (i >= 0 && !startTagFound) {      // Going backwards until the start tag '<' is found.
                 var character = code.charAt(i);
 
                 if (character == '"' || character == '\'') {
                     var characterNextPosition = code.lastIndexOf(character, i);
-                    i = characterNextPosition == -1 ? -1 : characterNextPosition;
-                } else if (character == '<') {
+                    i = (characterNextPosition == -1) ? -1 : characterNextPosition;
+                }
+                else if (character == '<') {
                     startPosition = i;
                     startTagFound = true;
-                } else if (character == '>') {
-                    i = -1; // Break: we are inside a text node.
+                }
+                else if (character == '>') {
+                    i = -1;                 // Break: we are inside a text node.
                 }
 
                 --i;
@@ -742,8 +749,9 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
 
                     if (character == '"' || character == '\'') {
                         var characterNextPosition = code.indexOf(character, i);
-                        i = characterNextPosition == -1 ? code.length : characterNextPosition;
-                    } else if (character == '<') {
+                        i = (characterNextPosition == -1) ? code.length : characterNextPosition;
+                    }
+                    else if (character == '<') {
                         if (i + 1 < code.length && code.charAt(i + 1) == '/') {
                             --counter;
 
@@ -752,13 +760,15 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
 
                                 if (endPosition == -1) {
                                     // End tag stripped.
-                                    counter = -1; // to be != 0 and to break the loop.
+                                    counter = -1;       // to be != 0 and to break the loop.
                                 }
                             }
-                        } else {
+                        }
+                        else {
                             ++counter;
                         }
-                    } else if (character == '>' && code.charAt(i - 1) == '/') {
+                    }
+                    else if (character == '>' && code.charAt(i - 1) == '/') {
                         --counter;
 
                         if (counter == 0) {
@@ -780,12 +790,14 @@ function wrs_endParseEditMode(code, wirisProperties, language) {
 
                     var imgObject = wrs_mathmlToImgObject(document, mathml, wirisProperties, language);
                     output += wrs_createObjectCode(imgObject);
-                } else {
+                }
+                else {
                     // Start tag found but no end tag found. No process is done. A character is appended to avoid infinite loop in the next search.
                     output += code.charAt(formulaPosition);
                     endPosition = formulaPosition + 1;
                 }
-            } else {
+            }
+            else {
                 // No start tag is found. No process is done. A character is appended to avoid infinite loop in the next search.
                 output += code.charAt(formulaPosition);
                 endPosition = formulaPosition + 1;
@@ -817,10 +829,12 @@ function wrs_endParseSaveMode(code) {
             convertToXml = true;
             convertToSafeXml = true;
             code = wrs_codeImgTransform(code, 'img2mathml');
-        } else if (_wrs_conf_saveMode == 'xml') {
+        }
+        else if (_wrs_conf_saveMode == 'xml') {
             convertToXml = true;
             code = wrs_codeImgTransform(code, 'img2mathml');
-        } else if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'image') {
+        }
+        else if (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'image') {
             code = wrs_codeImgTransform(code, 'img264');
         }
     }
@@ -853,18 +867,21 @@ function wrs_getContent(url, postVariables) {
         var httpRequest = wrs_createHttpRequest();
 
         if (httpRequest) {
-            if ((typeof postVariables === "undefined" ? "undefined" : _typeof(postVariables)) === undefined || typeof postVariables == 'undefined') {
+            if (typeof postVariables === undefined || typeof postVariables == 'undefined') {
                 httpRequest.open('GET', url, false);
-            } else if (url.substr(0, 1) == '/' || url.substr(0, 7) == 'http://' || url.substr(0, 8) == 'https://') {
+            }
+            else if (url.substr(0, 1) == '/' || url.substr(0, 7) == 'http://' || url.substr(0, 8) == 'https://') {
                 httpRequest.open('POST', url, false);
-            } else {
+            }
+            else {
                 httpRequest.open('POST', _wrs_currentPath + url, false);
             }
 
             if (postVariables !== undefined) {
                 httpRequest.setRequestHeader('Content-type', 'application/x-www-form-urlencoded; charset=UTF-8');
                 httpRequest.send(wrs_httpBuildQuery(postVariables));
-            } else {
+            }
+            else {
                 httpRequest.send(null);
             }
 
@@ -872,7 +889,9 @@ function wrs_getContent(url, postVariables) {
         }
 
         alert(_wrs_stringManager.getString('browser_no_compatible'));
-    } catch (e) {}
+    }
+    catch (e) {
+    }
 
     return '';
 }
@@ -932,8 +951,7 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
     // Looking for the first textNode.
     var startNode = textNode;
 
-    while (startNode.previousSibling && startNode.previousSibling.nodeType == 3) {
-        // TEXT_NODE.
+    while (startNode.previousSibling && startNode.previousSibling.nodeType == 3) { // TEXT_NODE.
         startNode = startNode.previousSibling;
     }
 
@@ -960,8 +978,7 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
         while (position == -1) {
             currentNode = currentNode.nextSibling;
 
-            if (!currentNode || currentNode.nodeType != 3) {
-                // TEXT_NODE.
+            if (!currentNode || currentNode.nodeType != 3) { // TEXT_NODE.
                 return null; // Not found.
             }
 
@@ -976,14 +993,14 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
 
     function isPrevious(node, position, endNode, endPosition) {
         if (node == endNode) {
-            return position <= endPosition;
+            return (position <= endPosition);
         }
 
         while (node && node != endNode) {
             node = node.nextSibling;
         }
 
-        return node == endNode;
+        return (node == endNode);
     }
 
     var start;
@@ -1017,7 +1034,8 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
 
     if (start.node == end.node) {
         latex = start.node.nodeValue.substring(start.position + tagLength, end.position - tagLength);
-    } else {
+    }
+    else {
         latex = start.node.nodeValue.substring(start.position + tagLength, start.node.nodeValue.length);
         var currentNode = start.node;
 
@@ -1026,7 +1044,8 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
 
             if (currentNode == end.node) {
                 latex += end.node.nodeValue.substring(0, end.position - tagLength);
-            } else {
+            }
+            else {
                 latex += currentNode.nodeValue;
             }
         } while (currentNode != end.node);
@@ -1083,13 +1102,11 @@ function wrs_getMathMLFromLatex(latex, includeLatexOnSemantics) {
  * @ignore
  */
 function wrs_getNodeLength(node) {
-    if (node.nodeType == 3) {
-        // TEXT_NODE.
+    if (node.nodeType == 3) { // TEXT_NODE.
         return node.nodeValue.length;
     }
 
-    if (node.nodeType == 1) {
-        // ELEMENT_NODE.
+    if (node.nodeType == 1) { // ELEMENT_NODE.
         var length = _wrs_staticNodeLengths[node.nodeName.toUpperCase()];
 
         if (length === undefined) {
@@ -1115,7 +1132,7 @@ function wrs_getNodeLength(node) {
 function wrs_getQueryParams(windowObject) {
     var data = {};
     var start = windowObject.location.search.indexOf('?');
-    start = start == -1 ? 0 : start + 1;
+    start = (start == -1) ? 0 : start + 1;
     var queryStringParts = windowObject.location.search.substr(start).split('&');
 
     for (var i = 0; i < queryStringParts.length; ++i) {
@@ -1141,7 +1158,8 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
     if (isIframe) {
         windowTarget = target.contentWindow;
         windowTarget.focus();
-    } else {
+    }
+    else {
         windowTarget = window;
         target.focus();
     }
@@ -1170,15 +1188,15 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
             var node;
             var caretPosition;
 
-            if (temporalObject.nextSibling && temporalObject.nextSibling.nodeType == 3) {
-                // TEXT_NODE.
+            if (temporalObject.nextSibling && temporalObject.nextSibling.nodeType == 3) { // TEXT_NODE.
                 node = temporalObject.nextSibling;
                 caretPosition = 0;
-            } else if (temporalObject.previousSibling && temporalObject.previousSibling.nodeType == 3) {
-                // TEXT_NODE.
+            }
+            else if (temporalObject.previousSibling && temporalObject.previousSibling.nodeType == 3) { // TEXT_NODE.
                 node = temporalObject.previousSibling;
                 caretPosition = node.nodeValue.length;
-            } else {
+            }
+            else {
                 node = windowTarget.document.createTextNode('');
                 temporalObject.parentNode.insertBefore(node, temporalObject);
                 caretPosition = 0;
@@ -1206,14 +1224,14 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
 
         try {
             var range = selection.getRangeAt(0);
-        } catch (e) {
+        }
+        catch (e) {
             var range = windowTarget.document.createRange();
         }
 
         var node = range.startContainer;
 
-        if (node.nodeType == 3) {
-            // TEXT_NODE.
+        if (node.nodeType == 3) { // TEXT_NODE.
             if (range.startOffset != range.endOffset) {
                 return null;
             }
@@ -1228,8 +1246,7 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
             return null;
         }
 
-        if (node.nodeType == 1) {
-            // ELEMENT_NODE.
+        if (node.nodeType == 1) { // ELEMENT_NODE.
             var position = range.startOffset;
 
             if (node.childNodes[position]) {
@@ -1253,7 +1270,7 @@ function wrs_getSelectedItemOnTextarea(textarea) {
     var textNode = document.createTextNode(textarea.value);
     var textNodeWithLatex = wrs_getLatexFromTextNode(textNode, textarea.selectionStart);
     if (textNodeWithLatex == null) {
-        return null;
+        return null
     };
 
     // Try to get latex mathml from cache
@@ -1306,7 +1323,8 @@ function wrs_getWIRISImageOutput(imgCode, convertToXml, convertToSafeXml) {
             }
 
             return xmlCode;
-        } else if (imgObject.className == _wrs_conf_CASClassName) {
+        }
+        else if (imgObject.className == _wrs_conf_CASClassName) {
             var appletCode = imgObject.getAttribute(_wrs_conf_CASMathmlAttribute);
             appletCode = wrs_mathmlDecode(appletCode);
             var appletObject = wrs_createObject(appletCode);
@@ -1408,7 +1426,8 @@ function wrs_initParseImgToIframes(windowTarget) {
 
                 var iframe = wrs_mathmlToIframeObject(windowTarget, wrs_mathmlDecode(mathml));
                 imgList[i].parentNode.replaceChild(iframe, imgList[i]);
-            } else {
+            }
+            else {
                 ++i;
             }
         }
@@ -1425,7 +1444,7 @@ function wrs_initParseEditMode(code) {
     if (window._wrs_conf_parseModes !== undefined && wrs_arrayContains(_wrs_conf_parseModes, 'latex') != -1) {
         var imgList = wrs_getElementsByNameFromString(code, 'img', true);
         var token = 'encoding="LaTeX">';
-        var carry = 0; // While replacing images with latex, the indexes of the found images changes respecting the original code, so this carry is needed.
+        var carry = 0;          // While replacing images with latex, the indexes of the found images changes respecting the original code, so this carry is needed.
 
         for (var i = 0; i < imgList.length; ++i) {
             var imgCode = code.substring(imgList[i].start + carry, imgList[i].end + carry);
@@ -1489,25 +1508,25 @@ function wrs_initParseSaveMode(code, language) {
     }
 
     var appletList = wrs_getElementsByNameFromString(code, 'applet', false);
-    var carry = 0; // While replacing applets with images, the indexes of the found applets changes respecting the original code, so this carry is needed.
+    var carry = 0;          // While replacing applets with images, the indexes of the found applets changes respecting the original code, so this carry is needed.
 
     for (var i = 0; i < appletList.length; ++i) {
         var appletCode = code.substring(appletList[i].start + carry, appletList[i].end + carry);
 
         // The second control in the if is used to find WIRIS applet which don't have Wiriscas class (as it was in old CAS applets).
         if (appletCode.indexOf(' class="' + _wrs_conf_CASClassName + '"') != -1 || appletCode.toUpperCase().indexOf('WIRIS') != -1) {
-            if (appletCode.indexOf(' src="') != -1) {
+            if (appletCode.indexOf(' src="') != -1){
                 var srcStart = appletCode.indexOf(' src="') + ' src="'.length;
                 var srcEnd = appletCode.indexOf('"', srcStart);
                 var src = appletCode.substring(srcStart, srcEnd);
-            } else {
+            } else{
                 // This should happen only with old CAS imported from Moodle 1 to Moodle 2.
-                if (typeof _wrs_conf_pluginBasePath != 'undefined') {
+                if (typeof(_wrs_conf_pluginBasePath) != 'undefined'){
                     var src = _wrs_conf_pluginBasePath + '/integration/showcasimage.php?formula=noimage';
                 } else {
                     var src = '';
                 }
-                if (appletCode.indexOf(' class="' + _wrs_conf_CASClassName + '"') == -1) {
+                if (appletCode.indexOf(' class="' + _wrs_conf_CASClassName + '"') == -1){
                     var closeSymbol = appletCode.indexOf('>');
                     var appletTag = appletCode.substring(0, closeSymbol);
                     var newAppletTag = appletTag.split(' width=').join(' class="Wiriscas" width=');
@@ -1543,13 +1562,13 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
     name = name.toLowerCase();
     var start = code.indexOf('<' + name + ' ');
 
-    while (start != -1) {
-        // Look for nodes.
+    while (start != -1) {                       // Look for nodes.
         var endString;
 
         if (autoClosed) {
             endString = '>';
-        } else {
+        }
+        else {
             endString = '</' + name + '>';
         }
 
@@ -1562,7 +1581,8 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
                 'start': start,
                 'end': end
             });
-        } else {
+        }
+        else {
             end = start + 1;
         }
 
@@ -1590,37 +1610,37 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
         if (typeof wrs_int_insertElementOnSelection !== 'undefined') {
             wrs_int_insertElementOnSelection();
         }
-        if (typeof focusElement.frameElement !== 'undefined') {
-            var get_browser = function get_browser() {
+        if(typeof focusElement.frameElement !== 'undefined'){
+            function get_browser(){
                 var ua = navigator.userAgent;
-                if (ua.search("Edge/") >= 0) {
+                if(ua.search("Edge/") >= 0){
                     return "EDGE";
-                } else if (ua.search("Chrome/") >= 0) {
+                }else if(ua.search("Chrome/") >= 0){
                     return "CHROME";
-                } else if (ua.search("Trident/") >= 0) {
+                }else if(ua.search("Trident/") >= 0){
                     return "IE";
-                } else if (ua.search("Firefox/") >= 0) {
+                }else if(ua.search("Firefox/") >= 0){
                     return "FIREFOX";
-                } else if (ua.search("Safari/") >= 0) {
+                }else if(ua.search("Safari/") >= 0){
                     return "SAFARI";
                 }
-            };
-
+            }
             var browserName = get_browser();
             // Iexplorer, Edge and Safari can't focus into iframe
             if (browserName == 'SAFARI' || browserName == 'IE' || browserName == 'EDGE') {
                 focusElement.focus();
-            } else {
+            }else{
                 focusElement.frameElement.focus();
             }
-        } else {
+        }else{
             focusElement.focus();
         }
 
         if (_wrs_isNewElement) {
             if (focusElement.type == "textarea") {
                 wrs_updateTextarea(focusElement, element.textContent);
-            } else if (document.selection && document.getSelection == 0) {
+            }
+            else if (document.selection && document.getSelection == 0) {
                 var range = windowTarget.document.selection.createRange();
                 windowTarget.document.execCommand('InsertImage', false, element.src);
 
@@ -1635,22 +1655,26 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
 
                     if (temporalObject.nodeName.toUpperCase() == 'IMG') {
                         temporalObject.parentNode.replaceChild(element, temporalObject);
-                    } else {
+                    }
+                    else {
                         // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
                         range.pasteHTML(wrs_createObjectCode(element));
                     }
                 }
-            } else {
+            }
+            else {
                 var selection = windowTarget.getSelection();
                 // We have use wrs_range beacuse IExplorer delete selection when select another part of text.
                 if (_wrs_range) {
                     var range = _wrs_range;
                     _wrs_range = null;
-                } else {
+                }
+                else {
 
                     try {
                         var range = selection.getRangeAt(0);
-                    } catch (e) {
+                    }
+                    catch (e) {
                         var range = windowTarget.document.createRange();
                     }
                 }
@@ -1661,13 +1685,12 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 var node = range.startContainer;
                 var position = range.startOffset;
 
-                if (node.nodeType == 3) {
-                    // TEXT_NODE.
+                if (node.nodeType == 3) { // TEXT_NODE.
                     node = node.splitText(position);
                     node.parentNode.insertBefore(element, node);
                     node = node.parentNode;
-                } else if (node.nodeType == 1) {
-                    // ELEMENT_NODE.
+                }
+                else if (node.nodeType == 1) { // ELEMENT_NODE.
                     node.insertBefore(element, node.childNodes[position]);
                 }
                 // Fix to set the caret after the inserted image.
@@ -1685,27 +1708,36 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                 position = range.endOffset;
                 selection.collapse(node, position);
             }
-        } else if (_wrs_temporalRange) {
+        }
+        else if (_wrs_temporalRange) {
             if (document.selection && document.getSelection == 0) {
                 _wrs_isNewElement = true;
                 _wrs_temporalRange.select();
                 wrs_insertElementOnSelection(element, focusElement, windowTarget);
-            } else {
+            }
+            else {
                 var parentNode = _wrs_temporalRange.startContainer;
                 _wrs_temporalRange.deleteContents();
                 _wrs_temporalRange.insertNode(element);
             }
-        } else if (focusElement.type == "textarea") {
+        }
+        else if (focusElement.type == "textarea") {
             var item;
             // Wrapper for some integrations that can have special behaviours to show latex.
             if (typeof wrs_int_getSelectedItem != 'undefined') {
                 item = wrs_int_getSelectedItem(focusElement, false);
-            } else {
+            }
+            else {
                 item = wrs_getSelectedItemOnTextarea(focusElement);
             }
             wrs_updateExistingFormulaOnTextarea(focusElement, element.textContent, item.startPosition, item.endPosition);
-        } else {
-            var placeCaretAfterNode = function placeCaretAfterNode(node) {
+        }
+        else {
+            if (!element) { // Editor empty, formula has been erased on edit.
+                _wrs_temporalImage.parentNode.removeChild(_wrs_temporalImage);
+            }
+            _wrs_temporalImage.parentNode.replaceChild(element, _wrs_temporalImage);
+            function placeCaretAfterNode(node) {
                 if (typeof window.getSelection != "undefined") {
                     var range = windowTarget.document.createRange();
                     range.setStartAfter(node);
@@ -1714,17 +1746,12 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
                     selection.removeAllRanges();
                     selection.addRange(range);
                 }
-            };
-
-            if (!element) {
-                // Editor empty, formula has been erased on edit.
-                _wrs_temporalImage.parentNode.removeChild(_wrs_temporalImage);
             }
-            _wrs_temporalImage.parentNode.replaceChild(element, _wrs_temporalImage);
-
             placeCaretAfterNode(element);
         }
-    } catch (e) {}
+    }
+    catch (e) {
+    }
 }
 
 /**
@@ -1736,11 +1763,11 @@ function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
  */
 function wrs_isMathmlInAttribute(content, i) {
     // Regex = '^[\'"][\\s]*=[\\s]*[\\w-]+([\\s]*("[^"]*"|\'[^\']*\')[\\s]*=[\\s]*[\\w-]+[\\s]*)*[\\s]+gmi<';
-    var math_att = '[\'"][\\s]*=[\\s]*[\\w-]+'; // "=att OR '=att
-    var att_content = '"[^"]*"|\'[^\']*\''; // "blabla" OR 'blabla'
-    var att = '[\\s]*(' + att_content + ')[\\s]*=[\\s]*[\\w-]+[\\s]*'; // "blabla"=att OR 'blabla'=att
-    var atts = '(' + att + ')*'; // "blabla"=att1 "blabla"=att2
-    var regex = '^' + math_att + atts + '[\\s]+gmi<'; // "=att "blabla"=att1 "blabla"=att2 gmi< .
+    var math_att = '[\'"][\\s]*=[\\s]*[\\w-]+';                         // "=att OR '=att
+    var att_content = '"[^"]*"|\'[^\']*\'';                             // "blabla" OR 'blabla'
+    var att = '[\\s]*(' + att_content + ')[\\s]*=[\\s]*[\\w-]+[\\s]*';  // "blabla"=att OR 'blabla'=att
+    var atts = '(' + att + ')*';                                        // "blabla"=att1 "blabla"=att2
+    var regex = '^' + math_att + atts + '[\\s]+gmi<';                   // "=att "blabla"=att1 "blabla"=att2 gmi< .
     var expression = new RegExp(regex);
 
     var actual_content = content.substring(0, i);
@@ -1766,13 +1793,14 @@ function wrs_mathmlDecode(input) {
     input = input.split(_wrs_safeXmlCharactersEntities.realDoubleQuote).join(_wrs_safeXmlCharacters.realDoubleQuote);
 
     // Blackboard.
-    if ('_wrs_blackboard' in window && window._wrs_blackboard) {
+    if ('_wrs_blackboard' in window && window._wrs_blackboard){
         input = input.split(_wrs_safeBadBlackboardCharacters.ltElement).join(_wrs_safeGoodBlackboardCharacters.ltElement);
         input = input.split(_wrs_safeBadBlackboardCharacters.gtElement).join(_wrs_safeGoodBlackboardCharacters.gtElement);
         input = input.split(_wrs_safeBadBlackboardCharacters.ampElement).join(_wrs_safeGoodBlackboardCharacters.ampElement);
 
         /*var regex = /«mtext».*[<>&].*«\/mtext»/;
-         var result = regex.exec(input);
+
+        var result = regex.exec(input);
         while(result){
             var changedResult = result[0].split(_wrs_xmlCharacters.tagOpener).join('§lt;');
             changedResult = changedResult.split(_wrs_xmlCharacters.tagCloser).join('§gt;');
@@ -1799,17 +1827,20 @@ function wrs_mathmlDecode(input) {
         if (currentEntity == null) {
             if (character == '$') {
                 currentEntity = '';
-            } else {
+            }
+            else {
                 returnValue += character;
             }
-        } else {
+        }
+        else {
             if (character == ';') {
                 returnValue += '&' + currentEntity + ';';
                 currentEntity = null;
-            } else if (character.match(/([a-zA-Z0-9#._-] | '-')/)) {
-                // Character is part of an entity.
+            }
+            else if (character.match(/([a-zA-Z0-9#._-] | '-')/)) {  // Character is part of an entity.
                 currentEntity += character;
-            } else {
+            }
+            else {
                 returnValue += '$' + currentEntity; // Is not an entity.
                 currentEntity = null;
                 --i; // Parse again the current character.
@@ -1852,23 +1883,26 @@ function wrs_mathmlEntities(mathml) {
 
         // Parsing > 128 characters.
         if (mathml.codePointAt(i) > 128) {
-            toReturn += '&#' + mathml.codePointAt(i) + ';';
+            toReturn += '&#' + mathml.codePointAt(i) + ';'
             // For UTF-32 characters we need to move the index one position.
             if (mathml.codePointAt(i) > 0xffff) {
                 i++;
             }
-        } else if (character == '&') {
+        }
+        else if (character == '&') {
             var end = mathml.indexOf(';', i + 1);
 
             if (end >= 0) {
                 var container = document.createElement('span');
                 container.innerHTML = mathml.substring(i, end + 1);
-                toReturn += '&#' + wrs_fixedCharCodeAt(container.innerText || container.textContent, 0) + ';';
+                toReturn += '&#' + wrs_fixedCharCodeAt((container.innerText || container.textContent),0) + ';';
                 i = end;
-            } else {
+            }
+            else {
                 toReturn += character;
             }
-        } else {
+        }
+        else {
             toReturn += character;
         }
     }
@@ -1887,9 +1921,9 @@ function wrs_mathmlAddEditorAttribute(mathml) {
     var toReturn = '';
 
     var start = mathml.indexOf('<math');
-    if (start == 0) {
+    if (start == 0 ) {
         var end = mathml.indexOf('>');
-        if (mathml.indexOf("class") == -1) {
+        if (mathml.indexOf("class") == -1 ) {
             // Adding custom editor type.
             toReturn = mathml.substr(start, end) + ' class="wrs_' + wrs_int_getCustomEditorEnabled().toolbar + '">';
             toReturn += mathml.substr(end + 1, mathml.length);
@@ -1897,6 +1931,7 @@ function wrs_mathmlAddEditorAttribute(mathml) {
         }
     }
     return mathml;
+
 }
 
 /**
@@ -1921,11 +1956,10 @@ function wrs_fixedCharCodeAt(str, idx) {
         if (isNaN(low)) {
             throw _wrs_stringManager.getString('exception_high_surrogate');
         }
-        return (hi - 0xD800) * 0x400 + (low - 0xDC00) + 0x10000;
+        return ((hi - 0xD800) * 0x400) + (low - 0xDC00) + 0x10000;
     }
 
-    if (0xDC00 <= code && code <= 0xDFFF) {
-        // Low surrogate.
+    if (0xDC00 <= code && code <= 0xDFFF) { // Low surrogate.
         /* We return false to allow loops to skip this iteration since should have
            already handled high surrogate above in the previous iteration. */
         return false;
@@ -1945,18 +1979,21 @@ function wrs_mathmlToAccessible(mathml, language, data) {
 
     if (_wrs_int_AccessibleCache.hasOwnProperty(mathml)) {
         accessibleText = _wrs_int_AccessibleCache[mathml];
-    } else {
+    }
+    else {
         data['service'] = 'mathml2accessible';
         data['lang'] = _wrs_int_langCode;
         var accesibleJsonResponse = JSON.parse(wrs_getContent(_wrs_conf_servicePath, data));
         if (accesibleJsonResponse.status != 'error') {
             accessibleText = accesibleJsonResponse.result.text;
-        } else {
+        }
+        else {
             accessibleText = _wrs_stringManager.getString('error_convert_accessibility');
         }
     }
 
     return accessibleText;
+
 }
 
 /**
@@ -1968,33 +2005,6 @@ function wrs_mathmlToAccessible(mathml, language, data) {
  */
 function wrs_mathmlToIframeObject(windowTarget, mathml) {
     if (window.navigator.userAgent.toLowerCase().indexOf('webkit') != -1) {
-        var waitForViewer = function waitForViewer() {
-            if (windowTarget.com && windowTarget.com.wiris) {
-                var _prepareDiv = function _prepareDiv() {
-                    if (windowTarget._wrs_viewer.isReady()) {
-                        container.style.height = formulaContainer.style.height;
-                        container.style.width = formulaContainer.style.width;
-                        container.style.verticalAlign = formulaContainer.style.verticalAlign;
-                    } else {
-                        setTimeout(_prepareDiv, 100);
-                    }
-                };
-
-                if (!('_wrs_viewer' in windowTarget)) {
-                    windowTarget._wrs_viewer = new windowTarget.com.wiris.jsEditor.JsViewerMain(_wrs_conf_pluginBasePath + '/integration/editor');
-                    windowTarget._wrs_viewer.insertCSS(null, windowTarget.document);
-                }
-
-                windowTarget._wrs_viewer.paintFormulaOnContainer(mathml, formulaContainer, null);
-
-                ;
-
-                _prepareDiv();
-            } else {
-                setTimeout(waitForViewer, 100);
-            }
-        };
-
         // In WebKit, the formula is represented by a div instead of an iframe.
         var container = windowTarget.document.createElement('span');
         container.className = _wrs_conf_imageClassName;
@@ -2009,6 +2019,33 @@ function wrs_mathmlToIframeObject(windowTarget, mathml) {
         var formulaContainer = windowTarget.document.createElement('span');
         formulaContainer.style.display = 'inline';
         container.appendChild(formulaContainer);
+
+        function waitForViewer() {
+            if (windowTarget.com && windowTarget.com.wiris) {
+                if (!('_wrs_viewer' in windowTarget)) {
+                    windowTarget._wrs_viewer = new windowTarget.com.wiris.jsEditor.JsViewerMain(_wrs_conf_pluginBasePath + '/integration/editor');
+                    windowTarget._wrs_viewer.insertCSS(null, windowTarget.document);
+                }
+
+                windowTarget._wrs_viewer.paintFormulaOnContainer(mathml, formulaContainer, null);
+
+                function prepareDiv() {
+                    if (windowTarget._wrs_viewer.isReady()) {
+                        container.style.height = formulaContainer.style.height;
+                        container.style.width = formulaContainer.style.width;
+                        container.style.verticalAlign = formulaContainer.style.verticalAlign;
+                    }
+                    else {
+                        setTimeout(prepareDiv, 100);
+                    }
+                };
+
+                prepareDiv();
+            }
+            else {
+                setTimeout(waitForViewer, 100);
+            }
+        }
 
         if (!('_wrs_viewerAppended' in windowTarget)) {
             var viewerScript = windowTarget.document.createElement('script');
@@ -2057,7 +2094,7 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
     var imgObject = creator.createElement('img');
     imgObject.align = 'middle';
     imgObject.style.maxWidth = 'none';
-    var data = wirisProperties ? wirisProperties : {};
+    var data = (wirisProperties) ? wirisProperties : {};
 
     if (window._wrs_conf_useDigestInsteadOfMathml && _wrs_conf_useDigestInsteadOfMathml) {
         data['returnDigest'] = 'true';
@@ -2086,12 +2123,11 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
     var customEditor;
     if (customEditor = wrs_int_getCustomEditorEnabled()) {
         imgObject.setAttribute('data-custom-editor', customEditor.toolbar);
-    } else if (mathml.indexOf('class="') != -1) {
-        // We check here if the mathmnl has been created from a customEditor (such chemistry)
+    } else if (mathml.indexOf('class="') != -1) { // We check here if the mathmnl has been created from a customEditor (such chemistry)
         // to add data-custom-editor attribute to img object (if necessary).
         var mathmlSubstring = mathml.substring(mathml.indexOf('class="') + 'class="'.length, mathml.length);
         mathmlSubstring = mathmlSubstring.substring(0, mathmlSubstring.indexOf('"'));
-        mathmlSubstring = mathmlSubstring.substring(4, mathmlSubstring.length);
+        mathmlSubstring = mathmlSubstring.substring(4,mathmlSubstring.length);
         imgObject.setAttribute('data-custom-editor', mathmlSubstring);
     }
 
@@ -2104,7 +2140,8 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
             // if the mathml is malformed, this function will throw an exception.
             try {
                 result = JSON.parse(wrs_getContent(_wrs_conf_showimagePath, data));
-            } catch (e) {
+            }
+            catch (e) {
                 return;
             }
         }
@@ -2123,21 +2160,24 @@ function wrs_mathmlToImgObject(creator, mathml, wirisProperties, language) {
             if (typeof result.alt == 'undefined') {
                 imgObject.alt = wrs_mathmlToAccessible(mathml, language, data);
                 wrs_populateAccessibleCache(mathml, imgObject.alt);
-            } else {
+            }
+            else {
                 imgObject.alt = result.alt;
             }
         }
-    } else {
+    }
+    else {
         var result = wrs_createImageSrc(mathml, data);
         if (window._wrs_conf_useDigestInsteadOfMathml && _wrs_conf_useDigestInsteadOfMathml) {
             var parts = result.split(':', 2);
             imgObject.setAttribute(_wrs_conf_imageMathmlAttribute, parts[0]);
             imgObject.src = parts[1];
-        } else {
+        }
+        else {
             imgObject.setAttribute(_wrs_conf_imageMathmlAttribute, wrs_mathmlEncode(mathml));
             imgObject.src = result;
             if (_wrs_conf_setSize) {
-                wrs_setImgSize(imgObject, result, _wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default' ? true : false);
+                wrs_setImgSize(imgObject,result, (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default') ? true : false);
             }
         }
         if (window._wrs_conf_enableAccessibility && _wrs_conf_enableAccessibility) {
@@ -2213,9 +2253,9 @@ function wrs_openCASWindow(target, isIframe, language) {
 function wrs_openEditorWindow(language, target, isIframe) {
     var ua = navigator.userAgent.toLowerCase();
     var isAndroid = ua.indexOf("android") > -1;
-    var isIOS = ua.indexOf("ipad") > -1 || ua.indexOf("iphone") > -1;
+    var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
 
-    if (isAndroid || isIOS) {
+    if(isAndroid || isIOS) {
         _wrs_conf_modalWindow = true; // Conf property must be overrided on tablet/phone devices.
     }
 
@@ -2223,11 +2263,13 @@ function wrs_openEditorWindow(language, target, isIframe) {
         if (isIframe) {
             var selection = target.contentWindow.getSelection();
             _wrs_range = selection.getRangeAt(0);
-        } else {
+        }
+        else {
             var selection = getSelection();
             _wrs_range = selection.getRangeAt(0);
         }
-    } catch (e) {
+    }
+    catch (e) {
         _wrs_range = null;
     }
 
@@ -2250,14 +2292,14 @@ function wrs_openEditorWindow(language, target, isIframe) {
     path = wrs_addArgument(path, "v", _wrs_plugin_version);
 
     var availableDirs = new Array('rtl', 'ltr');
-    if (typeof _wrs_int_directionality != 'undefined' && wrs_arrayContains(availableDirs, _wrs_int_directionality) != -1) {
-        path = wrs_addArgument(path, "dir", _wrs_int_directionality);
+    if (typeof _wrs_int_directionality != 'undefined' && wrs_arrayContains(availableDirs, _wrs_int_directionality) != -1){
+        path = wrs_addArgument(path,"dir",_wrs_int_directionality);
     }
 
     // Cross Domain Policy.
     wrs_addArgument(path, 'host', 'localhost');
 
-    _wrs_editMode = window._wrs_conf_defaultEditMode ? _wrs_conf_defaultEditMode : 'images';
+    _wrs_editMode = (window._wrs_conf_defaultEditMode) ? _wrs_conf_defaultEditMode : 'images';
     _wrs_temporalRange = null;
 
     if (target) {
@@ -2273,14 +2315,16 @@ function wrs_openEditorWindow(language, target, isIframe) {
                 if (wrs_containsClass(selectedItem.node, _wrs_conf_imageClassName)) {
                     if (selectedItem.node.nodeName.toUpperCase() == 'IMG') {
                         _wrs_editMode = 'images';
-                    } else if (selectedItem.node.nodeName.toUpperCase() == 'IFRAME') {
+                    }
+                    else if (selectedItem.node.nodeName.toUpperCase() == 'IFRAME') {
                         _wrs_editMode = 'iframes';
                     }
 
                     _wrs_temporalImage = selectedItem.node;
                     _wrs_isNewElement = false;
                 }
-            } else {
+            }
+            else {
                 var latexResult = wrs_getLatexFromTextNode(selectedItem.node, selectedItem.caretPosition);
 
                 if (latexResult != null) {
@@ -2291,7 +2335,7 @@ function wrs_openEditorWindow(language, target, isIframe) {
 
                     _wrs_temporalImage = document.createElement('img');
                     _wrs_temporalImage.setAttribute(_wrs_conf_imageMathmlAttribute, wrs_mathmlEncode(mathml));
-                    var windowTarget = isIframe ? target.contentWindow : window;
+                    var windowTarget = (isIframe) ? target.contentWindow : window;
 
                     if (document.selection) {
                         var leftOffset = 0;
@@ -2306,7 +2350,8 @@ function wrs_openEditorWindow(language, target, isIframe) {
                         _wrs_temporalRange.moveToElementText(latexResult.startNode.parentNode);
                         _wrs_temporalRange.move('character', leftOffset + latexResult.startPosition);
                         _wrs_temporalRange.moveEnd('character', latexResult.latex.length + 4); // Plus 4 for the '$$' characters.
-                    } else {
+                    }
+                    else {
                         _wrs_temporalRange = windowTarget.document.createRange();
                         _wrs_temporalRange.setStart(latexResult.startNode, latexResult.startPosition);
                         _wrs_temporalRange.setEnd(latexResult.endNode, latexResult.endPosition);
@@ -2319,10 +2364,10 @@ function wrs_openEditorWindow(language, target, isIframe) {
     var splitterEditorAtributes = _wrs_conf_editorAttributes.split(", ");
     var resultEditorAtributes = {};
     for (var i = 0, len = splitterEditorAtributes.length; i < len; i++) {
-        var tempAtribute = splitterEditorAtributes[i].split('=');
-        var key = tempAtribute[0];
-        var value = tempAtribute[1];
-        resultEditorAtributes[key] = value;
+      var tempAtribute = splitterEditorAtributes[i].split('=');
+      var key = tempAtribute[0];
+      var value = tempAtribute[1];
+      resultEditorAtributes[key] = value;
     }
     resultEditorAtributes.language = _wrs_int_langCode;
 
@@ -2347,6 +2392,7 @@ function Core() {
     this.init = true;
 }
 
+
 /**
  * Converts all occurrences of mathml code to LATEX. The MathML code should containg <annotation encoding="LaTeX"/> to be converted.
  * @param {string} content A string containing MathML valid code.
@@ -2354,7 +2400,7 @@ function Core() {
  * @return {string} String with all MathML annotated occurrences replaced by the corresponding LaTeX code.
  * @ignore
  */
-function wrs_parseMathmlToLatex(content, characters) {
+function wrs_parseMathmlToLatex(content, characters){
     var output = '';
     var mathTagBegin = characters.tagOpener + 'math';
     var mathTagEnd = characters.tagOpener + '/math' + characters.tagCloser;
@@ -2370,14 +2416,15 @@ function wrs_parseMathmlToLatex(content, characters) {
 
         if (end == -1) {
             end = content.length - 1;
-        } else {
+        }
+        else {
             end += mathTagEnd.length;
         }
 
         mathml = content.substring(start, end);
 
         startAnnotation = mathml.indexOf(openTarget);
-        if (startAnnotation != -1) {
+        if (startAnnotation != -1){
             startAnnotation += openTarget.length;
             closeAnnotation = mathml.indexOf(closeTarget);
             var latex = mathml.substring(startAnnotation, closeAnnotation);
@@ -2387,7 +2434,7 @@ function wrs_parseMathmlToLatex(content, characters) {
             output += '$$' + latex + '$$';
             // Populate latex into cache.
             wrs_populateLatexCache(latex, mathml);
-        } else {
+        }else{
             output += mathml;
         }
 
@@ -2425,15 +2472,17 @@ function wrs_parseMathmlToImg(content, characters, language) {
             // First close tag of img attribute
             // If a mathmlAttribute exists should be inside a img tag.
             end += content.indexOf("/>", start);
-        } else {
+        }
+        else {
             end += mathTagEnd.length;
         }
 
-        if (!wrs_isMathmlInAttribute(content, start) && imageMathmlAtrribute == -1) {
+        if (!wrs_isMathmlInAttribute(content, start) && imageMathmlAtrribute == -1){
             var mathml = content.substring(start, end);
-            mathml = characters == _wrs_safeXmlCharacters ? wrs_mathmlDecode(mathml) : wrs_mathmlEntities(mathml);
+            mathml = (characters == _wrs_safeXmlCharacters) ? wrs_mathmlDecode(mathml) : wrs_mathmlEntities(mathml);
             output += wrs_createObjectCode(wrs_mathmlToImgObject(document, mathml, null, language));
-        } else {
+        }
+        else {
             output += content.substring(start, end);
         }
 
@@ -2465,7 +2514,8 @@ function wrs_parseSafeAppletsToObjects(content) {
 
         if (end == -1) {
             end = content.length - 1;
-        } else {
+        }
+        else {
             end += appletTagEnd.length;
         }
 
@@ -2489,7 +2539,8 @@ function wrs_parseSafeAppletsToObjects(content) {
 function wrs_removeEvent(element, event, func) {
     if (element.removeEventListener) {
         element.removeEventListener(event, func, true);
-    } else if (element.detachEvent) {
+    }
+    else if (element.detachEvent) {
         element.detachEvent('on' + event, func);
     }
 }
@@ -2544,18 +2595,18 @@ function wrs_updateCAS(focusElement, windowTarget, appletCode, image, imageWidth
     wrs_insertElementOnSelection(imgObject, focusElement, windowTarget);
 }
 
-var wrs_PluginEvent = function wrs_PluginEvent() {
+var wrs_PluginEvent = function () {
     this.cancelled = false;
     this.defaultPrevented = false;
-};
+}
 
 wrs_PluginEvent.prototype.cancel = function () {
     this.cancelled = true;
-};
+}
 
 wrs_PluginEvent.prototype.preventDefault = function () {
     this.defaultPrevented = true;
-};
+}
 
 /**
  * Fires MathType event listeners
@@ -2626,21 +2677,25 @@ function wrs_updateFormula(focusElement, windowTarget, mathml, wirisProperties, 
 
     if (mathml.length == 0) {
         wrs_insertElementOnSelection(null, focusElement, windowTarget);
-    } else if (editMode == 'latex') {
+    }
+    else if (editMode == 'latex') {
         e.latex = wrs_getLatexFromMathML(mathml);
         // wrs_int_getNonLatexNode is an integration wrapper to have special behaviours for nonLatex.
         // Not all the integrations have special behaviours for nonLatex.
         if (typeof wrs_int_getNonLatexNode != 'undefined' && (typeof e.latex == 'undefined' || e.latex == null)) {
             wrs_int_getNonLatexNode(e, windowTarget, mathml);
-        } else {
+        }
+        else {
             e.node = windowTarget.document.createTextNode('$$' + e.latex + '$$');
             wrs_populateLatexCache(e.latex, mathml);
         }
         wrs_insertElementOnSelection(e.node, focusElement, windowTarget);
-    } else if (editMode == 'iframes') {
+    }
+    else if (editMode == 'iframes') {
         var iframe = wrs_mathmlToIframeObject(windowTarget, mathml);
         wrs_insertElementOnSelection(iframe, focusElement, windowTarget);
-    } else {
+    }
+    else {
         e.node = wrs_mathmlToImgObject(windowTarget.document, mathml, wirisProperties, language);
         wrs_insertElementOnSelection(e.node, focusElement, windowTarget);
     }
@@ -2664,7 +2719,8 @@ function wrs_updateTextarea(textarea, text) {
             var selectionEnd = textarea.selectionEnd;
             textarea.value = textarea.value.substring(0, textarea.selectionStart) + text + textarea.value.substring(textarea.selectionEnd, textarea.value.length);
             textarea.selectionEnd = selectionEnd + text.length;
-        } else {
+        }
+        else {
             var selection = document.selection.createRange();
             selection.text = text;
         }
@@ -2708,7 +2764,7 @@ function wrs_urlencode(clearString) {
     return output;
 }
 
-function wrs_addArgument(path, key, value) {
+function wrs_addArgument(path,key,value) {
     var sep;
     if (path.indexOf("?") > 0) {
         sep = "&";
@@ -2723,7 +2779,7 @@ function wrs_urlToAssArray(url) {
     i = url.indexOf("?");
     if (i > 0) {
         var query = url.substring(i + 1);
-        var ss = query.split("&");
+        var ss  = query.split("&");
         var h = new Object();
         for (i = 0; i < ss.length; i++) {
             var s = ss[i];
@@ -2748,7 +2804,7 @@ function wrs_setImgSize(img, url, json) {
             if (_wrs_conf_saveMode != 'base64') {
                 var ar = getMetricsFromSvgString(url);
             } else {
-                var base64String = img.src.substr(img.src.indexOf('base64,') + 7, img.src.length);
+                var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
                 var svgString = '';
                 var bytes = wrs_b64ToByteArray(base64String, base64String.length);
                 for (var i = 0; i < bytes.length; i++) {
@@ -2758,7 +2814,7 @@ function wrs_setImgSize(img, url, json) {
             }
             // PNG format: we store all metrics information in the first 88 bytes.
         } else {
-            var base64String = img.src.substr(img.src.indexOf('base64,') + 7, img.src.length);
+            var base64String = img.src.substr( img.src.indexOf('base64,') + 7, img.src.length);
             var bytes = wrs_b64ToByteArray(base64String, 88);
             var ar = wrs_getMetricsFromBytes(bytes);
         }
@@ -2793,22 +2849,23 @@ function wrs_fixAfterResize(img) {
         if (img.src.indexOf("data:image") != -1) {
             if (_wrs_conf_imageFormat == 'svg') {
                 // ...data:image/svg+xml;charset=utf8, = 32.
-                var svg = wrs_urldecode(img.src.substring(32, img.src.length));
+                var svg = wrs_urldecode(img.src.substring(32, img.src.length))
                 wrs_setImgSize(img, svg, true);
             } else {
                 // ...data:image/png;base64, == 22.
-                var base64 = img.src.substring(22, img.src.length);
+                var base64 = img.src.substring(22,img.src.length);
                 wrs_setImgSize(img, base64, true);
             }
         } else {
-            wrs_setImgSize(img, img.src);
+            wrs_setImgSize(img,img.src);
         }
     }
 }
 
 function wrs_initSetSize() {
     // Override _wrs_conf_setSize to align formulas when xml or safeXml mode are enabled.
-    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || _wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default' || _wrs_conf_saveMode == 'image' && _wrs_conf_imageFormat == 'svg';
+    _wrs_conf_setSize = _wrs_conf_setSize || _wrs_conf_saveMode == 'xml' || _wrs_conf_saveMode == 'safeXml' || (_wrs_conf_saveMode == 'base64' && _wrs_conf_editMode == 'default')
+     || (_wrs_conf_saveMode == 'image' && _wrs_conf_imageFormat == 'svg');
 }
 
 /**
@@ -2871,7 +2928,7 @@ function wrs_loadLangFile() {
         var langArray = _wrs_languages.split(',');
 
         if (langArray.indexOf(_wrs_int_langCode) == -1) {
-            _wrs_int_langCode = _wrs_int_langCode.substr(0, 2);
+            _wrs_int_langCode = _wrs_int_langCode.substr(0,2);
         }
 
         if (langArray.indexOf(_wrs_int_langCode) == -1) {
@@ -2882,7 +2939,7 @@ function wrs_loadLangFile() {
         script.type = 'text/javascript';
         script.src = _wrs_corePath + "/lang/" + _wrs_int_langCode + "/strings.js";
         // When strings are loaded, it loads into stringManager
-        script.onload = function () {
+        script.onload = function() {
 
             _wrs_stringManager.loadStrings(wrs_strings);
             // Unseting global language strings array to prevent access.
@@ -2896,7 +2953,7 @@ function wrs_loadLangFile() {
 
 function wrs_concatenateUrl(path1, path2) {
     var separator = "";
-    if (path1.indexOf("/") != path1.length && path2.indexOf("/") != 0) {
+    if ((path1.indexOf("/") != path1.length) && (path2.indexOf("/") != 0)) {
         separator = "/";
     }
     return (path1 + separator + path2).replace(/([^:]\/)\/+/g, "$1");
@@ -2920,7 +2977,7 @@ if (typeof _wrs_conf_configuration_loaded == 'undefined') {
  * @ignore
  */
 function wrs_populateLatexCache(latex, mathml) {
-    if (mathml.indexOf('semantics') == -1 && mathml.indexOf('annotation') == -1) {
+    if (mathml.indexOf('semantics') == -1 && mathml.indexOf('annotation') == -1 ) {
         mathml = wrs_insertSemanticsMathml(mathml, latex);
     }
     if (!_wrs_int_LatexCache.hasOwnProperty(latex)) {
@@ -2983,7 +3040,7 @@ function wrs_insertSemanticsMathml(mathml, latex) {
     var indexMathEnd = mathml.indexOf(mathTagEnd);
     var mathBeginExists = mathml.substring(mathml.indexOf('<'), mathml.indexOf('>')).indexOf('math');
 
-    if (indexMathBegin != -1 && indexMathEnd != -1 && mathBeginExists) {
+    if (indexMathBegin != -1 && indexMathEnd != -1 && mathBeginExists)  {
         var mathmlContent = mathml.substring(indexMathBegin + 1, indexMathEnd);
         if (mathmlContent.indexOf(mrowOpen) != 0) {
             var mathmlContentSemantics = openSemantics + mrowOpen + mathmlContent + mrowClose + openTarget + latex + closeTarget + closeSemantics;
@@ -2994,6 +3051,7 @@ function wrs_insertSemanticsMathml(mathml, latex) {
     } else {
         return mathml;
     }
+
 }
 
 /**
@@ -3045,19 +3103,20 @@ function wrs_codeImgTransform(code, mode) {
                 var characterNextPosition = code.indexOf(character, i + 1);
 
                 if (characterNextPosition == -1) {
-                    i = code.length; // End while.
-                } else {
+                    i = code.length;        // End while.
+                }
+                else {
                     i = characterNextPosition;
                 }
-            } else if (character == '>') {
+            }
+            else if (character == '>') {
                 endPosition = i + 1;
             }
 
             ++i;
         }
 
-        if (endPosition < startPosition) {
-            // The img tag is stripped.
+        if (endPosition < startPosition) {      // The img tag is stripped.
             output += code.substring(startPosition, code.length);
             return output;
         }
@@ -3079,7 +3138,8 @@ function wrs_codeImgTransform(code, mode) {
                 if (_wrs_conf_saveMode == 'safeXml') {
                     convertToXml = true;
                     convertToSafeXml = true;
-                } else if (_wrs_conf_saveMode == 'xml') {
+                }
+                else if (_wrs_conf_saveMode == 'xml') {
                     convertToXml = true;
                     convertToSafeXml = false;
                 }
@@ -3094,7 +3154,7 @@ function wrs_codeImgTransform(code, mode) {
 
             var properties = {};
             properties['base64'] = 'true';
-            imgCode = wrs_mathmlToImgObject(document, xmlCode, properties, null);
+            imgCode = wrs_mathmlToImgObject(document, xmlCode, properties, null)
             // Metrics.
             wrs_setImgSize(imgCode, imgCode.src, true);
 
@@ -3126,20 +3186,20 @@ function wrs_decode64(el) {
     if (code === PLUS || code === PLUS_URL_SAFE) {
         return 62; // Char '+'.
     }
-    if (code === SLASH || code === SLASH_URL_SAFE) {
-        return 63; // Char '/'.
+    if (code === SLASH || code === SLASH_URL_SAFE){
+        return 63 // Char '/'.
     }
-    if (code < NUMBER) {
-        return -1; // No match.
+    if (code < NUMBER){
+        return -1 // No match.
     }
-    if (code < NUMBER + 10) {
-        return code - NUMBER + 26 + 26;
+    if (code < NUMBER + 10){
+        return code - NUMBER + 26 + 26
     }
-    if (code < UPPER + 26) {
-        return code - UPPER;
+    if (code < UPPER + 26){
+        return code - UPPER
     }
-    if (code < LOWER + 26) {
-        return code - LOWER + 26;
+    if (code < LOWER + 26){
+        return code - LOWER + 26
     }
 }
 
@@ -3158,11 +3218,10 @@ function wrs_b64ToByteArray(b64String, len) {
         throw new Error('Invalid string. Length must be a multiple of 4'); // Tipped base64. Length is fixed.
     }
 
-    var arr = new Array();
+    var arr = new Array()
 
-    if (!len) {
-        // All b64String string.
-        var placeHolders = b64String.charAt(b64String.length - 2) === '=' ? 2 : b64String.charAt(b64String.length - 1) === '=' ? 1 : 0;
+    if (!len) { // All b64String string.
+        var placeHolders = b64String.charAt(b64String.length - 2) === '=' ? 2 : b64String.charAt(b64String.length - 1) === '=' ? 1 : 0
         var l = placeHolders > 0 ? b64String.length - 4 : b64String.length;
     } else {
         var l = len;
@@ -3172,10 +3231,10 @@ function wrs_b64ToByteArray(b64String, len) {
         // Ignoring code checker standards (bitewise operators).
         // See https://tracker.moodle.org/browse/CONTRIB-5862 for further information.
         // @codingStandardsIgnoreStart
-        tmp = wrs_decode64(b64String.charAt(i)) << 18 | wrs_decode64(b64String.charAt(i + 1)) << 12 | wrs_decode64(b64String.charAt(i + 2)) << 6 | wrs_decode64(b64String.charAt(i + 3));
+        tmp = (wrs_decode64(b64String.charAt(i)) << 18) | (wrs_decode64(b64String.charAt(i + 1)) << 12) | (wrs_decode64(b64String.charAt(i + 2)) << 6) | wrs_decode64(b64String.charAt(i + 3));
 
-        arr.push(tmp >> 16 & 0xFF);
-        arr.push(tmp >> 8 & 0xFF);
+        arr.push((tmp  >> 16) & 0xFF);
+        arr.push((tmp >> 8) & 0xFF);
         arr.push(tmp & 0xFF);
         // @codingStandardsIgnoreEnd
     }
@@ -3184,17 +3243,17 @@ function wrs_b64ToByteArray(b64String, len) {
         if (placeHolders === 2) {
             // Ignoring code checker standards (bitewise operators).
             // @codingStandardsIgnoreStart
-            tmp = wrs_decode64(b64String.charAt(i)) << 2 | wrs_decode64(b64String.charAt(i + 1)) >> 4;
-            arr.push(tmp & 0xFF);
+            tmp = (wrs_decode64(b64String.charAt(i)) << 2) | (wrs_decode64(b64String.charAt(i + 1)) >> 4);
+            arr.push(tmp & 0xFF)
         } else if (placeHolders === 1) {
-            tmp = wrs_decode64(b64String.charAt(i)) << 10 | wrs_decode64(b64String.charAt(i + 1)) << 4 | wrs_decode64(b64String.charAt(i + 2)) >> 2;
-            arr.push(tmp >> 8 & 0xFF);
+            tmp = (wrs_decode64(b64String.charAt(i)) << 10) | (wrs_decode64(b64String.charAt(i + 1)) << 4) | (wrs_decode64(b64String.charAt(i + 2)) >> 2)
+            arr.push((tmp >> 8) & 0xFF);
             arr.push(tmp & 0xFF);
             // @codingStandardsIgnoreEnd
         }
     }
 
-    return arr;
+    return arr
 }
 
 /**
@@ -3207,9 +3266,9 @@ function wrs_readInt32(bytes) {
     if (bytes.length < 4) {
         return false;
     }
-    var int32 = bytes.splice(0, 4);
+    var int32 = bytes.splice(0,4);
     // @codingStandardsIgnoreStart
-    return int32[0] << 24 | int32[1] << 16 | int32[2] << 8 | int32[3] << 0;
+    return (int32[0] << 24 | int32[1] << 16 | int32[2] <<  8 | int32[3] << 0);
     // @codingStandardsIgnoreEnd
 }
 
@@ -3223,6 +3282,7 @@ function wrs_readByte(bytes) {
     // @codingStandardsIgnoreStart
     return bytes.shift() << 0;
     // @codingStandardsIgnoreEnd
+
 }
 
 /**
@@ -3256,13 +3316,11 @@ function wrs_getMetricsFromBytes(bytes) {
             // Read 5 bytes.
             wrs_readInt32(bytes);
             wrs_readByte(bytes);
-        } else if (typ == 0x62615345) {
-            // Baseline: 'baSE'.
+        } else if (typ == 0x62615345) { // Baseline: 'baSE'.
             var baseline = wrs_readInt32(bytes);
-        } else if (typ == 0x70485973) {
-            // Dpis: 'pHYs'.
+        } else if (typ == 0x70485973) { // Dpis: 'pHYs'.
             var dpi = wrs_readInt32(bytes);
-            dpi = Math.round(dpi / 39.37);
+            dpi = (Math.round(dpi / 39.37));
             wrs_readInt32(bytes);
             wrs_readByte(bytes);
         }
@@ -3284,27 +3342,28 @@ function wrs_getMetricsFromBytes(bytes) {
 
 function getMetricsFromSvgString(svgString) {
     var first = svgString.indexOf('height="');
-    var last = svgString.indexOf('"', first + 8, svgString.length);
+    var last = svgString.indexOf('"',first + 8, svgString.length);
     var height = svgString.substring(first + 8, last);
 
     first = svgString.indexOf('width="');
-    last = svgString.indexOf('"', first + 7, svgString.length);
+    last = svgString.indexOf('"',first + 7, svgString.length);
     var width = svgString.substring(first + 7, last);
 
     first = svgString.indexOf('wrs:baseline="');
-    last = svgString.indexOf('"', first + 14, svgString.length);
+    last = svgString.indexOf('"',first + 14, svgString.length);
     var baseline = svgString.substring(first + 14, last);
 
-    if (_typeof(width != 'undefined')) {
+    if (typeof(width != 'undefined')) {
         var arr = new Array();
         arr['cw'] = width;
         arr['ch'] = height;
         if (typeof baseline != 'undefined') {
-            arr['cb'] = baseline;
+            arr['cb'] = baseline
         }
 
         return arr;
     }
+
 }
 
 /**
@@ -3323,13 +3382,14 @@ function wrs_int_getCustomEditorEnabled() {
     return customEditorEnabled;
 }
 
+
 /**
  * Disable all custom editors
  * @ignore
  */
-function wrs_int_disableCustomEditors() {
-    Object.keys(_wrs_int_customEditors).forEach(function (key) {
-        _wrs_int_customEditors[key].enabled = false;
+function wrs_int_disableCustomEditors(){
+    Object.keys(_wrs_int_customEditors).forEach(function(key) {
+            _wrs_int_customEditors[key].enabled = false;
     });
 }
 
@@ -3354,7 +3414,7 @@ function wrs_int_enableCustomEditor(editor) {
  */
 function wrs_propertiesToString(h) {
     // 1. Sort keys. We sort the keys because we want a deterministic output.
-    var keys = [];
+    var keys = []
     for (var key in h) {
         if (h.hasOwnProperty(key)) {
             keys.push(key);
@@ -3366,7 +3426,7 @@ function wrs_propertiesToString(h) {
         for (var j = i + 1; j < n; j++) {
             var s1 = keys[i];
             var s2 = keys[j];
-            if (wrs_compareStrings(s1, s2) > 0) {
+            if (wrs_compareStrings(s1,s2) > 0) {
                 // Swap.
                 keys[i] = s2;
                 keys[j] = s1;
@@ -3399,39 +3459,44 @@ function wrs_propertiesToString(h) {
  * @return {int} the int difference between a and b
  * @ignore
  */
-function wrs_compareStrings(a, b) {
+function wrs_compareStrings(a, b){
     var i;
     var an = a.length;
     var bn = b.length;
-    var n = an > bn ? bn : an;
-    for (i = 0; i < n; i++) {
-        var c = wrs_fixedCharCodeAt(a, i) - wrs_fixedCharCodeAt(b, i);
-        if (c != 0) {
+    var n = (an > bn) ? bn : an;
+    for(i = 0; i < n; i++){
+        var c = wrs_fixedCharCodeAt(a,i) - wrs_fixedCharCodeAt(b,i);
+        if(c != 0) {
             return c;
         }
     }
-    return a.length - b.length;
+        return a.length - b.length;
 }
 
 // Polyfills.
 
 if (!Object.keys) {
-    Object.keys = function () {
+    Object.keys = (function () {
         'use strict';
-
         var hasOwnProperty = Object.prototype.hasOwnProperty,
-            hasDontEnumBug = !{ toString: null }.propertyIsEnumerable('toString'),
-            dontEnums = ['toString', 'toLocaleString', 'valueOf', 'hasOwnProperty', 'isPrototypeOf', 'propertyIsEnumerable', 'constructor'],
-            dontEnumsLength = dontEnums.length;
+        hasDontEnumBug = !({toString: null}).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length;
 
         return function (obj) {
-            if ((typeof obj === "undefined" ? "undefined" : _typeof(obj)) !== 'object' && (typeof obj !== 'function' || obj === null)) {
+            if (typeof obj !== 'object' && (typeof obj !== 'function' || obj === null)) {
                 throw new TypeError('Object.keys called on non-object');
             }
 
-            var result = [],
-                prop,
-                i;
+            var result = [], prop, i;
 
             for (prop in obj) {
                 if (hasOwnProperty.call(obj, prop)) {
@@ -3448,15 +3513,14 @@ if (!Object.keys) {
             }
             return result;
         };
-    }();
+    }());
 }
 
 /*! http://mths.be/codepointat v0.1.0 by @mathias */
 if (!String.prototype.codePointAt) {
-    (function () {
+    (function() {
         'use strict'; // needed to support `apply`/`call` with `undefined`/`null`
-
-        var codePointAt = function codePointAt(position) {
+        var codePointAt = function(position) {
             if (this == null) {
                 throw TypeError();
             }
@@ -3464,8 +3528,7 @@ if (!String.prototype.codePointAt) {
             var size = string.length;
             // `ToInteger`
             var index = position ? Number(position) : 0;
-            if (index != index) {
-                // better `isNaN`
+            if (index != index) { // better `isNaN`
                 index = 0;
             }
             // Account for out-of-bounds indices:
@@ -3476,16 +3539,15 @@ if (!String.prototype.codePointAt) {
             var first = string.charCodeAt(index);
             var second;
             if ( // check if it’s the start of a surrogate pair
-            first >= 0xD800 && first <= 0xDBFF && // high surrogate
-            size > index + 1 // there is a next code unit
+                first >= 0xD800 && first <= 0xDBFF && // high surrogate
+                size > index + 1 // there is a next code unit
             ) {
-                    second = string.charCodeAt(index + 1);
-                    if (second >= 0xDC00 && second <= 0xDFFF) {
-                        // low surrogate
-                        // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
-                        return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
-                    }
+                second = string.charCodeAt(index + 1);
+                if (second >= 0xDC00 && second <= 0xDFFF) { // low surrogate
+                    // http://mathiasbynens.be/notes/javascript-encoding#surrogate-formulae
+                    return (first - 0xD800) * 0x400 + second - 0xDC00 + 0x10000;
                 }
+            }
             return first;
         };
         if (Object.defineProperty) {
@@ -3497,7 +3559,7 @@ if (!String.prototype.codePointAt) {
         } else {
             String.prototype.codePointAt = codePointAt;
         }
-    })();
+    }());
 }
 
 /**
@@ -3526,10 +3588,10 @@ function wrs_getServerPath() {
  */
 function wrs_updateContextPath() {
     if (typeof _wrs_conf_plugin_loaded == 'undefined') {
-        setTimeout(wrs_updateContextPath, 100);
+            setTimeout(wrs_updateContextPath, 100);
     } else {
         if (_wrs_conf_showimagePath.indexOf("/") == 0) {
-            var serverPath = wrs_getServerPath();
+            var serverPath = wrs_getServerPath()
             _wrs_conf_showimagePath = serverPath + _wrs_conf_showimagePath;
             _wrs_conf_editorPath = serverPath + _wrs_conf_editorPath;
             _wrs_conf_CASPath = serverPath + _wrs_conf_CASPath;
@@ -3547,7 +3609,7 @@ wrs_updateContextPath();
 // Reference: http://es5.github.io/#x15.4.4.18.
 if (!Array.prototype.forEach) {
 
-    Array.prototype.forEach = function (callback, thisArg) {
+    Array.prototype.forEach = function(callback, thisArg) {
 
         var T, k;
 
@@ -3585,9 +3647,9 @@ if (!Array.prototype.forEach) {
             var kValue;
 
             // A. Let Pk be ToString(k).
-            // This is implicit for LHS operands of the in operator
+                // This is implicit for LHS operands of the in operator
             // B. Let kPresent be the result of calling the HasProperty internal method of O with argument Pk
-            // This step can be combined with c
+                // This step can be combined with c
             // C. If kPresent is true.
             if (k in O) {
 
@@ -3605,579 +3667,570 @@ if (!Array.prototype.forEach) {
     };
 }
 // @codingStandardsIgnoreStart
-(function () {
-    var HxOverrides = function HxOverrides() {};
-    HxOverrides.__name__ = true;
-    HxOverrides.dateStr = function (date) {
-        var m = date.getMonth() + 1;
-        var d = date.getDate();
-        var h = date.getHours();
-        var mi = date.getMinutes();
-        var s = date.getSeconds();
-        return date.getFullYear() + "-" + (m < 10 ? "0" + m : "" + m) + "-" + (d < 10 ? "0" + d : "" + d) + " " + (h < 10 ? "0" + h : "" + h) + ":" + (mi < 10 ? "0" + mi : "" + mi) + ":" + (s < 10 ? "0" + s : "" + s);
-    };
-    HxOverrides.strDate = function (s) {
-        switch (s.length) {
-            case 8:
-                var k = s.split(":");
-                var d = new Date();
-                d.setTime(0);
-                d.setUTCHours(k[0]);
-                d.setUTCMinutes(k[1]);
-                d.setUTCSeconds(k[2]);
-                return d;
-            case 10:
-                var k = s.split("-");
-                return new Date(k[0], k[1] - 1, k[2], 0, 0, 0);
-            case 19:
-                var k = s.split(" ");
-                var y = k[0].split("-");
-                var t = k[1].split(":");
-                return new Date(y[0], y[1] - 1, y[2], t[0], t[1], t[2]);
-            default:
-                throw "Invalid date format : " + s;
-        }
-    };
-    HxOverrides.cca = function (s, index) {
-        var x = s.charCodeAt(index);
-        if (x != x) return undefined;
-        return x;
-    };
-    HxOverrides.substr = function (s, pos, len) {
-        if (pos != null && pos != 0 && len != null && len < 0) return "";
-        if (len == null) len = s.length;
-        if (pos < 0) {
-            pos = s.length + pos;
-            if (pos < 0) pos = 0;
-        } else if (len < 0) len = s.length + len - pos;
-        return s.substr(pos, len);
-    };
-    HxOverrides.remove = function (a, obj) {
-        var i = 0;
-        var l = a.length;
-        while (i < l) {
-            if (a[i] == obj) {
-                a.splice(i, 1);
-                return true;
-            }
-            i++;
-        }
-        return false;
-    };
-    HxOverrides.iter = function (a) {
-        return { cur: 0, arr: a, hasNext: function hasNext() {
-                return this.cur < this.arr.length;
-            }, next: function next() {
-                return this.arr[this.cur++];
-            } };
-    };
-    var IntIter = function IntIter(min, max) {
-        this.min = min;
-        this.max = max;
-    };
-    IntIter.__name__ = true;
-    IntIter.prototype = {
-        next: function next() {
-            return this.min++;
-        },
-        hasNext: function hasNext() {
-            return this.min < this.max;
-        },
-        __class__: IntIter
-    };
-    var Std = function Std() {};
-    Std.__name__ = true;
-    Std["is"] = function (v, t) {
-        return js.Boot.__instanceof(v, t);
-    };
-    Std.string = function (s) {
-        return js.Boot.__string_rec(s, "");
-    };
-    Std["int"] = function (x) {
-        return x | 0;
-    };
-    Std.parseInt = function (x) {
-        var v = parseInt(x, 10);
-        if (v == 0 && (HxOverrides.cca(x, 1) == 120 || HxOverrides.cca(x, 1) == 88)) v = parseInt(x);
-        if (isNaN(v)) return null;
-        return v;
-    };
-    Std.parseFloat = function (x) {
-        return parseFloat(x);
-    };
-    Std.random = function (x) {
-        return Math.floor(Math.random() * x);
-    };
-    var com = com || {};
-    if (!com.wiris) com.wiris = {};
-    if (!com.wiris.js) com.wiris.js = {};
-    com.wiris.js.JsPluginTools = function () {
-        this.tryReady();
-    };
-    com.wiris.js.JsPluginTools.__name__ = true;
-    com.wiris.js.JsPluginTools.main = function () {
-        var ev;
-        ev = com.wiris.js.JsPluginTools.getInstance();
-        haxe.Timer.delay($bind(ev, ev.tryReady), 100);
-    };
-    com.wiris.js.JsPluginTools.getInstance = function () {
-        if (com.wiris.js.JsPluginTools.instance == null) com.wiris.js.JsPluginTools.instance = new com.wiris.js.JsPluginTools();
-        return com.wiris.js.JsPluginTools.instance;
-    };
-    com.wiris.js.JsPluginTools.bypassEncapsulation = function () {
-        if (window.com == null) window.com = {};
-        if (window.com.wiris == null) window.com.wiris = {};
-        if (window.com.wiris.js == null) window.com.wiris.js = {};
-        if (window.com.wiris.js.JsPluginTools == null) window.com.wiris.js.JsPluginTools = com.wiris.js.JsPluginTools.getInstance();
-    };
-    com.wiris.js.JsPluginTools.prototype = {
-        md5encode: function md5encode(content) {
-            return haxe.Md5.encode(content);
-        },
-        doLoad: function doLoad() {
-            this.ready = true;
-            com.wiris.js.JsPluginTools.instance = this;
-            com.wiris.js.JsPluginTools.bypassEncapsulation();
-        },
-        tryReady: function tryReady() {
-            this.ready = false;
-            if (js.Lib.document.readyState) {
-                this.doLoad();
-                this.ready = true;
-            }
-            if (!this.ready) haxe.Timer.delay($bind(this, this.tryReady), 100);
-        },
-        __class__: com.wiris.js.JsPluginTools
-    };
-    var haxe = haxe || {};
-    haxe.Log = function () {};
-    haxe.Log.__name__ = true;
-    haxe.Log.trace = function (v, infos) {
-        js.Boot.__trace(v, infos);
-    };
-    haxe.Log.clear = function () {
-        js.Boot.__clear_trace();
-    };
-    haxe.Md5 = function () {};
-    haxe.Md5.__name__ = true;
-    haxe.Md5.encode = function (s) {
-        return new haxe.Md5().doEncode(s);
-    };
-    haxe.Md5.prototype = {
-        doEncode: function doEncode(str) {
-            var x = this.str2blks(str);
-            var a = 1732584193;
-            var b = -271733879;
-            var c = -1732584194;
-            var d = 271733878;
-            var step;
-            var i = 0;
-            while (i < x.length) {
-                var olda = a;
-                var oldb = b;
-                var oldc = c;
-                var oldd = d;
-                step = 0;
-                a = this.ff(a, b, c, d, x[i], 7, -680876936);
-                d = this.ff(d, a, b, c, x[i + 1], 12, -389564586);
-                c = this.ff(c, d, a, b, x[i + 2], 17, 606105819);
-                b = this.ff(b, c, d, a, x[i + 3], 22, -1044525330);
-                a = this.ff(a, b, c, d, x[i + 4], 7, -176418897);
-                d = this.ff(d, a, b, c, x[i + 5], 12, 1200080426);
-                c = this.ff(c, d, a, b, x[i + 6], 17, -1473231341);
-                b = this.ff(b, c, d, a, x[i + 7], 22, -45705983);
-                a = this.ff(a, b, c, d, x[i + 8], 7, 1770035416);
-                d = this.ff(d, a, b, c, x[i + 9], 12, -1958414417);
-                c = this.ff(c, d, a, b, x[i + 10], 17, -42063);
-                b = this.ff(b, c, d, a, x[i + 11], 22, -1990404162);
-                a = this.ff(a, b, c, d, x[i + 12], 7, 1804603682);
-                d = this.ff(d, a, b, c, x[i + 13], 12, -40341101);
-                c = this.ff(c, d, a, b, x[i + 14], 17, -1502002290);
-                b = this.ff(b, c, d, a, x[i + 15], 22, 1236535329);
-                a = this.gg(a, b, c, d, x[i + 1], 5, -165796510);
-                d = this.gg(d, a, b, c, x[i + 6], 9, -1069501632);
-                c = this.gg(c, d, a, b, x[i + 11], 14, 643717713);
-                b = this.gg(b, c, d, a, x[i], 20, -373897302);
-                a = this.gg(a, b, c, d, x[i + 5], 5, -701558691);
-                d = this.gg(d, a, b, c, x[i + 10], 9, 38016083);
-                c = this.gg(c, d, a, b, x[i + 15], 14, -660478335);
-                b = this.gg(b, c, d, a, x[i + 4], 20, -405537848);
-                a = this.gg(a, b, c, d, x[i + 9], 5, 568446438);
-                d = this.gg(d, a, b, c, x[i + 14], 9, -1019803690);
-                c = this.gg(c, d, a, b, x[i + 3], 14, -187363961);
-                b = this.gg(b, c, d, a, x[i + 8], 20, 1163531501);
-                a = this.gg(a, b, c, d, x[i + 13], 5, -1444681467);
-                d = this.gg(d, a, b, c, x[i + 2], 9, -51403784);
-                c = this.gg(c, d, a, b, x[i + 7], 14, 1735328473);
-                b = this.gg(b, c, d, a, x[i + 12], 20, -1926607734);
-                a = this.hh(a, b, c, d, x[i + 5], 4, -378558);
-                d = this.hh(d, a, b, c, x[i + 8], 11, -2022574463);
-                c = this.hh(c, d, a, b, x[i + 11], 16, 1839030562);
-                b = this.hh(b, c, d, a, x[i + 14], 23, -35309556);
-                a = this.hh(a, b, c, d, x[i + 1], 4, -1530992060);
-                d = this.hh(d, a, b, c, x[i + 4], 11, 1272893353);
-                c = this.hh(c, d, a, b, x[i + 7], 16, -155497632);
-                b = this.hh(b, c, d, a, x[i + 10], 23, -1094730640);
-                a = this.hh(a, b, c, d, x[i + 13], 4, 681279174);
-                d = this.hh(d, a, b, c, x[i], 11, -358537222);
-                c = this.hh(c, d, a, b, x[i + 3], 16, -722521979);
-                b = this.hh(b, c, d, a, x[i + 6], 23, 76029189);
-                a = this.hh(a, b, c, d, x[i + 9], 4, -640364487);
-                d = this.hh(d, a, b, c, x[i + 12], 11, -421815835);
-                c = this.hh(c, d, a, b, x[i + 15], 16, 530742520);
-                b = this.hh(b, c, d, a, x[i + 2], 23, -995338651);
-                a = this.ii(a, b, c, d, x[i], 6, -198630844);
-                d = this.ii(d, a, b, c, x[i + 7], 10, 1126891415);
-                c = this.ii(c, d, a, b, x[i + 14], 15, -1416354905);
-                b = this.ii(b, c, d, a, x[i + 5], 21, -57434055);
-                a = this.ii(a, b, c, d, x[i + 12], 6, 1700485571);
-                d = this.ii(d, a, b, c, x[i + 3], 10, -1894986606);
-                c = this.ii(c, d, a, b, x[i + 10], 15, -1051523);
-                b = this.ii(b, c, d, a, x[i + 1], 21, -2054922799);
-                a = this.ii(a, b, c, d, x[i + 8], 6, 1873313359);
-                d = this.ii(d, a, b, c, x[i + 15], 10, -30611744);
-                c = this.ii(c, d, a, b, x[i + 6], 15, -1560198380);
-                b = this.ii(b, c, d, a, x[i + 13], 21, 1309151649);
-                a = this.ii(a, b, c, d, x[i + 4], 6, -145523070);
-                d = this.ii(d, a, b, c, x[i + 11], 10, -1120210379);
-                c = this.ii(c, d, a, b, x[i + 2], 15, 718787259);
-                b = this.ii(b, c, d, a, x[i + 9], 21, -343485551);
-                a = this.addme(a, olda);
-                b = this.addme(b, oldb);
-                c = this.addme(c, oldc);
-                d = this.addme(d, oldd);
-                i += 16;
-            }
-            return this.rhex(a) + this.rhex(b) + this.rhex(c) + this.rhex(d);
-        },
-        ii: function ii(a, b, c, d, x, s, t) {
-            return this.cmn(this.bitXOR(c, this.bitOR(b, ~d)), a, b, x, s, t);
-        },
-        hh: function hh(a, b, c, d, x, s, t) {
-            return this.cmn(this.bitXOR(this.bitXOR(b, c), d), a, b, x, s, t);
-        },
-        gg: function gg(a, b, c, d, x, s, t) {
-            return this.cmn(this.bitOR(this.bitAND(b, d), this.bitAND(c, ~d)), a, b, x, s, t);
-        },
-        ff: function ff(a, b, c, d, x, s, t) {
-            return this.cmn(this.bitOR(this.bitAND(b, c), this.bitAND(~b, d)), a, b, x, s, t);
-        },
-        cmn: function cmn(q, a, b, x, s, t) {
-            return this.addme(this.rol(this.addme(this.addme(a, q), this.addme(x, t)), s), b);
-        },
-        rol: function rol(num, cnt) {
-            return num << cnt | num >>> 32 - cnt;
-        },
-        str2blks: function str2blks(str) {
-            var nblk = (str.length + 8 >> 6) + 1;
-            var blks = new Array();
-            var _g1 = 0,
-                _g = nblk * 16;
-            while (_g1 < _g) {
-                var i = _g1++;
-                blks[i] = 0;
-            }
-            var i = 0;
-            while (i < str.length) {
-                blks[i >> 2] |= HxOverrides.cca(str, i) << (str.length * 8 + i) % 4 * 8;
-                i++;
-            }
-            blks[i >> 2] |= 128 << (str.length * 8 + i) % 4 * 8;
-            var l = str.length * 8;
-            var k = nblk * 16 - 2;
-            blks[k] = l & 255;
-            blks[k] |= (l >>> 8 & 255) << 8;
-            blks[k] |= (l >>> 16 & 255) << 16;
-            blks[k] |= (l >>> 24 & 255) << 24;
-            return blks;
-        },
-        rhex: function rhex(num) {
-            var str = "";
-            var hex_chr = "0123456789abcdef";
-            var _g = 0;
-            while (_g < 4) {
-                var j = _g++;
-                str += hex_chr.charAt(num >> j * 8 + 4 & 15) + hex_chr.charAt(num >> j * 8 & 15);
-            }
-            return str;
-        },
-        addme: function addme(x, y) {
-            var lsw = (x & 65535) + (y & 65535);
-            var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
-            return msw << 16 | lsw & 65535;
-        },
-        bitAND: function bitAND(a, b) {
-            var lsb = a & 1 & (b & 1);
-            var msb31 = a >>> 1 & b >>> 1;
-            return msb31 << 1 | lsb;
-        },
-        bitXOR: function bitXOR(a, b) {
-            var lsb = a & 1 ^ b & 1;
-            var msb31 = a >>> 1 ^ b >>> 1;
-            return msb31 << 1 | lsb;
-        },
-        bitOR: function bitOR(a, b) {
-            var lsb = a & 1 | b & 1;
-            var msb31 = a >>> 1 | b >>> 1;
-            return msb31 << 1 | lsb;
-        },
-        __class__: haxe.Md5
-    };
-    haxe.Timer = function (time_ms) {
-        var me = this;
-        this.id = window.setInterval(function () {
-            me.run();
-        }, time_ms);
-    };
-    haxe.Timer.__name__ = true;
-    haxe.Timer.delay = function (f, time_ms) {
-        var t = new haxe.Timer(time_ms);
-        t.run = function () {
-            t.stop();
-            f();
-        };
-        return t;
-    };
-    haxe.Timer.measure = function (f, pos) {
-        var t0 = haxe.Timer.stamp();
-        var r = f();
-        haxe.Log.trace(haxe.Timer.stamp() - t0 + "s", pos);
-        return r;
-    };
-    haxe.Timer.stamp = function () {
-        return new Date().getTime() / 1000;
-    };
-    haxe.Timer.prototype = {
-        run: function run() {},
-        stop: function stop() {
-            if (this.id == null) return;
-            window.clearInterval(this.id);
-            this.id = null;
-        },
-        __class__: haxe.Timer
-    };
-    var js = js || {};
-    js.Boot = function () {};
-    js.Boot.__name__ = true;
-    js.Boot.__unhtml = function (s) {
-        return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
-    };
-    js.Boot.__trace = function (v, i) {
-        var msg = i != null ? i.fileName + ":" + i.lineNumber + ": " : "";
-        msg += js.Boot.__string_rec(v, "");
-        var d;
-        if (typeof document != "undefined" && (d = document.getElementById("haxe:trace")) != null) d.innerHTML += js.Boot.__unhtml(msg) + "<br/>";else if (typeof console != "undefined" && console.log != null) console.log(msg);
-    };
-    js.Boot.__clear_trace = function () {
-        var d = document.getElementById("haxe:trace");
-        if (d != null) d.innerHTML = "";
-    };
-    js.Boot.isClass = function (o) {
-        return o.__name__;
-    };
-    js.Boot.isEnum = function (e) {
-        return e.__ename__;
-    };
-    js.Boot.getClass = function (o) {
-        return o.__class__;
-    };
-    js.Boot.__string_rec = function (o, s) {
-        if (o == null) return "null";
-        if (s.length >= 5) return "<...>";
-        var t = typeof o === "undefined" ? "undefined" : _typeof(o);
-        if (t == "function" && (o.__name__ || o.__ename__)) t = "object";
-        switch (t) {
-            case "object":
-                if (o instanceof Array) {
-                    if (o.__enum__) {
-                        if (o.length == 2) return o[0];
-                        var str = o[0] + "(";
-                        s += "\t";
-                        var _g1 = 2,
-                            _g = o.length;
-                        while (_g1 < _g) {
-                            var i = _g1++;
-                            if (i != 2) str += "," + js.Boot.__string_rec(o[i], s);else str += js.Boot.__string_rec(o[i], s);
-                        }
-                        return str + ")";
-                    }
-                    var l = o.length;
-                    var i;
-                    var str = "[";
-                    s += "\t";
-                    var _g = 0;
-                    while (_g < l) {
-                        var i1 = _g++;
-                        str += (i1 > 0 ? "," : "") + js.Boot.__string_rec(o[i1], s);
-                    }
-                    str += "]";
-                    return str;
-                }
-                var tostr;
-                try {
-                    tostr = o.toString;
-                } catch (e) {
-                    return "???";
-                }
-                if (tostr != null && tostr != Object.toString) {
-                    var s2 = o.toString();
-                    if (s2 != "[object Object]") return s2;
-                }
-                var k = null;
-                var str = "{\n";
-                s += "\t";
-                var hasp = o.hasOwnProperty != null;
-                for (var k in o) {
-                    ;
-                    if (hasp && !o.hasOwnProperty(k)) {
-                        continue;
-                    }
-                    if (k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
-                        continue;
-                    }
-                    if (str.length != 2) str += ", \n";
-                    str += s + k + " : " + js.Boot.__string_rec(o[k], s);
-                }
-                s = s.substring(1);
-                str += "\n" + s + "}";
-                return str;
-            case "function":
-                return "<function>";
-            case "string":
-                return o;
-            default:
-                return String(o);
-        }
-    };
-    js.Boot.__interfLoop = function (cc, cl) {
-        if (cc == null) return false;
-        if (cc == cl) return true;
-        var intf = cc.__interfaces__;
-        if (intf != null) {
-            var _g1 = 0,
-                _g = intf.length;
-            while (_g1 < _g) {
-                var i = _g1++;
-                var i1 = intf[i];
-                if (i1 == cl || js.Boot.__interfLoop(i1, cl)) return true;
-            }
-        }
-        return js.Boot.__interfLoop(cc.__super__, cl);
-    };
-    js.Boot.__instanceof = function (o, cl) {
-        try {
-            if (o instanceof cl) {
-                if (cl == Array) return o.__enum__ == null;
-                return true;
-            }
-            if (js.Boot.__interfLoop(o.__class__, cl)) return true;
-        } catch (e) {
-            if (cl == null) return false;
-        }
-        switch (cl) {
-            case Int:
-                return Math.ceil(o % 2147483648.0) === o;
-            case Float:
-                return typeof o == "number";
-            case Bool:
-                return o === true || o === false;
-            case String:
-                return typeof o == "string";
-            case Dynamic:
-                return true;
-            default:
-                if (o == null) return false;
-                if (cl == Class && o.__name__ != null) return true;else null;
-                if (cl == Enum && o.__ename__ != null) return true;else null;
-                return o.__enum__ == cl;
-        }
-    };
-    js.Boot.__cast = function (o, t) {
-        if (js.Boot.__instanceof(o, t)) return o;else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
-    };
-    js.Lib = function () {};
-    js.Lib.__name__ = true;
-    js.Lib.debug = function () {
-        debugger;
-    };
-    js.Lib.alert = function (v) {
-        alert(js.Boot.__string_rec(v, ""));
-    };
-    js.Lib.eval = function (code) {
-        return eval(code);
-    };
-    js.Lib.setErrorHandler = function (f) {
-        js.Lib.onerror = f;
-    };
-    var $_;
-    function $bind(o, m) {
-        var f = function f() {
-            return f.method.apply(f.scope, arguments);
-        };f.scope = o;f.method = m;return f;
-    };
-    if (Array.prototype.indexOf) HxOverrides.remove = function (a, o) {
-        var i = a.indexOf(o);
-        if (i == -1) return false;
-        a.splice(i, 1);
-        return true;
-    };else null;
-    Math.__name__ = ["Math"];
-    Math.NaN = Number.NaN;
-    Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
-    Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
-    Math.isFinite = function (i) {
-        return isFinite(i);
-    };
-    Math.isNaN = function (i) {
-        return isNaN(i);
-    };
-    String.prototype.__class__ = String;
-    String.__name__ = true;
-    Array.prototype.__class__ = Array;
-    Array.__name__ = true;
-    Date.prototype.__class__ = Date;
-    Date.__name__ = ["Date"];
-    var Int = { __name__: ["Int"] };
-    var Dynamic = { __name__: ["Dynamic"] };
-    var Float = Number;
-    Float.__name__ = ["Float"];
-    var Bool = Boolean;
-    Bool.__ename__ = ["Bool"];
-    var Class = { __name__: ["Class"] };
-    var Enum = {};
-    var Void = { __ename__: ["Void"] };
-    if (typeof document != "undefined") js.Lib.document = document;
-    if (typeof window != "undefined") {
-        js.Lib.window = window;
-        js.Lib.window.onerror = function (msg, url, line) {
-            var f = js.Lib.onerror;
-            if (f == null) return false;
-            return f(msg, [url + ":" + line]);
-        };
-    }
-    com.wiris.js.JsPluginTools.main();
-    delete Array.prototype.__class__;
-})();
+(function(){
+var HxOverrides = function() { }
+HxOverrides.__name__ = true;
+HxOverrides.dateStr = function(date) {
+	var m = date.getMonth() + 1;
+	var d = date.getDate();
+	var h = date.getHours();
+	var mi = date.getMinutes();
+	var s = date.getSeconds();
+	return date.getFullYear() + "-" + (m < 10?"0" + m:"" + m) + "-" + (d < 10?"0" + d:"" + d) + " " + (h < 10?"0" + h:"" + h) + ":" + (mi < 10?"0" + mi:"" + mi) + ":" + (s < 10?"0" + s:"" + s);
+}
+HxOverrides.strDate = function(s) {
+	switch(s.length) {
+	case 8:
+		var k = s.split(":");
+		var d = new Date();
+		d.setTime(0);
+		d.setUTCHours(k[0]);
+		d.setUTCMinutes(k[1]);
+		d.setUTCSeconds(k[2]);
+		return d;
+	case 10:
+		var k = s.split("-");
+		return new Date(k[0],k[1] - 1,k[2],0,0,0);
+	case 19:
+		var k = s.split(" ");
+		var y = k[0].split("-");
+		var t = k[1].split(":");
+		return new Date(y[0],y[1] - 1,y[2],t[0],t[1],t[2]);
+	default:
+		throw "Invalid date format : " + s;
+	}
+}
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) return undefined;
+	return x;
+}
+HxOverrides.substr = function(s,pos,len) {
+	if(pos != null && pos != 0 && len != null && len < 0) return "";
+	if(len == null) len = s.length;
+	if(pos < 0) {
+		pos = s.length + pos;
+		if(pos < 0) pos = 0;
+	} else if(len < 0) len = s.length + len - pos;
+	return s.substr(pos,len);
+}
+HxOverrides.remove = function(a,obj) {
+	var i = 0;
+	var l = a.length;
+	while(i < l) {
+		if(a[i] == obj) {
+			a.splice(i,1);
+			return true;
+		}
+		i++;
+	}
+	return false;
+}
+HxOverrides.iter = function(a) {
+	return { cur : 0, arr : a, hasNext : function() {
+		return this.cur < this.arr.length;
+	}, next : function() {
+		return this.arr[this.cur++];
+	}};
+}
+var IntIter = function(min,max) {
+	this.min = min;
+	this.max = max;
+};
+IntIter.__name__ = true;
+IntIter.prototype = {
+	next: function() {
+		return this.min++;
+	}
+	,hasNext: function() {
+		return this.min < this.max;
+	}
+	,__class__: IntIter
+}
+var Std = function() { }
+Std.__name__ = true;
+Std["is"] = function(v,t) {
+	return js.Boot.__instanceof(v,t);
+}
+Std.string = function(s) {
+	return js.Boot.__string_rec(s,"");
+}
+Std["int"] = function(x) {
+	return x | 0;
+}
+Std.parseInt = function(x) {
+	var v = parseInt(x,10);
+	if(v == 0 && (HxOverrides.cca(x,1) == 120 || HxOverrides.cca(x,1) == 88)) v = parseInt(x);
+	if(isNaN(v)) return null;
+	return v;
+}
+Std.parseFloat = function(x) {
+	return parseFloat(x);
+}
+Std.random = function(x) {
+	return Math.floor(Math.random() * x);
+}
+var com = com || {}
+if(!com.wiris) com.wiris = {}
+if(!com.wiris.js) com.wiris.js = {}
+com.wiris.js.JsPluginTools = function() {
+	this.tryReady();
+};
+com.wiris.js.JsPluginTools.__name__ = true;
+com.wiris.js.JsPluginTools.main = function() {
+	var ev;
+	ev = com.wiris.js.JsPluginTools.getInstance();
+	haxe.Timer.delay($bind(ev,ev.tryReady),100);
+}
+com.wiris.js.JsPluginTools.getInstance = function() {
+	if(com.wiris.js.JsPluginTools.instance == null) com.wiris.js.JsPluginTools.instance = new com.wiris.js.JsPluginTools();
+	return com.wiris.js.JsPluginTools.instance;
+}
+com.wiris.js.JsPluginTools.bypassEncapsulation = function() {
+	if(window.com == null) window.com = { };
+	if(window.com.wiris == null) window.com.wiris = { };
+	if(window.com.wiris.js == null) window.com.wiris.js = { };
+	if(window.com.wiris.js.JsPluginTools == null) window.com.wiris.js.JsPluginTools = com.wiris.js.JsPluginTools.getInstance();
+}
+com.wiris.js.JsPluginTools.prototype = {
+	md5encode: function(content) {
+		return haxe.Md5.encode(content);
+	}
+	,doLoad: function() {
+		this.ready = true;
+		com.wiris.js.JsPluginTools.instance = this;
+		com.wiris.js.JsPluginTools.bypassEncapsulation();
+	}
+	,tryReady: function() {
+		this.ready = false;
+		if(js.Lib.document.readyState) {
+			this.doLoad();
+			this.ready = true;
+		}
+		if(!this.ready) haxe.Timer.delay($bind(this,this.tryReady),100);
+	}
+	,__class__: com.wiris.js.JsPluginTools
+}
+var haxe = haxe || {}
+haxe.Log = function() { }
+haxe.Log.__name__ = true;
+haxe.Log.trace = function(v,infos) {
+	js.Boot.__trace(v,infos);
+}
+haxe.Log.clear = function() {
+	js.Boot.__clear_trace();
+}
+haxe.Md5 = function() {
+};
+haxe.Md5.__name__ = true;
+haxe.Md5.encode = function(s) {
+	return new haxe.Md5().doEncode(s);
+}
+haxe.Md5.prototype = {
+	doEncode: function(str) {
+		var x = this.str2blks(str);
+		var a = 1732584193;
+		var b = -271733879;
+		var c = -1732584194;
+		var d = 271733878;
+		var step;
+		var i = 0;
+		while(i < x.length) {
+			var olda = a;
+			var oldb = b;
+			var oldc = c;
+			var oldd = d;
+			step = 0;
+			a = this.ff(a,b,c,d,x[i],7,-680876936);
+			d = this.ff(d,a,b,c,x[i + 1],12,-389564586);
+			c = this.ff(c,d,a,b,x[i + 2],17,606105819);
+			b = this.ff(b,c,d,a,x[i + 3],22,-1044525330);
+			a = this.ff(a,b,c,d,x[i + 4],7,-176418897);
+			d = this.ff(d,a,b,c,x[i + 5],12,1200080426);
+			c = this.ff(c,d,a,b,x[i + 6],17,-1473231341);
+			b = this.ff(b,c,d,a,x[i + 7],22,-45705983);
+			a = this.ff(a,b,c,d,x[i + 8],7,1770035416);
+			d = this.ff(d,a,b,c,x[i + 9],12,-1958414417);
+			c = this.ff(c,d,a,b,x[i + 10],17,-42063);
+			b = this.ff(b,c,d,a,x[i + 11],22,-1990404162);
+			a = this.ff(a,b,c,d,x[i + 12],7,1804603682);
+			d = this.ff(d,a,b,c,x[i + 13],12,-40341101);
+			c = this.ff(c,d,a,b,x[i + 14],17,-1502002290);
+			b = this.ff(b,c,d,a,x[i + 15],22,1236535329);
+			a = this.gg(a,b,c,d,x[i + 1],5,-165796510);
+			d = this.gg(d,a,b,c,x[i + 6],9,-1069501632);
+			c = this.gg(c,d,a,b,x[i + 11],14,643717713);
+			b = this.gg(b,c,d,a,x[i],20,-373897302);
+			a = this.gg(a,b,c,d,x[i + 5],5,-701558691);
+			d = this.gg(d,a,b,c,x[i + 10],9,38016083);
+			c = this.gg(c,d,a,b,x[i + 15],14,-660478335);
+			b = this.gg(b,c,d,a,x[i + 4],20,-405537848);
+			a = this.gg(a,b,c,d,x[i + 9],5,568446438);
+			d = this.gg(d,a,b,c,x[i + 14],9,-1019803690);
+			c = this.gg(c,d,a,b,x[i + 3],14,-187363961);
+			b = this.gg(b,c,d,a,x[i + 8],20,1163531501);
+			a = this.gg(a,b,c,d,x[i + 13],5,-1444681467);
+			d = this.gg(d,a,b,c,x[i + 2],9,-51403784);
+			c = this.gg(c,d,a,b,x[i + 7],14,1735328473);
+			b = this.gg(b,c,d,a,x[i + 12],20,-1926607734);
+			a = this.hh(a,b,c,d,x[i + 5],4,-378558);
+			d = this.hh(d,a,b,c,x[i + 8],11,-2022574463);
+			c = this.hh(c,d,a,b,x[i + 11],16,1839030562);
+			b = this.hh(b,c,d,a,x[i + 14],23,-35309556);
+			a = this.hh(a,b,c,d,x[i + 1],4,-1530992060);
+			d = this.hh(d,a,b,c,x[i + 4],11,1272893353);
+			c = this.hh(c,d,a,b,x[i + 7],16,-155497632);
+			b = this.hh(b,c,d,a,x[i + 10],23,-1094730640);
+			a = this.hh(a,b,c,d,x[i + 13],4,681279174);
+			d = this.hh(d,a,b,c,x[i],11,-358537222);
+			c = this.hh(c,d,a,b,x[i + 3],16,-722521979);
+			b = this.hh(b,c,d,a,x[i + 6],23,76029189);
+			a = this.hh(a,b,c,d,x[i + 9],4,-640364487);
+			d = this.hh(d,a,b,c,x[i + 12],11,-421815835);
+			c = this.hh(c,d,a,b,x[i + 15],16,530742520);
+			b = this.hh(b,c,d,a,x[i + 2],23,-995338651);
+			a = this.ii(a,b,c,d,x[i],6,-198630844);
+			d = this.ii(d,a,b,c,x[i + 7],10,1126891415);
+			c = this.ii(c,d,a,b,x[i + 14],15,-1416354905);
+			b = this.ii(b,c,d,a,x[i + 5],21,-57434055);
+			a = this.ii(a,b,c,d,x[i + 12],6,1700485571);
+			d = this.ii(d,a,b,c,x[i + 3],10,-1894986606);
+			c = this.ii(c,d,a,b,x[i + 10],15,-1051523);
+			b = this.ii(b,c,d,a,x[i + 1],21,-2054922799);
+			a = this.ii(a,b,c,d,x[i + 8],6,1873313359);
+			d = this.ii(d,a,b,c,x[i + 15],10,-30611744);
+			c = this.ii(c,d,a,b,x[i + 6],15,-1560198380);
+			b = this.ii(b,c,d,a,x[i + 13],21,1309151649);
+			a = this.ii(a,b,c,d,x[i + 4],6,-145523070);
+			d = this.ii(d,a,b,c,x[i + 11],10,-1120210379);
+			c = this.ii(c,d,a,b,x[i + 2],15,718787259);
+			b = this.ii(b,c,d,a,x[i + 9],21,-343485551);
+			a = this.addme(a,olda);
+			b = this.addme(b,oldb);
+			c = this.addme(c,oldc);
+			d = this.addme(d,oldd);
+			i += 16;
+		}
+		return this.rhex(a) + this.rhex(b) + this.rhex(c) + this.rhex(d);
+	}
+	,ii: function(a,b,c,d,x,s,t) {
+		return this.cmn(this.bitXOR(c,this.bitOR(b,~d)),a,b,x,s,t);
+	}
+	,hh: function(a,b,c,d,x,s,t) {
+		return this.cmn(this.bitXOR(this.bitXOR(b,c),d),a,b,x,s,t);
+	}
+	,gg: function(a,b,c,d,x,s,t) {
+		return this.cmn(this.bitOR(this.bitAND(b,d),this.bitAND(c,~d)),a,b,x,s,t);
+	}
+	,ff: function(a,b,c,d,x,s,t) {
+		return this.cmn(this.bitOR(this.bitAND(b,c),this.bitAND(~b,d)),a,b,x,s,t);
+	}
+	,cmn: function(q,a,b,x,s,t) {
+		return this.addme(this.rol(this.addme(this.addme(a,q),this.addme(x,t)),s),b);
+	}
+	,rol: function(num,cnt) {
+		return num << cnt | num >>> 32 - cnt;
+	}
+	,str2blks: function(str) {
+		var nblk = (str.length + 8 >> 6) + 1;
+		var blks = new Array();
+		var _g1 = 0, _g = nblk * 16;
+		while(_g1 < _g) {
+			var i = _g1++;
+			blks[i] = 0;
+		}
+		var i = 0;
+		while(i < str.length) {
+			blks[i >> 2] |= HxOverrides.cca(str,i) << (str.length * 8 + i) % 4 * 8;
+			i++;
+		}
+		blks[i >> 2] |= 128 << (str.length * 8 + i) % 4 * 8;
+		var l = str.length * 8;
+		var k = nblk * 16 - 2;
+		blks[k] = l & 255;
+		blks[k] |= (l >>> 8 & 255) << 8;
+		blks[k] |= (l >>> 16 & 255) << 16;
+		blks[k] |= (l >>> 24 & 255) << 24;
+		return blks;
+	}
+	,rhex: function(num) {
+		var str = "";
+		var hex_chr = "0123456789abcdef";
+		var _g = 0;
+		while(_g < 4) {
+			var j = _g++;
+			str += hex_chr.charAt(num >> j * 8 + 4 & 15) + hex_chr.charAt(num >> j * 8 & 15);
+		}
+		return str;
+	}
+	,addme: function(x,y) {
+		var lsw = (x & 65535) + (y & 65535);
+		var msw = (x >> 16) + (y >> 16) + (lsw >> 16);
+		return msw << 16 | lsw & 65535;
+	}
+	,bitAND: function(a,b) {
+		var lsb = a & 1 & (b & 1);
+		var msb31 = a >>> 1 & b >>> 1;
+		return msb31 << 1 | lsb;
+	}
+	,bitXOR: function(a,b) {
+		var lsb = a & 1 ^ b & 1;
+		var msb31 = a >>> 1 ^ b >>> 1;
+		return msb31 << 1 | lsb;
+	}
+	,bitOR: function(a,b) {
+		var lsb = a & 1 | b & 1;
+		var msb31 = a >>> 1 | b >>> 1;
+		return msb31 << 1 | lsb;
+	}
+	,__class__: haxe.Md5
+}
+haxe.Timer = function(time_ms) {
+	var me = this;
+	this.id = window.setInterval(function() {
+		me.run();
+	},time_ms);
+};
+haxe.Timer.__name__ = true;
+haxe.Timer.delay = function(f,time_ms) {
+	var t = new haxe.Timer(time_ms);
+	t.run = function() {
+		t.stop();
+		f();
+	};
+	return t;
+}
+haxe.Timer.measure = function(f,pos) {
+	var t0 = haxe.Timer.stamp();
+	var r = f();
+	haxe.Log.trace(haxe.Timer.stamp() - t0 + "s",pos);
+	return r;
+}
+haxe.Timer.stamp = function() {
+	return new Date().getTime() / 1000;
+}
+haxe.Timer.prototype = {
+	run: function() {
+	}
+	,stop: function() {
+		if(this.id == null) return;
+		window.clearInterval(this.id);
+		this.id = null;
+	}
+	,__class__: haxe.Timer
+}
+var js = js || {}
+js.Boot = function() { }
+js.Boot.__name__ = true;
+js.Boot.__unhtml = function(s) {
+	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+}
+js.Boot.__trace = function(v,i) {
+	var msg = i != null?i.fileName + ":" + i.lineNumber + ": ":"";
+	msg += js.Boot.__string_rec(v,"");
+	var d;
+	if(typeof(document) != "undefined" && (d = document.getElementById("haxe:trace")) != null) d.innerHTML += js.Boot.__unhtml(msg) + "<br/>"; else if(typeof(console) != "undefined" && console.log != null) console.log(msg);
+}
+js.Boot.__clear_trace = function() {
+	var d = document.getElementById("haxe:trace");
+	if(d != null) d.innerHTML = "";
+}
+js.Boot.isClass = function(o) {
+	return o.__name__;
+}
+js.Boot.isEnum = function(e) {
+	return e.__ename__;
+}
+js.Boot.getClass = function(o) {
+	return o.__class__;
+}
+js.Boot.__string_rec = function(o,s) {
+	if(o == null) return "null";
+	if(s.length >= 5) return "<...>";
+	var t = typeof(o);
+	if(t == "function" && (o.__name__ || o.__ename__)) t = "object";
+	switch(t) {
+	case "object":
+		if(o instanceof Array) {
+			if(o.__enum__) {
+				if(o.length == 2) return o[0];
+				var str = o[0] + "(";
+				s += "\t";
+				var _g1 = 2, _g = o.length;
+				while(_g1 < _g) {
+					var i = _g1++;
+					if(i != 2) str += "," + js.Boot.__string_rec(o[i],s); else str += js.Boot.__string_rec(o[i],s);
+				}
+				return str + ")";
+			}
+			var l = o.length;
+			var i;
+			var str = "[";
+			s += "\t";
+			var _g = 0;
+			while(_g < l) {
+				var i1 = _g++;
+				str += (i1 > 0?",":"") + js.Boot.__string_rec(o[i1],s);
+			}
+			str += "]";
+			return str;
+		}
+		var tostr;
+		try {
+			tostr = o.toString;
+		} catch( e ) {
+			return "???";
+		}
+		if(tostr != null && tostr != Object.toString) {
+			var s2 = o.toString();
+			if(s2 != "[object Object]") return s2;
+		}
+		var k = null;
+		var str = "{\n";
+		s += "\t";
+		var hasp = o.hasOwnProperty != null;
+		for( var k in o ) { ;
+		if(hasp && !o.hasOwnProperty(k)) {
+			continue;
+		}
+		if(k == "prototype" || k == "__class__" || k == "__super__" || k == "__interfaces__" || k == "__properties__") {
+			continue;
+		}
+		if(str.length != 2) str += ", \n";
+		str += s + k + " : " + js.Boot.__string_rec(o[k],s);
+		}
+		s = s.substring(1);
+		str += "\n" + s + "}";
+		return str;
+	case "function":
+		return "<function>";
+	case "string":
+		return o;
+	default:
+		return String(o);
+	}
+}
+js.Boot.__interfLoop = function(cc,cl) {
+	if(cc == null) return false;
+	if(cc == cl) return true;
+	var intf = cc.__interfaces__;
+	if(intf != null) {
+		var _g1 = 0, _g = intf.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var i1 = intf[i];
+			if(i1 == cl || js.Boot.__interfLoop(i1,cl)) return true;
+		}
+	}
+	return js.Boot.__interfLoop(cc.__super__,cl);
+}
+js.Boot.__instanceof = function(o,cl) {
+	try {
+		if(o instanceof cl) {
+			if(cl == Array) return o.__enum__ == null;
+			return true;
+		}
+		if(js.Boot.__interfLoop(o.__class__,cl)) return true;
+	} catch( e ) {
+		if(cl == null) return false;
+	}
+	switch(cl) {
+	case Int:
+		return Math.ceil(o%2147483648.0) === o;
+	case Float:
+		return typeof(o) == "number";
+	case Bool:
+		return o === true || o === false;
+	case String:
+		return typeof(o) == "string";
+	case Dynamic:
+		return true;
+	default:
+		if(o == null) return false;
+		if(cl == Class && o.__name__ != null) return true; else null;
+		if(cl == Enum && o.__ename__ != null) return true; else null;
+		return o.__enum__ == cl;
+	}
+}
+js.Boot.__cast = function(o,t) {
+	if(js.Boot.__instanceof(o,t)) return o; else throw "Cannot cast " + Std.string(o) + " to " + Std.string(t);
+}
+js.Lib = function() { }
+js.Lib.__name__ = true;
+js.Lib.debug = function() {
+	debugger;
+}
+js.Lib.alert = function(v) {
+	alert(js.Boot.__string_rec(v,""));
+}
+js.Lib.eval = function(code) {
+	return eval(code);
+}
+js.Lib.setErrorHandler = function(f) {
+	js.Lib.onerror = f;
+}
+var $_;
+function $bind(o,m) { var f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; return f; };
+if(Array.prototype.indexOf) HxOverrides.remove = function(a,o) {
+	var i = a.indexOf(o);
+	if(i == -1) return false;
+	a.splice(i,1);
+	return true;
+}; else null;
+Math.__name__ = ["Math"];
+Math.NaN = Number.NaN;
+Math.NEGATIVE_INFINITY = Number.NEGATIVE_INFINITY;
+Math.POSITIVE_INFINITY = Number.POSITIVE_INFINITY;
+Math.isFinite = function(i) {
+	return isFinite(i);
+};
+Math.isNaN = function(i) {
+	return isNaN(i);
+};
+String.prototype.__class__ = String;
+String.__name__ = true;
+Array.prototype.__class__ = Array;
+Array.__name__ = true;
+Date.prototype.__class__ = Date;
+Date.__name__ = ["Date"];
+var Int = { __name__ : ["Int"]};
+var Dynamic = { __name__ : ["Dynamic"]};
+var Float = Number;
+Float.__name__ = ["Float"];
+var Bool = Boolean;
+Bool.__ename__ = ["Bool"];
+var Class = { __name__ : ["Class"]};
+var Enum = { };
+var Void = { __ename__ : ["Void"]};
+if(typeof document != "undefined") js.Lib.document = document;
+if(typeof window != "undefined") {
+	js.Lib.window = window;
+	js.Lib.window.onerror = function(msg,url,line) {
+		var f = js.Lib.onerror;
+		if(f == null) return false;
+		return f(msg,[url + ":" + line]);
+	};
+}
+com.wiris.js.JsPluginTools.main();
+delete Array.prototype.__class__; }());
 // @codingStandardsIgnoreEnd
 /**
  * Modal window constructor
  * @param {Object} editorAttributes Editor attributes (width, height)...
  * @ignore
  */
+class ModalWindow {
 
-var ModalWindow = function () {
-    function ModalWindow(editorAttributes) {
-        _classCallCheck(this, ModalWindow);
-
+    constructor(editorAttributes) {
         // EditorAtributes
         // TODO: Remove the argument: we need to find a way to detect mobile devices
         // without known anything about editor.
-        this.editorAttributes = editorAttributes;
+        this.editorAttributes = editorAttributes
 
         // Metrics
         var ua = navigator.userAgent.toLowerCase();
         var isAndroid = ua.indexOf("android") > -1;
-        var isIOS = ua.indexOf("ipad") > -1 || ua.indexOf("iphone") > -1;
+        var isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
         this.iosSoftkeyboardOpened = false;
         this.iosMeasureUnit = ua.indexOf("crios") == -1 ? "%" : "vh";
         this.iosDivHeight = "100" + this.iosMeasureUnit;
@@ -4192,24 +4245,24 @@ var ModalWindow = function () {
         var editorHeight = editorAttributes.split(' ').join('').split(',')[1].split("=")[1];
 
         // TODO: Detect isMobile without using editor metrics.
-        var isMobile = landscape && editorHeight > deviceHeight || portrait && editorWidth > deviceWidth ? true : false;
+        var isMobile = (landscape && editorHeight > deviceHeight) || (portrait && editorWidth > deviceWidth) ? true : false;
 
         // Device object properties.
 
         this.deviceProperties = {
-            orientation: landscape ? 'landscape' : 'portait',
-            isAndroid: isAndroid ? true : false,
-            isIOS: isIOS ? true : false,
-            isMobile: isMobile,
-            isDesktop: !isMobile && !isIOS && !isAndroid
+            orientation : landscape ? 'landscape' : 'portait',
+            isAndroid : isAndroid ? true : false,
+            isIOS : isIOS ? true : false,
+            isMobile : isMobile,
+            isDesktop : !isMobile && !isIOS && !isAndroid
         };
 
         this.properties = {
-            created: false,
-            state: '',
-            previousState: '',
-            position: { bottom: 0, right: 10 },
-            size: { height: 338, width: 580 }
+            created : false,
+            state : '',
+            previousState : '',
+            position : {bottom: 0, right: 10},
+            size :  {height: 338, width: 580}
         };
 
         var attributes = {};
@@ -4233,28 +4286,28 @@ var ModalWindow = function () {
         attributes.id = attributes.class + '_id';
         attributes.title = _wrs_stringManager.getString('close');
         this.closeDiv = wrs_createElement('a', attributes);;
-        this.closeDiv.setAttribute('role', 'button');
+        this.closeDiv.setAttribute('role','button');
 
         attributes = {};
         attributes.class = 'wrs_modal_stack_button';
         attributes.id = attributes.class + '_id';
         attributes.title = "Exit full-screen";
         this.stackDiv = wrs_createElement('a', attributes);
-        this.stackDiv.setAttribute('role', 'button');
+        this.stackDiv.setAttribute('role','button');
 
         attributes = {};
         attributes.class = 'wrs_modal_maximize_button';
         attributes.id = attributes.class + '_id';
         attributes.title = _wrs_stringManager.getString('fullscreen');
         this.maximizeDiv = wrs_createElement('a', attributes);
-        this.maximizeDiv.setAttribute('role', 'button');
+        this.maximizeDiv.setAttribute('role','button');
 
         attributes = {};
         attributes.class = 'wrs_modal_minimize_button';
         attributes.id = attributes.class + '_id';
         attributes.title = _wrs_stringManager.getString('minimise');
         this.minimizeDiv = wrs_createElement('a', attributes);
-        this.minimizeDiv.setAttribute('role', 'button');
+        this.minimizeDiv.setAttribute('role','button');
 
         attributes = {};
         attributes.class = 'wrs_modal_dialogContainer';
@@ -4282,15 +4335,21 @@ var ModalWindow = function () {
         this.buttonContainer = wrs_createElement('div', attributes);
 
         // Buttons: all button must be created using createSubmitButton method.
-        this.submitButton = this.createSubmitButton({
-            class: 'wrs_modal_button_accept',
-            innerHTML: _wrs_stringManager.getString('accept')
-        }, this.submitAction.bind(this));
+        this.submitButton = this.createSubmitButton(
+            {
+                class: 'wrs_modal_button_accept',
+                innerHTML: _wrs_stringManager.getString('accept')
+            },
+            this.submitAction.bind(this)
+        );
 
-        this.cancelButton = this.createSubmitButton({
-            class: 'wrs_modal_button_cancel',
-            innerHTML: _wrs_stringManager.getString('cancel')
-        }, this.cancelAction.bind(this));
+        this.cancelButton = this.createSubmitButton(
+            {
+                class: 'wrs_modal_button_cancel',
+                innerHTML: _wrs_stringManager.getString('cancel')
+            },
+            this.cancelAction.bind(this)
+        );
 
         this.lastImageWasNew = true;
 
@@ -4298,25 +4357,21 @@ var ModalWindow = function () {
 
         // Overlay popup.
         var popupStrings = {
-            'cancelString': _wrs_stringManager.getString('cancel'),
-            'submitString': _wrs_stringManager.getString('close'),
-            'message': _wrs_stringManager.getString('close_modal_warning')
+            'cancelString' : _wrs_stringManager.getString('cancel'),
+            'submitString' : _wrs_stringManager.getString('close'),
+            'message' : _wrs_stringManager.getString('close_modal_warning')
         };
 
         var callbacks = {
-            'closeCallback': function () {
-                this.close();
-            }.bind(this),
-            'cancelCallback': function () {
-                this.focus();
-            }.bind(this)
-        };
+            'closeCallback' : function(){this.close()}.bind(this),
+            'cancelCallback'  : function(){this.focus()}.bind(this)
+        }
 
         var popupupProperties = {
-            'overlayElement': this.container,
-            'callbacks': callbacks,
+            'overlayElement' : this.container,
+            'callbacks' :callbacks,
             'strings': popupStrings
-        };
+        }
 
         this.popup = new PopUpMessage(popupupProperties);
     }
@@ -4326,1161 +4381,1023 @@ var ModalWindow = function () {
      * @param {object} contentManager
      * @ignore
      */
+    setContentManager(contentManager) {
+        this.contentManager = contentManager;
+    }
 
+    /**
+     * Returns the modal contentElement object.
+     *@returns {object}
+    *@ignore
+    */
+    getContentManager() {
+        return this.contentManager;
+    }
 
-    _createClass(ModalWindow, [{
-        key: "setContentManager",
-        value: function setContentManager(contentManager) {
-            this.contentManager = contentManager;
+    /**
+     * This method is called when the modal object has been submited. Calls
+     * contentElement submitAction method - if exists - and closes the modal
+     * object. No logic about the content should be placed here,
+     * contentElement.submitAction is the responsible of the content logic.
+     * @ignore
+     */
+    submitAction() {
+        if (typeof this.contentManager.submitAction !== 'undefined') {
+            this.contentManager.submitAction();
         }
+        this.close();
+    }
 
-        /**
-         * Returns the modal contentElement object.
-         *@returns {object}
-        *@ignore
-        */
-
-    }, {
-        key: "getContentManager",
-        value: function getContentManager() {
-            return this.contentManager;
-        }
-
-        /**
-         * This method is called when the modal object has been submited. Calls
-         * contentElement submitAction method - if exists - and closes the modal
-         * object. No logic about the content should be placed here,
-         * contentElement.submitAction is the responsible of the content logic.
-         * @ignore
-         */
-
-    }, {
-        key: "submitAction",
-        value: function submitAction() {
-            if (typeof this.contentManager.submitAction !== 'undefined') {
-                this.contentManager.submitAction();
-            }
+    /**
+     * This method is called when the modal object has been cancelled. If
+     * contentElement has implemented hasChanges method, a confirm popup
+     * will be shown if hasChanges returns true.
+     * @ignore
+     */
+    cancelAction() {
+        if (typeof this.contentManager.hasChanges === 'undefined') {
             this.close();
+        } else if (!this.contentManager.hasChanges()){
+            this.close();
+        } else {
+            this.showPopUpMessage();
+        }
+    }
+
+    /**
+     * Returns a submit button. The properties argument admits the following:
+     * properties {
+     *  'class' : '', // button class.
+     *  'innerHTML : '' // button innerHTML.
+     * }
+     * @param {Object} properties input button properties.
+     * @param {Function} callback callback function associated to click event.
+     * @ignore
+     */
+    createSubmitButton(properties, callback) {
+        function SubmitButton(properties, callback) {
+            this.element = document.createElement('button');
+            this.element.id = properties.class + '_id';
+            this.element.className = properties.class;
+            this.element.innerHTML = properties.innerHTML;
+            wrs_addEvent(this.element, 'click', callback);
         }
 
-        /**
-         * This method is called when the modal object has been cancelled. If
-         * contentElement has implemented hasChanges method, a confirm popup
-         * will be shown if hasChanges returns true.
-         * @ignore
-         */
-
-    }, {
-        key: "cancelAction",
-        value: function cancelAction() {
-            if (typeof this.contentManager.hasChanges === 'undefined') {
-                this.close();
-            } else if (!this.contentManager.hasChanges()) {
-                this.close();
-            } else {
-                this.showPopUpMessage();
-            }
+        SubmitButton.prototype.getElement = function() {
+            return this.element;
         }
 
-        /**
-         * Returns a submit button. The properties argument admits the following:
-         * properties {
-         *  'class' : '', // button class.
-         *  'innerHTML : '' // button innerHTML.
-         * }
-         * @param {Object} properties input button properties.
-         * @param {Function} callback callback function associated to click event.
-         * @ignore
-         */
+        return new SubmitButton(properties, callback).getElement();
+    }
 
-    }, {
-        key: "createSubmitButton",
-        value: function createSubmitButton(properties, callback) {
-            function SubmitButton(properties, callback) {
-                this.element = document.createElement('button');
-                this.element.id = properties.class + '_id';
-                this.element.className = properties.class;
-                this.element.innerHTML = properties.innerHTML;
-                wrs_addEvent(this.element, 'click', callback);
-            }
+    /**
+     * Creates the modal window object inserting a contentElement object.
+     * @ignore
+     */
+    create() {
 
-            SubmitButton.prototype.getElement = function () {
-                return this.element;
-            };
+        /*Modal Window Structure
+    _____________________________________________________________________________________
+    |wrs_modal_dialog_Container                                                         |
+    | _________________________________________________________________________________ |
+    | |title_bar                          minimize_button  stack_button  close_button | |
+    | |_______________________________________________________________________________| |
+    | |wrapper                                                                        | |
+    | | _____________________________________________________________________________ | |
+    | | |content                                                                    | | |
+    | | |                                                                           | | |
+    | | |                                                                           | | |
+    | | |___________________________________________________________________________| | |
+    | | _____________________________________________________________________________ | |
+    | | |controls                                                                   | | |
+    | | | ___________________________________                                       | | |
+    | | | |buttonContainer                  |                                       | | |
+    | | | | _______________________________ |                                       | | |
+    | | | | |button_accept | button_cancel| |                                       | | |
+    | | | |_|_____________ |______________|_|                                       | | |
+    | | |___________________________________________________________________________| | |
+    | |_______________________________________________________________________________| |
+    |___________________________________________________________________________________|*/
 
-            return new SubmitButton(properties, callback).getElement();
+        this.titleBar.appendChild(this.closeDiv);
+        this.titleBar.appendChild(this.stackDiv);
+        this.titleBar.appendChild(this.maximizeDiv);
+        this.titleBar.appendChild(this.minimizeDiv);
+        this.titleBar.appendChild(this.title);
+
+        if (this.deviceProperties['isDesktop']) {
+            this.container.appendChild(this.titleBar);
         }
 
-        /**
-         * Creates the modal window object inserting a contentElement object.
-         * @ignore
-         */
+        this.wrapper.appendChild(this.contentContainer);
+        this.wrapper.appendChild(this.controls);
 
-    }, {
-        key: "create",
-        value: function create() {
+        this.controls.appendChild(this.buttonContainer);
 
-            /*Modal Window Structure
-            _____________________________________________________________________________________
-            |wrs_modal_dialog_Container                                                         |
-            | _________________________________________________________________________________ |
-            | |title_bar                          minimize_button  stack_button  close_button | |
-            | |_______________________________________________________________________________| |
-            | |wrapper                                                                        | |
-            | | _____________________________________________________________________________ | |
-            | | |content                                                                    | | |
-            | | |                                                                           | | |
-            | | |                                                                           | | |
-            | | |___________________________________________________________________________| | |
-            | | _____________________________________________________________________________ | |
-            | | |controls                                                                   | | |
-            | | | ___________________________________                                       | | |
-            | | | |buttonContainer                  |                                       | | |
-            | | | | _______________________________ |                                       | | |
-            | | | | |button_accept | button_cancel| |                                       | | |
-            | | | |_|_____________ |______________|_|                                       | | |
-            | | |___________________________________________________________________________| | |
-            | |_______________________________________________________________________________| |
-            |___________________________________________________________________________________|*/
+        this.buttonContainer.appendChild(this.submitButton);
+        this.buttonContainer.appendChild(this.cancelButton);
 
-            this.titleBar.appendChild(this.closeDiv);
-            this.titleBar.appendChild(this.stackDiv);
-            this.titleBar.appendChild(this.maximizeDiv);
-            this.titleBar.appendChild(this.minimizeDiv);
-            this.titleBar.appendChild(this.title);
+        this.container.appendChild(this.wrapper);
 
-            if (this.deviceProperties['isDesktop']) {
-                this.container.appendChild(this.titleBar);
-            }
+        // Check if browser has scrollBar before modal has modified.
+        this.recalculateScrollBar();
 
-            this.wrapper.appendChild(this.contentContainer);
-            this.wrapper.appendChild(this.controls);
+        document.body.appendChild(this.container);
+        document.body.appendChild(this.overlay);
 
-            this.controls.appendChild(this.buttonContainer);
+        if (this.deviceProperties['isDesktop']) { // Desktop.
+            this.createModalWindowDesktop();
+            this.createResizeButtons();
 
-            this.buttonContainer.appendChild(this.submitButton);
-            this.buttonContainer.appendChild(this.cancelButton);
-
-            this.container.appendChild(this.wrapper);
-
-            // Check if browser has scrollBar before modal has modified.
-            this.recalculateScrollBar();
-
-            document.body.appendChild(this.container);
-            document.body.appendChild(this.overlay);
-
-            if (this.deviceProperties['isDesktop']) {
-                // Desktop.
-                this.createModalWindowDesktop();
-                this.createResizeButtons();
-
-                this.addListeners();
-                // Maximize window only when the configuration is set and the device is not iOS or Android.
-                if (_wrs_conf_modalWindowFullScreen) {
-                    this.maximize();
-                }
-            } else if (this.deviceProperties['isAndroid']) {
-                this.createModalWindowAndroid();
-            } else if (this.deviceProperties['isIOS'] && !this.deviceProperties['isMobile']) {
-                this.createModalWindowIos();
-            }
-
-            if (this.contentManager != null) {
-                this.contentManager.insert(this);
-            }
-
-            this.properties.open = true;
-            this.properties.created = true;
-        }
-
-        /**
-         * Creates a button in the modal object to resize it.
-         * @ignore
-         */
-
-    }, {
-        key: "createResizeButtons",
-        value: function createResizeButtons() {
-            // This is a definition of Resize Button Bottom-Right
-            this.resizerBR = document.createElement('div');
-            this.resizerBR.className = 'wrs_bottom_right_resizer';
-            this.resizerBR.innerHTML = '◢';
-            // This is a definition of Resize Button Top-Left
-            this.resizerTL = document.createElement('div');
-            this.resizerTL.className = 'wrs_bottom_left_resizer';
-            // Append resize buttons to modal
-            this.container.appendChild(this.resizerBR);
-            this.titleBar.appendChild(this.resizerTL);
-            // Add events to resize on click and drag
-            wrs_addEvent(this.resizerBR, 'mousedown', this.activateResizeStateBR.bind(this));
-            wrs_addEvent(this.resizerTL, 'mousedown', this.activateResizeStateTL.bind(this));
-        }
-        /**
-         * Method to initialize variables for Bottom-Right resize button
-         * @param {event} ev mouse
-         * @ignore
-         */
-
-    }, {
-        key: "activateResizeStateBR",
-        value: function activateResizeStateBR(ev) {
-            this.initializeResizeProperties(ev, false);
-        }
-
-        /**
-         * Method to initialize variables for Top-Left resize button
-         * @param {event} ev mouse
-         * @ignore
-         */
-
-    }, {
-        key: "activateResizeStateTL",
-        value: function activateResizeStateTL(ev) {
-            this.initializeResizeProperties(ev, true);
-        }
-
-        /**
-         * Common method to initialize variables at resize
-         * @param {event} ev mouse
-         * @ignore
-         */
-
-    }, {
-        key: "initializeResizeProperties",
-        value: function initializeResizeProperties(ev, leftOption) {
-            // Apply class for disable involuntary select text when drag.
-            wrs_addClass(document.body, 'wrs_noselect');
-            wrs_addClass(this.overlay, 'wrs_overlay_active');
-            this.resizeDataObject = {
-                x: this.eventClient(ev).X,
-                y: this.eventClient(ev).Y
-            };
-            // Save Initial state of modal to compare on drag and obtain the difference.
-            this.initialWidth = parseInt(this.container.style.width);
-            this.initialHeight = parseInt(this.container.style.height);
-            if (!leftOption) {
-                this.initialRight = parseInt(this.container.style.right);
-                this.initialBottom = parseInt(this.container.style.bottom);
-            } else {
-                this.leftScale = true;
-            }
-            if (!this.initialRight) {
-                this.initialRight = 0;
-            }
-            if (!this.initialBottom) {
-                this.initialBottom = 0;
-            }
-            // Disable mouse events on editor when we start to drag modal.
-            document.body.style['user-select'] = 'none';
-        }
-
-        /**
-         * This method opens the modal window, restoring the previous state, position and metrics,
-         * if exists.
-         * By default the modal object opens in stack mode.
-         * @ignore
-         */
-
-    }, {
-        key: "open",
-        value: function open() {
-            //Removing close class.
-            this.removeClass('wrs_closed');
-            // Hiding keyboard for mobile devices.
-            if (this.deviceProperties['isIOS'] || this.deviceProperties['isAndroid'] || this.deviceProperties['isMobile']) {
-                // Due to editor wait we need to wait until editor focus.
-                setTimeout(function () {
-                    this.hideKeyboard();
-                }.bind(this), 400);
-            }
-
-            // New modal window. He need to create the whole object.
-            if (!this.properties.created) {
-                this.create();
-            } else {
-                // Previous state closed. Open method can be called even the previous state is open,
-                // for exmample updating the content of the modal object.
-                if (!this.properties.open) {
-                    this.properties.open = true;
-
-                    // Restoring the previous open state: if the modal object has been closed
-                    // re-open it should preserve the state and the metrics.
-                    if (!this.deviceProperties.isAndroid && !this.deviceProperties.isIOS) {
-                        this.restoreState();
-                    }
-                }
-
-                // Maximize window only when the configuration is set and the device is not iOs or Android.
-                if (this.deviceProperties['isDesktop'] && _wrs_conf_modalWindowFullScreen) {
-                    this.maximize();
-                }
-
-                // In iOS we need to recalculate the size of the modal object because
-                // iOS keyboard is a float div which can overlay the modal object.
-                if (this.deviceProperties['isIOS']) {
-                    this.iosSoftkeyboardOpened = false;
-                    this.setContainerHeight("100" + this.iosMeasureUnit);
-                }
-
-                // Updating content element.
-                if (typeof this.contentManager != 'undefined') {
-                    this.contentManager.onOpen(this);
-                }
-            }
-        }
-
-        /**
-         * Closes modal window and restores viewport header.
-         * @ignore
-         */
-
-    }, {
-        key: "close",
-        value: function close() {
-            this.removeClass('wrs_maximized');
-            this.removeClass('wrs_minimized');
-            this.removeClass('wrs_stack');
-            this.addClass('wrs_closed');
-            this.saveModalProperties();
-            this.properties.open = false;
-        }
-
-        /**
-         * Util function to kwnow if browser is internet explorer 11.
-         * @return {boolean} return true if browser is iexplorer v11 or false in others.
-         * @ignore
-         */
-
-    }, {
-        key: "isIE11",
-        value: function isIE11() {
-            if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0) {
-                return true;
-            }
-            return false;
-        }
-
-        /**
-         * Adds a class to all modal DOM elements.
-         * @param {string} cls
-         * @ignore
-         */
-
-    }, {
-        key: "addClass",
-        value: function addClass(cls) {
-            wrs_addClass(this.overlay, cls);
-            wrs_addClass(this.titleBar, cls);
-            wrs_addClass(this.overlay, cls);
-            wrs_addClass(this.container, cls);
-            wrs_addClass(this.contentContainer, cls);
-            wrs_addClass(this.stackDiv, cls);
-            wrs_addClass(this.minimizeDiv, cls);
-            wrs_addClass(this.maximizeDiv, cls);
-            wrs_addClass(this.wrapper, cls);
-        }
-
-        /**
-         * Remove a calss from all modal DOM elements.
-         * @param {string} cls
-         * @ignore
-         */
-
-    }, {
-        key: "removeClass",
-        value: function removeClass(cls) {
-            wrs_removeClass(this.overlay, cls);
-            wrs_removeClass(this.titleBar, cls);
-            wrs_removeClass(this.overlay, cls);
-            wrs_removeClass(this.container, cls);
-            wrs_removeClass(this.contentContainer, cls);
-            wrs_removeClass(this.stackDiv, cls);
-            wrs_removeClass(this.minimizeDiv, cls);
-            wrs_removeClass(this.maximizeDiv, cls);
-            wrs_removeClass(this.wrapper, cls);
-        }
-
-        /**
-         * Create modal dialog for desktop.
-         * @ignore
-         */
-
-    }, {
-        key: "createModalWindowDesktop",
-        value: function createModalWindowDesktop() {
-            this.addClass('wrs_modal_desktop');
-            this.stack();
-        }
-
-        /**
-         * Create modal dialog for non mobile android devices.
-         * @ignore
-         */
-
-    }, {
-        key: "createModalWindowAndroid",
-        value: function createModalWindowAndroid() {
-            this.addClass('wrs_modal_android');
-            window.addEventListener('resize', this.orientationChangeAndroidSoftkeyboard.bind(this));
-        }
-
-        /**
-         * Create modal dialog for iOS devices.
-         * @ignore
-         */
-
-    }, {
-        key: "createModalWindowIos",
-        value: function createModalWindowIos() {
-            this.addClass('wrs_modal_ios');
-            // Refresh the size when the orientation is changed
-            window.addEventListener('resize', this.orientationChangeIosSoftkeyboard.bind(this));
-        }
-
-        /**
-         * Restore previous state, position and size of previous stacked modal window
-         * @ignore
-         */
-
-    }, {
-        key: "restoreState",
-        value: function restoreState() {
-            if (this.properties.state == 'maximized') {
-                // Reseting states for prevent return to stack state.
+            this.addListeners();
+            // Maximize window only when the configuration is set and the device is not iOS or Android.
+            if (_wrs_conf_modalWindowFullScreen) {
                 this.maximize();
-            } else if (this.properties.state == 'minimized') {
-                // Reseting states for prevent return to stack state.
-                this.properties.state = this.properties.previousState;
-                this.properties.previousState = '';
-                this.minimize();
-            } else {
-                this.stack();
             }
         }
-
-        /**
-         * Stacks the modal object.
-         * @ignore
-         */
-
-    }, {
-        key: "stack",
-        value: function stack() {
-            this.properties.previousState = this.properties.state;
-            this.properties.state = 'stack';
-            this.removeClass('wrs_maximized');
-            this.minimizeDiv.title = "Minimise";
-            this.removeClass('wrs_minimized');
-            this.addClass('wrs_stack');
-
-            this.restoreModalProperties();
-
-            if (typeof this.resizerBR !== 'undefined' && typeof this.resizerTL !== 'undefined') {
-                this.setResizeButtonsVisibility();
-            }
-
-            // Need recalculate position of actual modal because window can was changed in fullscreenmode
-            this.recalculateScrollBar();
-            this.recalculatePosition();
-            this.recalculateScale();
-            this.focus();
+        else if (this.deviceProperties['isAndroid']) {
+            this.createModalWindowAndroid();
+        }
+        else if (this.deviceProperties['isIOS'] && !this.deviceProperties['isMobile']) {
+            this.createModalWindowIos();
         }
 
-        /**
-         * Minimizes the modal object
-         * @ignore
-         */
+        if (this.contentManager != null) {
+            this.contentManager.insert(this);
+        }
 
-    }, {
-        key: "minimize",
-        value: function minimize() {
-            // Saving width, height, top and bottom parameters to restore when open
-            this.saveModalProperties();
-            if (this.properties.state == 'minimized' && this.properties.previousState == 'stack') {
-                this.stack();
-            } else if (this.properties.state == 'minimized' && this.properties.previousState == 'maximized') {
+        this.properties.open = true;
+        this.properties.created = true;
+    }
+
+    /**
+     * Creates a button in the modal object to resize it.
+     * @ignore
+     */
+    createResizeButtons() {
+        // This is a definition of Resize Button Bottom-Right
+        this.resizerBR = document.createElement('div');
+        this.resizerBR.className  = 'wrs_bottom_right_resizer';
+        this.resizerBR.innerHTML = '◢';
+        // This is a definition of Resize Button Top-Left
+        this.resizerTL = document.createElement('div');
+        this.resizerTL.className  = 'wrs_bottom_left_resizer';
+        // Append resize buttons to modal
+        this.container.appendChild(this.resizerBR);
+        this.titleBar.appendChild(this.resizerTL);
+        // Add events to resize on click and drag
+        wrs_addEvent(this.resizerBR, 'mousedown', this.activateResizeStateBR.bind(this));
+        wrs_addEvent(this.resizerTL, 'mousedown', this.activateResizeStateTL.bind(this));
+    }
+    /**
+     * Method to initialize variables for Bottom-Right resize button
+     * @param {event} ev mouse
+     * @ignore
+     */
+    activateResizeStateBR(ev) {
+        this.initializeResizeProperties(ev, false);
+    }
+
+    /**
+     * Method to initialize variables for Top-Left resize button
+     * @param {event} ev mouse
+     * @ignore
+     */
+    activateResizeStateTL(ev) {
+        this.initializeResizeProperties(ev, true);
+    }
+
+    /**
+     * Common method to initialize variables at resize
+     * @param {event} ev mouse
+     * @ignore
+     */
+    initializeResizeProperties(ev, leftOption) {
+        // Apply class for disable involuntary select text when drag.
+        wrs_addClass(document.body, 'wrs_noselect');
+        wrs_addClass(this.overlay, 'wrs_overlay_active');
+        this.resizeDataObject = {
+            x: this.eventClient(ev).X,
+            y: this.eventClient(ev).Y
+        };
+        // Save Initial state of modal to compare on drag and obtain the difference.
+        this.initialWidth = parseInt(this.container.style.width);
+        this.initialHeight = parseInt(this.container.style.height);
+        if (!leftOption) {
+            this.initialRight = parseInt(this.container.style.right);
+            this.initialBottom = parseInt(this.container.style.bottom);
+        } else {
+            this.leftScale = true;
+        }
+        if (!this.initialRight){
+            this.initialRight = 0;
+        }
+        if (!this.initialBottom){
+            this.initialBottom = 0;
+        }
+        // Disable mouse events on editor when we start to drag modal.
+        document.body.style['user-select'] = 'none';
+    }
+
+    /**
+     * This method opens the modal window, restoring the previous state, position and metrics,
+     * if exists.
+     * By default the modal object opens in stack mode.
+     * @ignore
+     */
+    open() {
+        //Removing close class.
+        this.removeClass('wrs_closed');
+        // Hiding keyboard for mobile devices.
+        if (this.deviceProperties['isIOS'] || this.deviceProperties['isAndroid'] || this.deviceProperties['isMobile']) {
+            // Due to editor wait we need to wait until editor focus.
+            setTimeout(function() { this.hideKeyboard() }.bind(this), 400);
+        }
+
+        // New modal window. He need to create the whole object.
+        if (!this.properties.created) {
+            this.create();
+        }
+        else {
+            // Previous state closed. Open method can be called even the previous state is open,
+            // for exmample updating the content of the modal object.
+            if (!this.properties.open) {
+                this.properties.open = true;
+
+                // Restoring the previous open state: if the modal object has been closed
+                // re-open it should preserve the state and the metrics.
+                if (!this.deviceProperties.isAndroid && !this.deviceProperties.isIOS) {
+                    this.restoreState();
+                }
+            }
+
+            // Maximize window only when the configuration is set and the device is not iOs or Android.
+            if (this.deviceProperties['isDesktop'] && _wrs_conf_modalWindowFullScreen) {
                 this.maximize();
-            } else {
-                // Setting css to prevent important tag into css style
-                this.container.style.height = "30px";
-                this.container.style.width = "250px";
-                this.container.style.bottom = "0px";
-                this.container.style.right = "10px";
-
-                this.removeListeners();
-                this.properties.previousState = this.properties.state;
-                this.properties.state = "minimized";
-                this.setResizeButtonsVisibility();
-                this.minimizeDiv.title = "Maximise";
-
-                if (wrs_containsClass(this.overlay, 'wrs_stack')) {
-                    this.removeClass('wrs_stack');
-                } else {
-                    this.removeClass('wrs_maximized');
-                }
-                this.addClass('wrs_minimized');
-            }
-        }
-
-        /**
-         * Maximizes the modal object.
-         * @ignore
-         */
-
-    }, {
-        key: "maximize",
-        value: function maximize() {
-            // Saving width, height, top and bottom parameters to restore when open
-            this.saveModalProperties();
-            if (this.properties.state != 'maximized') {
-                this.properties.previousState = this.properties.state;
-                this.properties.state = 'maximized';
-            }
-            // Don't permit resize on maximize mode.
-            this.setResizeButtonsVisibility();
-
-            if (wrs_containsClass(this.overlay, 'wrs_minimized')) {
-                this.minimizeDiv.title = "Minimise";
-                this.removeClass('wrs_minimized');
-            } else if (wrs_containsClass(this.overlay, 'wrs_stack')) {
-                this.container.style.left = null;
-                this.container.style.top = null;
-                this.removeClass('wrs_stack');
             }
 
-            this.addClass('wrs_maximized');
-
-            // Set size to 80% screen with a max size.
-            this.setSize(parseInt(window.innerHeight * 0.8), parseInt(window.innerWidth * 0.8));
-            var sizeModificated = false;
-            if (this.container.clientHeight > 700) {
-                this.container.style.height = '700px';
-                sizeModificated = true;
-            }
-            if (this.container.clientWidth > 1200) {
-                this.container.style.width = '1200px';
-                sizeModificated = true;
-            }
-
-            // Setting modal position in center on screen.
-            this.setPosition(window.innerHeight / 2 - this.container.offsetHeight / 2, window.innerWidth / 2 - this.container.offsetWidth / 2);
-            this.recalculateScale();
-            this.recalculatePosition();
-            this.recalculateSize();
-            this.focus();
-        }
-
-        /**
-         * Sets modal size.
-         * @param  {integer} height set a height of modal with an integer
-         * @param  {integer} width set a width of modal with an integer
-         * @ignore
-         */
-
-    }, {
-        key: "setSize",
-        value: function setSize(height, width) {
-            this.container.style.height = height + 'px';
-            this.container.style.width = width + 'px';
-            this.recalculateSize();
-        }
-
-        /**
-         * Sets modal position.
-         * @param  {integer} bottom set a bottom of div modal with an integer
-         * @param  {integer} right set a right of div modal with an integer
-         * @ignore
-         */
-
-    }, {
-        key: "setPosition",
-        value: function setPosition(bottom, right) {
-            this.container.style.bottom = bottom + 'px';
-            this.container.style.right = right + 'px';
-        }
-
-        /**
-         * Saves actual parameters of open modal object (like size and position...) to restore it
-         * once the modal object is re-opened.
-         * @ignore
-         */
-
-    }, {
-        key: "saveModalProperties",
-        value: function saveModalProperties() {
-            // Saving values of modal only when modal is in stack state.
-            if (this.properties.state == 'stack') {
-                this.properties.position.bottom = parseInt(this.container.style.bottom);
-                this.properties.position.right = parseInt(this.container.style.right);
-                this.properties.size.width = parseInt(this.container.style.width);
-                this.properties.size.height = parseInt(this.container.style.height);
-            }
-        }
-
-        /**
-         * Restore previous parameters values of closed modal (like size and position) and apply this parameters in actual modal.
-         * @ignore
-         */
-
-    }, {
-        key: "restoreModalProperties",
-        value: function restoreModalProperties() {
-            if (this.properties.state == 'stack') {
-                // Restoring Bottom and Right values from last modal
-                this.setPosition(this.properties.position.bottom, this.properties.position.right);
-                // Restoring Height and Left values from last modal
-                this.setSize(this.properties.size.height, this.properties.size.width);
-            }
-        }
-
-        /**
-         * Set modal size.
-         * @ignore
-         */
-
-    }, {
-        key: "recalculateSize",
-        value: function recalculateSize() {
-            this.wrapper.style.width = this.container.clientWidth - 12 + 'px';
-            this.wrapper.style.height = this.container.clientHeight - 38 + 'px';
-            this.contentContainer.style.height = parseInt(this.wrapper.offsetHeight - 50) + 'px';
-        }
-
-        /**
-         * Active and disable visibility of resize buttons in modal window depend on state.
-         * @ignore
-         */
-
-    }, {
-        key: "setResizeButtonsVisibility",
-        value: function setResizeButtonsVisibility() {
-            if (this.properties.state == 'stack') {
-                this.resizerTL.style.visibility = 'visible';
-                this.resizerBR.style.visibility = 'visible';
-            } else {
-                this.resizerTL.style.visibility = 'hidden';
-                this.resizerBR.style.visibility = 'hidden';
-            }
-        }
-
-        /**
-         * Makes an object draggable adding mouse and touch events.
-         * @ignore
-         */
-
-    }, {
-        key: "addListeners",
-        value: function addListeners() {
-            // Button events (maximize, minimize, stack and close).
-            this.maximizeDiv.addEventListener('click', this.maximize.bind(this), true);
-            this.stackDiv.addEventListener('click', this.stack.bind(this), true);
-            this.minimizeDiv.addEventListener('click', this.minimize.bind(this), true);
-            this.closeDiv.addEventListener('click', this.cancelAction.bind(this));
-
-            // Mouse events.
-            wrs_addEvent(window, 'mousedown', this.startDrag.bind(this));
-            wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
-            wrs_addEvent(window, 'mousemove', this.drag.bind(this));
-            wrs_addEvent(window, 'resize', this.onWindowResize.bind(this));
-            // Key events.
-            wrs_addEvent(window, 'keydown', this.onKeyDown.bind(this));
-        }
-
-        /**
-         * Removes draggable events from an object.
-         * @ignore
-         */
-
-    }, {
-        key: "removeListeners",
-        value: function removeListeners() {
-            // Mouse events.
-            wrs_removeEvent(window, 'mousedown', this.startDrag);
-            wrs_removeEvent(window, 'mouseup', this.stopDrag);
-            wrs_removeEvent(window, 'mousemove', this.drag);
-            wrs_removeEvent(window, 'resize', this.onWindowResize);
-            // Key events
-            wrs_removeEvent(window, 'keydown', this.onKeyDown);
-        }
-
-        /**
-         * Returns mouse or touch coordinates (on touch events ev.ClientX doesn't exists)
-         * @param {event} ev mouse or touch event
-         * @return {object} with the X and Y coordinates.
-         * @ignore
-         */
-
-    }, {
-        key: "eventClient",
-        value: function eventClient(ev) {
-            if (typeof ev.clientX == 'undefined' && ev.changedTouches) {
-                var client = {
-                    X: ev.changedTouches[0].clientX,
-                    Y: ev.changedTouches[0].clientY
-                };
-                return client;
-            } else {
-                client = {
-                    X: ev.clientX,
-                    Y: ev.clientY
-                };
-                return client;
-            }
-        }
-
-        /**
-         * Start drag function: set the object dragDataObject with the draggable object offsets coordinates.
-         * when drag starts (on touchstart or mousedown events).
-         *
-         * @param {event} ev touchstart or mousedown event.
-         * @ignore
-         */
-
-    }, {
-        key: "startDrag",
-        value: function startDrag(ev) {
-            if (this.properties.state == 'minimized') {
-                return;
-            }
-            if (ev.target.className == 'wrs_modal_title') {
-                if (typeof this.dragDataObject === 'undefined' || this.dragDataObject === null) {
-                    ev = ev || event;
-                    // Save first click mouse point on screen
-                    this.dragDataObject = {
-                        x: this.eventClient(ev).X,
-                        y: this.eventClient(ev).Y
-                    };
-                    // Reset last drag position when start drag
-                    this.lastDrag = {
-                        x: "0px",
-                        y: "0px"
-                    };
-                    // Init right and bottom values for window modal if it isn't exist.
-                    if (this.container.style.right == '') {
-                        this.container.style.right = "0px";
-                    }
-                    if (this.container.style.bottom == '') {
-                        this.container.style.bottom = "0px";
-                    }
-
-                    // Needed for IE11 for apply disabled mouse events on editor because iexplorer need a dinamic object to apply this property.
-                    if (this.isIE11()) {}
-                    // this.iframe.style['position'] = 'relative';
-
-                    // Apply class for disable involuntary select text when drag.
-                    wrs_addClass(document.body, 'wrs_noselect');
-                    wrs_addClass(this.overlay, 'wrs_overlay_active');
-                    // Obtain screen limits for prevent overflow.
-                    this.limitWindow = this.getLimitWindow();
-                }
-            }
-        }
-
-        /**
-         * UpdatesdragDataObject with the draggable object coordinates when the draggable object is being moved.
-         *
-         * @param {event} ev touchmouve or mousemove events.
-         * @ignore
-         */
-
-    }, {
-        key: "drag",
-        value: function drag(ev) {
-            if (this.dragDataObject) {
-                ev.preventDefault();
-                ev = ev || event;
-                // Calculate max and min between actual mouse position and limit of screeen. It restric the movement of modal into window.
-                var limitY = Math.min(this.eventClient(ev).Y + window.pageYOffset, this.limitWindow.minPointer.y + window.pageYOffset);
-                limitY = Math.max(this.limitWindow.maxPointer.y + window.pageYOffset, limitY);
-                var limitX = Math.min(this.eventClient(ev).X + window.pageXOffset, this.limitWindow.minPointer.x + window.pageXOffset);
-                limitX = Math.max(this.limitWindow.maxPointer.x + window.pageXOffset, limitX);
-                // Substract limit with first position to obtain relative pixels increment to the anchor point.
-                var dragX = limitX - this.dragDataObject.x + "px";
-                var dragY = limitY - this.dragDataObject.y + "px";
-                // Save last valid position of modal before window overflow.
-                this.lastDrag = {
-                    x: dragX,
-                    y: dragY
-                };
-                // This move modal with hadware acceleration.
-                this.container.style.transform = "translate3d(" + dragX + "," + dragY + ",0)";
-                this.container.style.position = 'absolute';
-            }
-            if (this.resizeDataObject) {
-                var limitX = Math.min(this.eventClient(ev).X, window.innerWidth - this.scrollbarWidth - 7);
-                var limitY = Math.min(this.eventClient(ev).Y, window.innerHeight - 7);
-                if (limitX < 0) {
-                    limitX = 0;
-                }
-
-                if (limitY < 0) {
-                    limitY = 0;
-                }
-
-                var scaleMultiplier;
-                if (this.leftScale) {
-                    scaleMultiplier = -1;
-                } else {
-                    scaleMultiplier = 1;
-                }
-                this.container.style.width = this.initialWidth + scaleMultiplier * (limitX - this.resizeDataObject.x) + 'px';
-                this.container.style.height = this.initialHeight + scaleMultiplier * (limitY - this.resizeDataObject.y) + 'px';
-                if (!this.leftScale) {
-                    if (this.resizeDataObject.x - limitX - this.initialWidth < -580) {
-                        this.container.style.right = this.initialRight - (limitX - this.resizeDataObject.x) + 'px';
-                    } else {
-                        this.container.style.right = this.initialRight + this.initialWidth - 580 + "px";
-                        this.container.style.width = "580px";
-                    }
-                    if (this.resizeDataObject.y - limitY < this.initialHeight - 338) {
-                        this.container.style.bottom = this.initialBottom - (limitY - this.resizeDataObject.y) + 'px';
-                    } else {
-                        this.container.style.bottom = this.initialBottom + this.initialHeight - 338 + "px";
-                        this.container.style.height = "338px";
-                    }
-                }
-                this.recalculateScale();
-                this.recalculatePosition();
-            }
-        }
-        /**
-         * Get limits of actual window to limit modal movement
-         * @return {Object} Object containing mouseX and mouseY are coordinates of actual mouse on screen.
-         * @ignore
-         */
-
-    }, {
-        key: "getLimitWindow",
-        value: function getLimitWindow() {
-            // Obtain dimentions of window page.
-            var maxWidth = window.innerWidth;
-            var maxHeight = window.innerHeight;
-
-            // Calculate relative position of mouse point into window.
-            var offSetToolbarY = this.container.offsetHeight + parseInt(this.container.style.bottom) - (maxHeight - (this.dragDataObject.y - window.pageXOffset));
-            var offSetToolbarX = maxWidth - this.scrollbarWidth - (this.dragDataObject.x - window.pageXOffset) - parseInt(this.container.style.right);
-
-            // Calculate limits with sizes of window, modal and mouse position.
-            var minPointerY = maxHeight - this.container.offsetHeight + offSetToolbarY;
-            var maxPointerY = this.title.offsetHeight - (this.title.offsetHeight - offSetToolbarY);
-            var minPointerX = maxWidth - offSetToolbarX - this.scrollbarWidth;
-            var maxPointerX = this.container.offsetWidth - offSetToolbarX;
-            var minPointer = { x: minPointerX, y: minPointerY };
-            var maxPointer = { x: maxPointerX, y: maxPointerY };
-            return { minPointer: minPointer, maxPointer: maxPointer };
-        }
-        /**
-         * Get Scrollbar width size of browser
-         * @ignore
-         */
-
-    }, {
-        key: "getScrollBarWidth",
-        value: function getScrollBarWidth() {
-            // Create a paragraph with full width of page.
-            var inner = document.createElement('p');
-            inner.style.width = "100%";
-            inner.style.height = "200px";
-
-            // Create a hidden div to compare sizes.
-            var outer = document.createElement('div');
-            outer.style.position = "absolute";
-            outer.style.top = "0px";
-            outer.style.left = "0px";
-            outer.style.visibility = "hidden";
-            outer.style.width = "200px";
-            outer.style.height = "150px";
-            outer.style.overflow = "hidden";
-            outer.appendChild(inner);
-
-            document.body.appendChild(outer);
-            var widthOuter = inner.offsetWidth;
-
-            // Change type overflow of paragraph for measure scrollbar.
-            outer.style.overflow = 'scroll';
-            var widthInner = inner.offsetWidth;
-
-            // If measure is the same, we compare with internal div.
-            if (widthOuter == widthInner) {
-                widthInner = outer.clientWidth;
-            }
-            document.body.removeChild(outer);
-
-            return widthOuter - widthInner;
-        }
-
-        /**
-         * Set the dragDataObject to null when the drag finish (touchend or mouseup events).
-         *
-         * @param {event} ev touchend or mouseup event.
-         * @ignore
-         */
-
-    }, {
-        key: "stopDrag",
-        value: function stopDrag(ev) {
-            // Due to we have multiple events that call this function, we need only to execute the next modifiers one time,
-            // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
-            if (this.dragDataObject || this.resizeDataObject) {
-                // If modal doesn't change, it's not necessary to set position with interpolation
-                if (this.container.style.position != 'fixed') {
-                    this.container.style.position = 'fixed';
-                    // Fixed position makes the coords relative to the main window. So that, we need to transform
-                    // the absolute coords to relative.
-                    this.container.style.transform = '';
-                    if (this.dragDataObject) {
-                        this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
-                        this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
-                    }
-                }
-                // We make focus on editor after drag modal windows to prevent lose focus.
-                this.focus();
-                // Restore mouse events on iframe
-                // this.iframe.style['pointer-events'] = 'auto';
-                document.body.style['user-select'] = '';
-                // Restore static state of iframe if we use iexplorer
-                if (this.isIE11()) {}
-                // this.iframe.style['position'] = null;
-
-                // Active text select event
-                wrs_removeClass(document.body, 'wrs_noselect');
-                wrs_removeClass(this.overlay, 'wrs_overlay_active');
-            }
-            this.dragDataObject = null;
-            this.resizeDataObject = null;
-            this.initialWidth = null;
-            this.leftScale = null;
-        }
-
-        /**
-         * Recalculating scale for modal when resize browser window *
-         * @ignore
-         */
-
-    }, {
-        key: "onWindowResize",
-        value: function onWindowResize() {
-            this.recalculateScrollBar();
-            this.recalculatePosition();
-            this.recalculateScale();
-        }
-
-        /**
-         * Keydown events:
-         * Esc key close modal window.
-         * Tab key tab to submit button.
-         * @param {event} ev
-         */
-
-    }, {
-        key: "onKeyDown",
-        value: function onKeyDown(ev) {
-            if (ev.key !== undefined && ev.repeat === false) {
-                // Code for detect Esc event
-                if (ev.key === "Escape" || ev.key === 'Esc') {
-                    if (this.properties.open) {
-                        this.cancelAction();
-                    }
-                }
-                // Code for detect Tab event
-                if (ev.key === "Tab") {
-                    this.submitButton.focus();
-                    ev.preventDefault();
-                }
-            }
-        }
-        /**
-         * Recalculating position for modal when resize browser window
-         * @ignore
-         */
-
-    }, {
-        key: "recalculatePosition",
-        value: function recalculatePosition() {
-            this.container.style.right = Math.min(parseInt(this.container.style.right), window.innerWidth - this.scrollbarWidth - this.container.offsetWidth) + "px";
-            if (parseInt(this.container.style.right) < 0) {
-                this.container.style.right = "0px";
-            }
-            this.container.style.bottom = Math.min(parseInt(this.container.style.bottom), window.innerHeight - this.container.offsetHeight) + "px";
-            if (parseInt(this.container.style.bottom) < 0) {
-                this.container.style.bottom = "0px";
-            }
-        }
-
-        /**
-         * Recalculating scale for modal when resize browser window
-         * @ignore
-         */
-
-    }, {
-        key: "recalculateScale",
-        value: function recalculateScale() {
-            var sizeModificated = false;
-            if (parseInt(this.container.style.width) > 580) {
-                this.container.style.width = Math.min(parseInt(this.container.style.width), window.innerWidth - this.scrollbarWidth) + "px";
-                sizeModificated = true;
-            } else {
-                this.container.style.width = "580px";
-                sizeModificated = true;
-            }
-            if (parseInt(this.container.style.height) > 338) {
-                this.container.style.height = Math.min(parseInt(this.container.style.height), window.innerHeight) + "px";
-                sizeModificated = true;
-            } else {
-                this.container.style.height = "338px";
-                sizeModificated = true;
-            }
-            if (sizeModificated) {
-                this.recalculateSize();
-            }
-        }
-
-        /**
-         * Recalculating width of scrollBar browser
-         * @ignore
-         */
-
-    }, {
-        key: "recalculateScrollBar",
-        value: function recalculateScrollBar() {
-            this.hasScrollBar = window.innerWidth > document.documentElement.clientWidth;
-            if (this.hasScrollBar) {
-                this.scrollbarWidth = this.getScrollBarWidth();
-            } else {
-                this.scrollbarWidth = 0;
-            }
-        }
-
-        /**
-         * Hide soft keyboards on IOS systems.
-         * @ignore
-         */
-
-    }, {
-        key: "hideKeyboard",
-        value: function hideKeyboard() {
-            document.activeElement.blur();
-        }
-
-        /**
-         * Focus to content object
-         * @ignore
-         */
-
-    }, {
-        key: "focus",
-        value: function focus() {
-            if (this.contentManager != null && typeof this.contentManager.onFocus !== 'undefined') {
-                this.contentManager.onFocus();
-            }
-        }
-
-        /**
-         * Returns true when the device is on portrait mode.
-         * @ignore
-         */
-
-    }, {
-        key: "portraitMode",
-        value: function portraitMode() {
-            return window.innerHeight > window.innerWidth;
-        }
-
-        /**
-         * Change container sizes when the keyboard is opened on iOS.
-         * @ignore
-         */
-
-    }, {
-        key: "openedIosSoftkeyboard",
-        value: function openedIosSoftkeyboard() {
-            if (!this.iosSoftkeyboardOpened && this.iosDivHeight != null && this.iosDivHeight == "100" + this.iosMeasureUnit) {
-                if (this.portraitMode()) {
-                    this.setContainerHeight("63" + this.iosMeasureUnit);
-                } else {
-                    this.setContainerHeight("40" + this.iosMeasureUnit);
-                }
-            }
-            this.iosSoftkeyboardOpened = true;
-        }
-
-        /**
-         * Change container sizes when the keyboard is closed on iOS.
-         * @ignore
-         */
-
-    }, {
-        key: "closedIosSoftkeyboard",
-        value: function closedIosSoftkeyboard() {
-            this.iosSoftkeyboardOpened = false;
-            this.setContainerHeight("100" + this.iosMeasureUnit);
-        }
-
-        /**
-         * Change container sizes when orientation is changed on iOS.
-         * @ignore
-         */
-
-    }, {
-        key: "orientationChangeIosSoftkeyboard",
-        value: function orientationChangeIosSoftkeyboard() {
-            if (this.iosSoftkeyboardOpened) {
-                if (this.portraitMode()) {
-                    this.setContainerHeight("63" + this.iosMeasureUnit);
-                } else {
-                    this.setContainerHeight("40" + this.iosMeasureUnit);
-                }
-            } else {
+            // In iOS we need to recalculate the size of the modal object because
+            // iOS keyboard is a float div which can overlay the modal object.
+            if (this.deviceProperties['isIOS']) {
+                this.iosSoftkeyboardOpened = false;
                 this.setContainerHeight("100" + this.iosMeasureUnit);
             }
-        }
 
-        /**
-         * Change container sizes when orientation is changed on Android.
-         * @ignore
-         */
-
-    }, {
-        key: "orientationChangeAndroidSoftkeyboard",
-        value: function orientationChangeAndroidSoftkeyboard() {
-            this.setContainerHeight("100%");
-        }
-
-        /**
-         * Set iframe container height.
-         * @ignore
-         */
-
-    }, {
-        key: "setContainerHeight",
-        value: function setContainerHeight(height) {
-            this.iosDivHeight = height;
-            this.wrapper.style.height = height;
-            // this.editor.getElement().style.height = (this.container.offsetHeight -10) - this.controlsDiv.offsetHeight + 'px';
-        }
-
-        /**
-         * Check content of editor before close action
-         * @ignore
-         */
-
-    }, {
-        key: "showPopUpMessage",
-        value: function showPopUpMessage() {
-            if (this.properties.state == 'minimized') {
-                this.stack();
+            // Updating content element.
+            if (typeof this.contentManager != 'undefined') {
+                this.contentManager.onOpen(this);
             }
-            this.popup.show();
         }
-    }, {
-        key: "setTitle",
-        value: function setTitle(title) {
-            this.title.innerHTML = title;
-        }
-    }]);
+    }
 
-    return ModalWindow;
-}();
+    /**
+     * Closes modal window and restores viewport header.
+     * @ignore
+     */
+    close() {
+        this.removeClass('wrs_maximized');
+        this.removeClass('wrs_minimized');
+        this.removeClass('wrs_stack');
+        this.addClass('wrs_closed');
+        this.saveModalProperties();
+        this.properties.open = false;
+    }
+
+    /**
+     * Util function to kwnow if browser is internet explorer 11.
+     * @return {boolean} return true if browser is iexplorer v11 or false in others.
+     * @ignore
+     */
+    isIE11() {
+        if (navigator.userAgent.search("Msie/") >= 0 || navigator.userAgent.search("Trident/") >= 0 || navigator.userAgent.search("Edge/") >= 0 ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Adds a class to all modal DOM elements.
+     * @param {string} cls
+     * @ignore
+     */
+    addClass(cls) {
+        wrs_addClass(this.overlay, cls);
+        wrs_addClass(this.titleBar, cls);
+        wrs_addClass(this.overlay, cls);
+        wrs_addClass(this.container, cls);
+        wrs_addClass(this.contentContainer, cls);
+        wrs_addClass(this.stackDiv, cls);
+        wrs_addClass(this.minimizeDiv, cls);
+        wrs_addClass(this.maximizeDiv, cls);
+        wrs_addClass(this.wrapper, cls);
+    }
+
+    /**
+     * Remove a calss from all modal DOM elements.
+     * @param {string} cls
+     * @ignore
+     */
+    removeClass(cls) {
+        wrs_removeClass(this.overlay, cls);
+        wrs_removeClass(this.titleBar, cls);
+        wrs_removeClass(this.overlay, cls);
+        wrs_removeClass(this.container, cls);
+        wrs_removeClass(this.contentContainer, cls);
+        wrs_removeClass(this.stackDiv, cls);
+        wrs_removeClass(this.minimizeDiv, cls);
+        wrs_removeClass(this.maximizeDiv, cls);
+        wrs_removeClass(this.wrapper, cls);
+    }
+
+    /**
+     * Create modal dialog for desktop.
+     * @ignore
+     */
+    createModalWindowDesktop() {
+        this.addClass('wrs_modal_desktop');
+        this.stack();
+    }
+
+    /**
+     * Create modal dialog for non mobile android devices.
+     * @ignore
+     */
+    createModalWindowAndroid() {
+        this.addClass('wrs_modal_android');
+        window.addEventListener('resize', this.orientationChangeAndroidSoftkeyboard.bind(this));
+    }
+
+    /**
+     * Create modal dialog for iOS devices.
+     * @ignore
+     */
+    createModalWindowIos() {
+        this.addClass('wrs_modal_ios');
+        // Refresh the size when the orientation is changed
+        window.addEventListener('resize', this.orientationChangeIosSoftkeyboard.bind(this));
+    }
+
+    /**
+     * Restore previous state, position and size of previous stacked modal window
+     * @ignore
+     */
+    restoreState() {
+        if (this.properties.state == 'maximized') {
+            // Reseting states for prevent return to stack state.
+            this.maximize();
+        } else if (this.properties.state == 'minimized') {
+            // Reseting states for prevent return to stack state.
+            this.properties.state = this.properties.previousState;
+            this.properties.previousState = '';
+            this.minimize();
+        } else {
+            this.stack();
+        }
+    }
+
+    /**
+     * Stacks the modal object.
+     * @ignore
+     */
+    stack() {
+        this.properties.previousState = this.properties.state;
+        this.properties.state = 'stack';
+        this.removeClass('wrs_maximized');
+        this.minimizeDiv.title = "Minimise";
+        this.removeClass('wrs_minimized');
+        this.addClass('wrs_stack');
+
+        this.restoreModalProperties();
+
+        if (typeof this.resizerBR !== 'undefined' && typeof this.resizerTL !== 'undefined') {
+            this.setResizeButtonsVisibility();
+        }
+
+        // Need recalculate position of actual modal because window can was changed in fullscreenmode
+        this.recalculateScrollBar();
+        this.recalculatePosition();
+        this.recalculateScale();
+        this.focus();
+    }
+
+    /**
+     * Minimizes the modal object
+     * @ignore
+     */
+    minimize() {
+        // Saving width, height, top and bottom parameters to restore when open
+        this.saveModalProperties();
+        if (this.properties.state == 'minimized' && this.properties.previousState == 'stack') {
+            this.stack();
+        }
+        else if (this.properties.state == 'minimized' && this.properties.previousState == 'maximized') {
+            this.maximize();
+        }
+        else {
+            // Setting css to prevent important tag into css style
+            this.container.style.height = "30px";
+            this.container.style.width = "250px";
+            this.container.style.bottom = "0px";
+            this.container.style.right = "10px";
+
+            this.removeListeners();
+            this.properties.previousState = this.properties.state;
+            this.properties.state = "minimized";
+            this.setResizeButtonsVisibility();
+            this.minimizeDiv.title = "Maximise";
+
+            if (wrs_containsClass(this.overlay, 'wrs_stack')) {
+                this.removeClass('wrs_stack');
+            }
+            else {
+                this.removeClass('wrs_maximized');
+            }
+            this.addClass('wrs_minimized');
+        }
+    }
+
+    /**
+     * Maximizes the modal object.
+     * @ignore
+     */
+    maximize() {
+        // Saving width, height, top and bottom parameters to restore when open
+        this.saveModalProperties();
+        if (this.properties.state != 'maximized') {
+            this.properties.previousState = this.properties.state;
+            this.properties.state = 'maximized';
+        }
+        // Don't permit resize on maximize mode.
+        this.setResizeButtonsVisibility();
+
+        if (wrs_containsClass(this.overlay, 'wrs_minimized')) {
+            this.minimizeDiv.title = "Minimise";
+            this.removeClass('wrs_minimized');
+        }
+        else if (wrs_containsClass(this.overlay, 'wrs_stack')) {
+            this.container.style.left = null;
+            this.container.style.top = null;
+            this.removeClass('wrs_stack');
+        }
+
+        this.addClass('wrs_maximized');
+
+        // Set size to 80% screen with a max size.
+        this.setSize(parseInt(window.innerHeight * 0.8) , parseInt(window.innerWidth * 0.8));
+        var sizeModificated = false;
+        if (this.container.clientHeight > 700) {
+            this.container.style.height = '700px';
+            sizeModificated = true;
+        }
+        if (this.container.clientWidth > 1200) {
+            this.container.style.width  = '1200px';
+            sizeModificated = true;
+        }
+
+        // Setting modal position in center on screen.
+        this.setPosition(window.innerHeight / 2 - this.container.offsetHeight / 2, window.innerWidth / 2 - this.container.offsetWidth / 2);
+        this.recalculateScale();
+        this.recalculatePosition();
+        this.recalculateSize();
+        this.focus();
+    }
+
+    /**
+     * Sets modal size.
+     * @param  {integer} height set a height of modal with an integer
+     * @param  {integer} width set a width of modal with an integer
+     * @ignore
+     */
+    setSize(height, width) {
+        this.container.style.height = height + 'px';
+        this.container.style.width = width + 'px';
+        this.recalculateSize();
+    }
+
+    /**
+     * Sets modal position.
+     * @param  {integer} bottom set a bottom of div modal with an integer
+     * @param  {integer} right set a right of div modal with an integer
+     * @ignore
+     */
+    setPosition(bottom, right) {
+        this.container.style.bottom = bottom + 'px';
+        this.container.style.right = right + 'px';
+    }
+
+    /**
+     * Saves actual parameters of open modal object (like size and position...) to restore it
+     * once the modal object is re-opened.
+     * @ignore
+     */
+    saveModalProperties() {
+        // Saving values of modal only when modal is in stack state.
+        if (this.properties.state == 'stack') {
+            this.properties.position.bottom = parseInt(this.container.style.bottom);
+            this.properties.position.right = parseInt(this.container.style.right);
+            this.properties.size.width = parseInt(this.container.style.width);
+            this.properties.size.height = parseInt(this.container.style.height);
+        }
+    }
+
+    /**
+     * Restore previous parameters values of closed modal (like size and position) and apply this parameters in actual modal.
+     * @ignore
+     */
+    restoreModalProperties() {
+        if (this.properties.state == 'stack') {
+            // Restoring Bottom and Right values from last modal
+            this.setPosition(this.properties.position.bottom, this.properties.position.right);
+            // Restoring Height and Left values from last modal
+            this.setSize(this.properties.size.height, this.properties.size.width);
+        }
+    }
+
+    /**
+     * Set modal size.
+     * @ignore
+     */
+    recalculateSize() {
+        this.wrapper.style.width = this.container.clientWidth - 12 + 'px';
+        this.wrapper.style.height = this.container.clientHeight - 38 + 'px';
+        this.contentContainer.style.height = parseInt(this.wrapper.offsetHeight - 50) + 'px';
+    }
+
+    /**
+     * Active and disable visibility of resize buttons in modal window depend on state.
+     * @ignore
+     */
+    setResizeButtonsVisibility() {
+        if (this.properties.state == 'stack') {
+            this.resizerTL.style.visibility = 'visible';
+            this.resizerBR.style.visibility = 'visible';
+        }
+        else {
+            this.resizerTL.style.visibility = 'hidden';
+            this.resizerBR.style.visibility = 'hidden';
+        }
+    }
+
+    /**
+     * Makes an object draggable adding mouse and touch events.
+     * @ignore
+     */
+    addListeners() {
+        // Button events (maximize, minimize, stack and close).
+        this.maximizeDiv.addEventListener('click', this.maximize.bind(this), true);
+        this.stackDiv.addEventListener('click', this.stack.bind(this), true);
+        this.minimizeDiv.addEventListener('click', this.minimize.bind(this), true);
+        this.closeDiv.addEventListener('click', this.cancelAction.bind(this));
+
+        // Mouse events.
+        wrs_addEvent(window, 'mousedown', this.startDrag.bind(this));
+        wrs_addEvent(window, 'mouseup', this.stopDrag.bind(this));
+        wrs_addEvent(window, 'mousemove', this.drag.bind(this));
+        wrs_addEvent(window, 'resize', this.onWindowResize.bind(this));
+        // Key events.
+        wrs_addEvent(window, 'keydown', this.onKeyDown.bind(this));
+    }
+
+    /**
+     * Removes draggable events from an object.
+     * @ignore
+     */
+    removeListeners() {
+        // Mouse events.
+        wrs_removeEvent(window, 'mousedown', this.startDrag);
+        wrs_removeEvent(window, 'mouseup', this.stopDrag);
+        wrs_removeEvent(window, 'mousemove', this.drag);
+        wrs_removeEvent(window, 'resize', this.onWindowResize);
+        // Key events
+        wrs_removeEvent(window, 'keydown', this.onKeyDown);
+    }
+
+
+    /**
+     * Returns mouse or touch coordinates (on touch events ev.ClientX doesn't exists)
+     * @param {event} ev mouse or touch event
+     * @return {object} with the X and Y coordinates.
+     * @ignore
+     */
+    eventClient(ev) {
+        if (typeof(ev.clientX) == 'undefined' && ev.changedTouches) {
+            var client = {
+                X : ev.changedTouches[0].clientX,
+                Y : ev.changedTouches[0].clientY
+            };
+            return client;
+        }
+        else {
+            client = {
+                X : ev.clientX,
+                Y : ev.clientY
+            };
+            return client;
+        }
+    }
+
+    /**
+     * Start drag function: set the object dragDataObject with the draggable object offsets coordinates.
+     * when drag starts (on touchstart or mousedown events).
+     *
+     * @param {event} ev touchstart or mousedown event.
+     * @ignore
+     */
+    startDrag(ev) {
+        if (this.properties.state == 'minimized') {
+            return;
+        }
+        if (ev.target.className == 'wrs_modal_title') {
+            if(typeof this.dragDataObject === 'undefined' || this.dragDataObject === null) {
+                ev = ev || event;
+                // Save first click mouse point on screen
+                this.dragDataObject = {
+                    x: this.eventClient(ev).X,
+                    y: this.eventClient(ev).Y
+                };
+                // Reset last drag position when start drag
+                this.lastDrag = {
+                    x: "0px",
+                    y: "0px"
+                };
+                // Init right and bottom values for window modal if it isn't exist.
+                if(this.container.style.right == ''){
+                    this.container.style.right = "0px";
+                }
+                if(this.container.style.bottom == ''){
+                    this.container.style.bottom = "0px";
+                }
+
+                // Needed for IE11 for apply disabled mouse events on editor because iexplorer need a dinamic object to apply this property.
+                if (this.isIE11()) {
+                    // this.iframe.style['position'] = 'relative';
+                }
+                // Apply class for disable involuntary select text when drag.
+                wrs_addClass(document.body, 'wrs_noselect');
+                wrs_addClass(this.overlay, 'wrs_overlay_active');
+                // Obtain screen limits for prevent overflow.
+                this.limitWindow = this.getLimitWindow();
+            }
+        }
+
+    }
+
+    /**
+     * UpdatesdragDataObject with the draggable object coordinates when the draggable object is being moved.
+     *
+     * @param {event} ev touchmouve or mousemove events.
+     * @ignore
+     */
+    drag(ev) {
+        if (this.dragDataObject) {
+            ev.preventDefault();
+            ev = ev || event;
+            // Calculate max and min between actual mouse position and limit of screeen. It restric the movement of modal into window.
+            var limitY = Math.min(this.eventClient(ev).Y + window.pageYOffset,this.limitWindow.minPointer.y + window.pageYOffset);
+            limitY = Math.max(this.limitWindow.maxPointer.y + window.pageYOffset,limitY);
+            var limitX = Math.min(this.eventClient(ev).X + window.pageXOffset,this.limitWindow.minPointer.x + window.pageXOffset);
+            limitX = Math.max(this.limitWindow.maxPointer.x + window.pageXOffset,limitX);
+            // Substract limit with first position to obtain relative pixels increment to the anchor point.
+            var dragX = limitX - this.dragDataObject.x + "px";
+            var dragY = limitY - this.dragDataObject.y + "px";
+            // Save last valid position of modal before window overflow.
+            this.lastDrag = {
+                x: dragX,
+                y:dragY
+            };
+            // This move modal with hadware acceleration.
+            this.container.style.transform = "translate3d(" + dragX + "," + dragY + ",0)";
+            this.container.style.position = 'absolute';
+        }
+        if (this.resizeDataObject) {
+            var limitX = Math.min(this.eventClient(ev).X,window.innerWidth - this.scrollbarWidth - 7);
+            var limitY = Math.min(this.eventClient(ev).Y,window.innerHeight - 7);
+            if (limitX < 0) {
+                limitX = 0;
+            }
+
+            if (limitY < 0) {
+                limitY = 0;
+            }
+
+            var scaleMultiplier;
+            if (this.leftScale) {
+                scaleMultiplier = -1;
+            }
+            else {
+                scaleMultiplier = 1;
+            }
+            this.container.style.width = this.initialWidth + scaleMultiplier * (limitX - this.resizeDataObject.x) + 'px';
+            this.container.style.height = this.initialHeight + scaleMultiplier * (limitY - this.resizeDataObject.y) + 'px';
+            if (!this.leftScale) {
+                if (this.resizeDataObject.x - limitX - this.initialWidth < -580) {
+                    this.container.style.right = this.initialRight - (limitX - this.resizeDataObject.x) + 'px';
+                }
+                else {
+                    this.container.style.right  = this.initialRight + this.initialWidth - 580 + "px";
+                    this.container.style.width = "580px";
+                }
+                if (this.resizeDataObject.y - limitY < this.initialHeight - 338) {
+                    this.container.style.bottom = this.initialBottom - (limitY - this.resizeDataObject.y) + 'px';
+                }
+                else {
+                    this.container.style.bottom  = this.initialBottom + this.initialHeight - 338 + "px";
+                    this.container.style.height = "338px";
+                }
+            }
+            this.recalculateScale();
+            this.recalculatePosition();
+        }
+    }
+    /**
+     * Get limits of actual window to limit modal movement
+     * @return {Object} Object containing mouseX and mouseY are coordinates of actual mouse on screen.
+     * @ignore
+     */
+    getLimitWindow() {
+        // Obtain dimentions of window page.
+        var maxWidth = window.innerWidth;
+        var maxHeight = window.innerHeight;
+
+        // Calculate relative position of mouse point into window.
+        var offSetToolbarY = (this.container.offsetHeight + parseInt(this.container.style.bottom)) - (maxHeight - (this.dragDataObject.y - window.pageXOffset));
+        var offSetToolbarX = maxWidth - this.scrollbarWidth - (this.dragDataObject.x - window.pageXOffset) - parseInt(this.container.style.right);
+
+        // Calculate limits with sizes of window, modal and mouse position.
+        var minPointerY = maxHeight - this.container.offsetHeight + offSetToolbarY;
+        var maxPointerY = this.title.offsetHeight - (this.title.offsetHeight - offSetToolbarY);
+        var minPointerX = maxWidth - offSetToolbarX - this.scrollbarWidth;
+        var maxPointerX = (this.container.offsetWidth - offSetToolbarX);
+        var minPointer = {x: minPointerX,y: minPointerY};
+        var maxPointer = {x: maxPointerX,y: maxPointerY};
+        return {minPointer : minPointer, maxPointer:maxPointer};
+    }
+    /**
+     * Get Scrollbar width size of browser
+     * @ignore
+     */
+    getScrollBarWidth() {
+        // Create a paragraph with full width of page.
+        var inner = document.createElement('p');
+        inner.style.width = "100%";
+        inner.style.height = "200px";
+
+        // Create a hidden div to compare sizes.
+        var outer = document.createElement('div');
+        outer.style.position = "absolute";
+        outer.style.top = "0px";
+        outer.style.left = "0px";
+        outer.style.visibility = "hidden";
+        outer.style.width = "200px";
+        outer.style.height = "150px";
+        outer.style.overflow = "hidden";
+        outer.appendChild(inner);
+
+        document.body.appendChild(outer);
+        var widthOuter = inner.offsetWidth;
+
+        // Change type overflow of paragraph for measure scrollbar.
+        outer.style.overflow = 'scroll';
+        var widthInner = inner.offsetWidth;
+
+        // If measure is the same, we compare with internal div.
+        if (widthOuter == widthInner) {
+            widthInner = outer.clientWidth;
+        }
+        document.body.removeChild(outer);
+
+        return (widthOuter - widthInner);
+    }
+
+    /**
+     * Set the dragDataObject to null when the drag finish (touchend or mouseup events).
+     *
+     * @param {event} ev touchend or mouseup event.
+     * @ignore
+     */
+    stopDrag(ev) {
+        // Due to we have multiple events that call this function, we need only to execute the next modifiers one time,
+        // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
+        if (this.dragDataObject || this.resizeDataObject) {
+            // If modal doesn't change, it's not necessary to set position with interpolation
+            if(this.container.style.position != 'fixed'){
+                this.container.style.position = 'fixed';
+                // Fixed position makes the coords relative to the main window. So that, we need to transform
+                // the absolute coords to relative.
+                this.container.style.transform = '';
+                if (this.dragDataObject) {
+                    this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
+                    this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
+                }
+            }
+            // We make focus on editor after drag modal windows to prevent lose focus.
+            this.focus();
+            // Restore mouse events on iframe
+            // this.iframe.style['pointer-events'] = 'auto';
+            document.body.style['user-select'] = '';
+            // Restore static state of iframe if we use iexplorer
+            if (this.isIE11()) {
+                // this.iframe.style['position'] = null;
+            }
+            // Active text select event
+            wrs_removeClass(document.body, 'wrs_noselect');
+            wrs_removeClass(this.overlay, 'wrs_overlay_active');
+        }
+        this.dragDataObject = null;
+        this.resizeDataObject = null;
+        this.initialWidth = null;
+        this.leftScale = null;
+    }
+
+    /**
+     * Recalculating scale for modal when resize browser window *
+     * @ignore
+     */
+    onWindowResize() {
+        this.recalculateScrollBar();
+        this.recalculatePosition();
+        this.recalculateScale();
+    }
+
+    /**
+     * Keydown events:
+     * Esc key close modal window.
+     * Tab key tab to submit button.
+     * @param {event} ev
+     */
+    onKeyDown(ev) {
+        if (ev.key !== undefined && ev.repeat === false) {
+            // Code for detect Esc event
+            if (ev.key === "Escape" || ev.key === 'Esc') {
+                if (this.properties.open) {
+                    this.cancelAction();
+                }
+            }
+            // Code for detect Tab event
+            if (ev.key === "Tab") {
+                this.submitButton.focus();
+                ev.preventDefault();
+            }
+        }
+    }
+    /**
+     * Recalculating position for modal when resize browser window
+     * @ignore
+     */
+    recalculatePosition() {
+        this.container.style.right = Math.min(parseInt(this.container.style.right), window.innerWidth - this.scrollbarWidth - this.container.offsetWidth) + "px";
+        if(parseInt(this.container.style.right) < 0) {
+            this.container.style.right = "0px";
+        }
+        this.container.style.bottom = Math.min(parseInt(this.container.style.bottom), window.innerHeight - this.container.offsetHeight) + "px";
+        if(parseInt(this.container.style.bottom) < 0) {
+            this.container.style.bottom = "0px";
+        }
+    }
+
+    /**
+     * Recalculating scale for modal when resize browser window
+     * @ignore
+     */
+    recalculateScale() {
+        var sizeModificated = false;
+        if (parseInt(this.container.style.width) > 580) {
+            this.container.style.width = Math.min(parseInt(this.container.style.width), window.innerWidth - this.scrollbarWidth) + "px";
+            sizeModificated = true;
+        }
+        else {
+            this.container.style.width = "580px";
+            sizeModificated = true;
+        }
+        if (parseInt(this.container.style.height) > 338) {
+            this.container.style.height = Math.min(parseInt(this.container.style.height), window.innerHeight) + "px";
+            sizeModificated = true;
+        }
+        else {
+            this.container.style.height = "338px";
+            sizeModificated = true;
+        }
+        if (sizeModificated) {
+            this.recalculateSize();
+        }
+    }
+
+    /**
+     * Recalculating width of scrollBar browser
+     * @ignore
+     */
+    recalculateScrollBar() {
+        this.hasScrollBar = window.innerWidth > document.documentElement.clientWidth;
+        if(this.hasScrollBar){
+            this.scrollbarWidth = this.getScrollBarWidth();
+        }
+        else {
+            this.scrollbarWidth = 0;
+        }
+    }
+
+    /**
+     * Hide soft keyboards on IOS systems.
+     * @ignore
+     */
+    hideKeyboard() {
+        document.activeElement.blur();
+    }
+
+    /**
+     * Focus to content object
+     * @ignore
+     */
+    focus() {
+        if (this.contentManager != null && typeof this.contentManager.onFocus !== 'undefined') {
+            this.contentManager.onFocus();
+        }
+    }
+
+    /**
+     * Returns true when the device is on portrait mode.
+     * @ignore
+     */
+    portraitMode() {
+        return window.innerHeight > window.innerWidth;
+    }
+
+    /**
+     * Change container sizes when the keyboard is opened on iOS.
+     * @ignore
+     */
+    openedIosSoftkeyboard() {
+        if (!this.iosSoftkeyboardOpened && this.iosDivHeight != null && this.iosDivHeight == "100" + this.iosMeasureUnit) {
+            if (this.portraitMode()) {
+                this.setContainerHeight("63" + this.iosMeasureUnit);
+            }
+            else {
+                this.setContainerHeight("40" + this.iosMeasureUnit);
+            }
+        }
+        this.iosSoftkeyboardOpened = true;
+    }
+
+    /**
+     * Change container sizes when the keyboard is closed on iOS.
+     * @ignore
+     */
+    closedIosSoftkeyboard() {
+        this.iosSoftkeyboardOpened = false;
+        this.setContainerHeight("100" + this.iosMeasureUnit);
+    }
+
+    /**
+     * Change container sizes when orientation is changed on iOS.
+     * @ignore
+     */
+    orientationChangeIosSoftkeyboard() {
+        if (this.iosSoftkeyboardOpened) {
+            if (this.portraitMode()) {
+                this.setContainerHeight("63" + this.iosMeasureUnit);
+            }
+            else {
+                this.setContainerHeight("40" + this.iosMeasureUnit);
+            }
+        }
+        else {
+            this.setContainerHeight("100" + this.iosMeasureUnit);
+        }
+    }
+
+    /**
+     * Change container sizes when orientation is changed on Android.
+     * @ignore
+     */
+    orientationChangeAndroidSoftkeyboard() {
+        this.setContainerHeight("100%");
+    }
+
+    /**
+     * Set iframe container height.
+     * @ignore
+     */
+    setContainerHeight(height) {
+        this.iosDivHeight = height;
+        this.wrapper.style.height = height;
+        // this.editor.getElement().style.height = (this.container.offsetHeight -10) - this.controlsDiv.offsetHeight + 'px';
+    }
+
+    /**
+     * Check content of editor before close action
+     * @ignore
+     */
+    showPopUpMessage() {
+        if (this.properties.state == 'minimized') {
+            this.stack();
+        }
+        this.popup.show();
+    }
+
+    setTitle(title) {
+        this.title.innerHTML = title;
+    }
+}
 /**
  * This class shows a dialog message overlaying a dom element in order to
  * accept / cancel discart changes. The dialog can be closed i.e the overlay dissapears
@@ -5500,19 +5417,16 @@ var ModalWindow = function () {
  * }
  * @param {object} popupProperties
  */
+class PopUpMessage {
 
-
-var PopUpMessage = function () {
-    function PopUpMessage(popupProperties) {
-        _classCallCheck(this, PopUpMessage);
-
+    constructor(popupProperties) {
         this.overlay = popupProperties.overlayElement;
         this.callbacks = popupProperties.callbacks;
         this.overlayEnvolture = this.overlay.appendChild(document.createElement("div"));
         this.overlayEnvolture.setAttribute("class", "wrs_popupmessage_overlay_envolture");
 
         this.message = this.overlayEnvolture.appendChild(document.createElement("div"));
-        this.message.id = "wrs_popupmessage";
+        this.message.id = "wrs_popupmessage"
         this.message.setAttribute("class", "wrs_popupmessage_panel");
         this.message.innerHTML = popupProperties.strings.message;
 
@@ -5548,95 +5462,76 @@ var PopUpMessage = function () {
      * @param {object} parameters An object containg id, class and innerHTML button text.
      * @param {object} callback Callback method to call on click event.
      */
-
-
-    _createClass(PopUpMessage, [{
-        key: "createButton",
-        value: function createButton(parameters, callback) {
-            function popUpButton(parameters) {
-                this.element = document.createElement("button");
-                this.element.setAttribute("id", parameters.id);
-                this.element.setAttribute("class", parameters.class);
-                this.element.innerHTML = parameters.innerHTML;
-                this.element.addEventListener("click", callback);
-            }
-
-            popUpButton.prototype.getElement = function () {
-                return this.element;
-            };
-
-            return new popUpButton(parameters).getElement();
+    createButton(parameters, callback) {
+        function popUpButton(parameters) {
+            this.element = document.createElement("button");
+            this.element.setAttribute("id", parameters.id);
+            this.element.setAttribute("class", parameters.class);
+            this.element.innerHTML = parameters.innerHTML;
+            this.element.addEventListener("click", callback);
         }
 
-        /**
-         * This method show the popupmessage containing a message, and two buttons
-         * to cancel the action or close the modal dialog.
-         */
-
-    }, {
-        key: "show",
-        value: function show() {
-            if (this.overlayEnvolture.style.display != 'block') {
-                // Clear focus with blur for prevent press anykey
-                document.activeElement.blur();
-
-                // For works with Safari
-                window.focus();
-                this.overlayEnvolture.style.display = 'block';
-            } else {
-                this.overlayEnvolture.style.display = 'none';
-                _wrs_modalWindow.focus();
-            }
+        popUpButton.prototype.getElement = function() {
+            return this.element;
         }
 
-        /**
-         * This method cancel the popupMessage: the dialog dissapears revealing the overlaid element.
-         * A callback method is called (if defined). For example a method to focus the overlaid element.
-         */
+        return new popUpButton(parameters).getElement();
+    }
 
-    }, {
-        key: "cancelAction",
-        value: function cancelAction() {
-            this.overlayEnvolture.style.display = 'none';
-            if (typeof this.callbacks.cancelCallback !== 'undefined') {
-                this.callbacks.cancelCallback();
-            }
-        }
-
-        /**
-         * This method closes the popupMessage: the dialog dissapears and the close callback is called.
-         * For example to close the overlaid element.
-         */
-
-    }, {
-        key: "closeAction",
-        value: function closeAction() {
-            this.cancelAction();
-            if (typeof this.callbacks.closeCallback !== 'undefined') {
-                this.callbacks.closeCallback();
-            }
-        }
-    }]);
-
-    return PopUpMessage;
-}(); /**
-     * This class implements ModalContent interface. Manage the following:
-     * - insertion in modal object (insert(modalObject) method)
-     * - actions to be done once the modal object has been submited (submitAction() method)
-     * - updates itself when modalObject is updated with a re-open action for example (update(modalObject) method)
-     * - comunicates to modalObject if some changes have be done (hasChanges() method)
-     *
-     * @param {object} editorAttributes editor attributes. See http://docs.wiris.com/en/mathtype/mathtype_web/sdk-api/parameters
-     * for further information.
-     * @ignore
+    /**
+     * This method show the popupmessage containing a message, and two buttons
+     * to cancel the action or close the modal dialog.
      */
+    show() {
+        if (this.overlayEnvolture.style.display != 'block') {
+            // Clear focus with blur for prevent press anykey
+            document.activeElement.blur();
 
+            // For works with Safari
+            window.focus();
+            this.overlayEnvolture.style.display = 'block';
+        }
+        else {
+            this.overlayEnvolture.style.display = 'none';
+            _wrs_modalWindow.focus();
+        }
+    }
 
-var contentManager = function () {
+    /**
+     * This method cancel the popupMessage: the dialog dissapears revealing the overlaid element.
+     * A callback method is called (if defined). For example a method to focus the overlaid element.
+     */
+    cancelAction() {
+        this.overlayEnvolture.style.display = 'none';
+        if (typeof this.callbacks.cancelCallback !== 'undefined') {
+            this.callbacks.cancelCallback();
+        }
+    }
+
+    /**
+     * This method closes the popupMessage: the dialog dissapears and the close callback is called.
+     * For example to close the overlaid element.
+     */
+    closeAction() {
+        this.cancelAction();
+        if (typeof this.callbacks.closeCallback !== 'undefined') {
+            this.callbacks.closeCallback();
+        }
+    }
+}/**
+ * This class implements ModalContent interface. Manage the following:
+ * - insertion in modal object (insert(modalObject) method)
+ * - actions to be done once the modal object has been submited (submitAction() method)
+ * - updates itself when modalObject is updated with a re-open action for example (update(modalObject) method)
+ * - comunicates to modalObject if some changes have be done (hasChanges() method)
+ *
+ * @param {object} editorAttributes editor attributes. See http://docs.wiris.com/en/mathtype/mathtype_web/sdk-api/parameters
+ * for further information.
+ * @ignore
+ */
+class contentManager {
     // Editor listener.
-    function contentManager(editorAttributes) {
-        _classCallCheck(this, contentManager);
-
+    constructor(editorAttributes) {
         this.editorListener = new EditorListener();
         this.editor = null;
         this.editorAttributes = editorAttributes;
@@ -5645,7 +5540,7 @@ var contentManager = function () {
         var ua = navigator.userAgent.toLowerCase();
         this.deviceProperties = {};
         this.deviceProperties.isAndroid = ua.indexOf("android") > -1;
-        this.deviceProperties.isIOS = ua.indexOf("ipad") > -1 || ua.indexOf("iphone") > -1;
+        this.deviceProperties.isIOS = ((ua.indexOf("ipad") > -1) || (ua.indexOf("iphone") > -1));
         // Toolbar
         this.toolbar = null;
         this.loadEditor();
@@ -5656,323 +5551,272 @@ var contentManager = function () {
      * @param {object} modalObject
      * @ignore
      */
+    insert(modalObject) {
+        // Before insert the editor we update the modal object title to avoid weird render display.
+        this.updateTitle(modalObject);
+        this.insertEditor(modalObject);
+    }
 
+    /**
+     * Method to insert MathType into modal object. This method
+     * watis until editor JavaScript is loaded to insert the editor into
+     * contentContainer modal object element.
+     * @ignore
+     */
+    insertEditor(modalObject) {
+        // To know if editor JavaScript is loaded we need to wait until com.wiris.jsEditor namespace is ready.
+        if ('com' in window && 'wiris' in window.com && 'jsEditor' in window.com.wiris) {
+            this.editor = com.wiris.jsEditor.JsEditor.newInstance(this.editorAttributes);
+            this.editor.insertInto(modalObject.contentContainer);
+            this.editor.focus()
 
-    _createClass(contentManager, [{
-        key: "insert",
-        value: function insert(modalObject) {
-            // Before insert the editor we update the modal object title to avoid weird render display.
-            this.updateTitle(modalObject);
-            this.insertEditor(modalObject);
+            // Editor listener: this object manages the changes logic of editor.
+            this.editor.getEditorModel().addEditorListener(this.editorListener);
+
+            // iOS events.
+            if (modalObject.deviceProperties['isIOS']) {
+                setTimeout(function() { _wrs_modalWindow.hideKeyboard() }, 400);
+                var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
+                wrs_addEvent(formulaDisplayDiv, 'focus', modalObject.openedIosSoftkeyboard.bind(modalObject));
+                wrs_addEvent(formulaDisplayDiv, 'blur', modalObject.closedIosSoftkeyboard.bind(modalObject));
+            }
+
+            this.onOpen(modalObject);
+            this.editor.onContentChanged
+        } else {
+            setTimeout(contentManager.prototype.insertEditor.bind(this, modalObject), 100);
         }
+    }
 
-        /**
-         * Method to insert MathType into modal object. This method
-         * watis until editor JavaScript is loaded to insert the editor into
-         * contentContainer modal object element.
-         * @ignore
-         */
-
-    }, {
-        key: "insertEditor",
-        value: function insertEditor(modalObject) {
-            // To know if editor JavaScript is loaded we need to wait until com.wiris.jsEditor namespace is ready.
-            if ('com' in window && 'wiris' in window.com && 'jsEditor' in window.com.wiris) {
-                this.editor = com.wiris.jsEditor.JsEditor.newInstance(this.editorAttributes);
-                this.editor.insertInto(modalObject.contentContainer);
-                this.editor.focus();
-
-                // Editor listener: this object manages the changes logic of editor.
-                this.editor.getEditorModel().addEditorListener(this.editorListener);
-
-                // iOS events.
-                if (modalObject.deviceProperties['isIOS']) {
-                    setTimeout(function () {
-                        _wrs_modalWindow.hideKeyboard();
-                    }, 400);
-                    var formulaDisplayDiv = document.getElementsByClassName('wrs_formulaDisplay')[0];
-                    wrs_addEvent(formulaDisplayDiv, 'focus', modalObject.openedIosSoftkeyboard.bind(modalObject));
-                    wrs_addEvent(formulaDisplayDiv, 'blur', modalObject.closedIosSoftkeyboard.bind(modalObject));
-                }
-
-                this.onOpen(modalObject);
-                this.editor.onContentChanged;
-            } else {
-                setTimeout(contentManager.prototype.insertEditor.bind(this, modalObject), 100);
-            }
-        }
-
-        /**
-         * Loads MathType ediitor JavaScript.
-         * @ignore
-         */
-
-    }, {
-        key: "loadEditor",
-        value: function loadEditor() {
-            var queryParams = window.location.search.substring(1).split("&");
-            var version = "";
-            for (var i = 0; i < queryParams.length; i++) {
-                var pos = queryParams[i].indexOf("v=");
-                if (pos >= 0) {
-                    version = queryParams[i].substring(2);
-                }
-            }
-
-            var script = document.createElement('script');
-            script.type = 'text/javascript';
-            var editorUrl = _wrs_conf_editorUrl;
-            // Change to https if necessary.
-            // We create an object url for parse url string and work more efficiently.
-            var urlObject = document.createElement('a');
-            urlObject.href = editorUrl;
-
-            if (window.location.href.indexOf("https://") == 0) {
-                // It check if browser is https and configuration is http. If this is so, we will replace protocol.
-                if (urlObject.protocol == 'http:') {
-                    urlObject.protocol = 'https:';
-                }
-            }
-
-            // Check protocol and remove port if it's standard.
-            if (urlObject.port == '80' || urlObject.port == '443') {
-                editorUrl = urlObject.protocol + '//' + urlObject.hostname + '/' + urlObject.pathname;
-            } else {
-                editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + '/' + urlObject.pathname;
-            }
-
-            // Editor stats.
-            var statEditor = _wrs_conf_editor;
-            var statSaveMode = _wrs_conf_saveMode;
-            var statVersion = _wrs_conf_version;
-
-            script.src = editorUrl + "?lang=" + _wrs_int_langCode + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
-            document.getElementsByTagName('head')[0].appendChild(script);
-        }
-
-        /**
-        * Set the editor initial content: an existing formula or a blank MathML
-        */
-
-    }, {
-        key: "setInitialContent",
-        value: function setInitialContent() {
-            if (!_wrs_isNewElement) {
-                var mathml = wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute));
-                this.setMathML(mathml);
+    /**
+     * Loads MathType ediitor JavaScript.
+     * @ignore
+     */
+    loadEditor() {
+        var queryParams = window.location.search.substring(1).split("&");
+        var version = "";
+        for (var i = 0; i < queryParams.length; i++) {
+            var pos = queryParams[i].indexOf("v=");
+            if (pos >= 0) {
+                version = queryParams[i].substring(2);
             }
         }
 
-        /**
-         * Set a MathML into editor.
-         * @param {string} mathml MathML string.
-         * @param {bool} focusDisabled if true editor don't get focus after the MathML is set. false by default.
-         * @ignore
-         */
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        var editorUrl = _wrs_conf_editorUrl;
+        // Change to https if necessary.
+        // We create an object url for parse url string and work more efficiently.
+        var urlObject = document.createElement('a');
+        urlObject.href = editorUrl;
 
-    }, {
-        key: "setMathML",
-        value: function setMathML(mathml, focusDisabled) {
-            // By default focus is enabled
-            if (typeof focusDisabled === 'undefined') {
-                focusDisabled = false;
-            }
-            // Using setMathML method is not a change produced by the user but for the API
-            // so we set to false the contentChange property of editorListener.
-            this.editor.setMathMLWithCallback(mathml, function () {
-                this.editorListener.setWaitingForChanges(true);
-            }.bind(this));
-            // We need to wait a little until the callback finish.
-            setTimeout(function () {
-                this.editorListener.setIsContentChanged(false);
-            }.bind(this), 500);
-
-            // In some scenarios - like closing modal object - editor mustn't be focused.
-            if (!focusDisabled) {
-                this.onFocus();
+        if (window.location.href.indexOf("https://") == 0) {
+            // It check if browser is https and configuration is http. If this is so, we will replace protocol.
+            if (urlObject.protocol == 'http:') {
+                urlObject.protocol = 'https:';
             }
         }
 
-        /**
-         * Set focus on editor.
-         * @ignore
-         */
-
-    }, {
-        key: "onFocus",
-        value: function onFocus() {
-            // TODO: Check editor avaliable.
-            if (typeof this.editor !== 'undefined' && this.editor != null) {
-                this.editor.focus();
-            }
+        // Check protocol and remove port if it's standard.
+        if (urlObject.port == '80' || urlObject.port == '443') {
+            editorUrl = urlObject.protocol + '//' + urlObject.hostname + '/' + urlObject.pathname;
+        } else {
+            editorUrl = urlObject.protocol + '//' + urlObject.hostname + ':' + urlObject.port + '/' + urlObject.pathname;
         }
 
-        /**
-         * Mandatory method: modal object calls this method to execute a callback action
-         * on submit.
-         * This method updates the edition area (inserting a new formula or update an older one),
-         * and focus the edition area too.
-         * @ignore
-         */
+        // Editor stats.
+        var statEditor = _wrs_conf_editor;
+        var statSaveMode = _wrs_conf_saveMode;
+        var statVersion = _wrs_conf_version;
 
-    }, {
-        key: "submitAction",
-        value: function submitAction() {
-            var mathML = this.editor.getMathML();
-            // Add class for custom editors.
-            if (wrs_int_getCustomEditorEnabled() != null) {
-                mathML = wrs_mathmlAddEditorAttribute(mathML);
-            }
-            var mathmlEntitiesEncoded = wrs_mathmlEntities(mathML);
-            wrs_int_updateFormula(mathmlEntitiesEncoded, null, _wrs_int_langCode);
-            wrs_int_disableCustomEditors();
-            wrs_int_notifyWindowClosed();
-            _wrs_editMode = window._wrs_conf_defaultEditMode ? _wrs_conf_defaultEditMode : 'images';
+        script.src = editorUrl + "?lang=" + _wrs_int_langCode + '&stats-editor=' + statEditor + '&stats-mode=' + statSaveMode + '&stats-version=' + statVersion;
+        document.getElementsByTagName('head')[0].appendChild(script);
+    }
 
-            // Set disabled focus to prevent lost focus.
-            this.setEmptyMathML();
-            wrs_int_disableCustomEditors();
-            // Reconvering editing area focus.
-            setTimeout(function () {
+    /**
+    * Set the editor initial content: an existing formula or a blank MathML
+    */
+    setInitialContent() {
+        if (!_wrs_isNewElement) {
+            var mathml = wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute));
+            this.setMathML(mathml);
+        }
+    }
+
+    /**
+     * Set a MathML into editor.
+     * @param {string} mathml MathML string.
+     * @param {bool} focusDisabled if true editor don't get focus after the MathML is set. false by default.
+     * @ignore
+     */
+    setMathML(mathml, focusDisabled) {
+        // By default focus is enabled
+        if (typeof focusDisabled === 'undefined') {
+            focusDisabled = false;
+        }
+        // Using setMathML method is not a change produced by the user but for the API
+        // so we set to false the contentChange property of editorListener.
+        this.editor.setMathMLWithCallback(mathml, function() {
+            this.editorListener.setWaitingForChanges(true);
+        }.bind(this));
+        // We need to wait a little until the callback finish.
+        setTimeout(function(){
+            this.editorListener.setIsContentChanged(false);}.bind(this), 500);
+
+        // In some scenarios - like closing modal object - editor mustn't be focused.
+        if (!focusDisabled){
+            this.onFocus();
+        }
+    }
+
+    /**
+     * Set focus on editor.
+     * @ignore
+     */
+    onFocus() {
+        // TODO: Check editor avaliable.
+        if (typeof this.editor !== 'undefined' && this.editor != null) {
+            this.editor.focus();
+        }
+    }
+
+    /**
+     * Mandatory method: modal object calls this method to execute a callback action
+     * on submit.
+     * This method updates the edition area (inserting a new formula or update an older one),
+     * and focus the edition area too.
+     * @ignore
+     */
+    submitAction() {
+        var mathML = this.editor.getMathML();
+        // Add class for custom editors.
+        if (wrs_int_getCustomEditorEnabled() != null) {
+            mathML = wrs_mathmlAddEditorAttribute(mathML);
+        }
+        var mathmlEntitiesEncoded = wrs_mathmlEntities(mathML);
+        wrs_int_updateFormula(mathmlEntitiesEncoded, null, _wrs_int_langCode);
+        wrs_int_disableCustomEditors();
+        wrs_int_notifyWindowClosed();
+        _wrs_editMode = (window._wrs_conf_defaultEditMode) ? _wrs_conf_defaultEditMode : 'images';
+
+        // Set disabled focus to prevent lost focus.
+        this.setEmptyMathML();
+        wrs_int_disableCustomEditors();
+        // Reconvering editing area focus.
+        setTimeout(
+            function() {
                 if (typeof _wrs_currentEditor !== 'undefined' && _wrs_currentEditor) {
                     _wrs_currentEditor.focus();
                 }
             }, 100);
+    }
+
+    /**
+     * Set an empty MathML into the editor in order to clean the edit area.
+     * @ignore
+     */
+    setEmptyMathML() {
+        // As second argument we pass
+        if (this.deviceProperties.isAndroid || this.deviceProperties.isIOS) {
+            // We need to set a empty annotation in order to maintain editor in Hand mode.
+            this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+        } else {
+            this.setMathML('<math/>', true);
         }
+    }
 
-        /**
-         * Set an empty MathML into the editor in order to clean the edit area.
-         * @ignore
-         */
+    /**
+     * Mandatory method: modal object calls this method when is updated, for example re-editing a formula when the
+     * editor is open with another formula. This method updates the editor content (with an empty MathML or an exising formula),
+     * updates - if needed - the editor toolbar (math --> chem or chem --> math) and recover the focus.
+     * @param {object} modalObject
+     * @ignore
+     */
+    onOpen(modalObject) {
+        if (_wrs_isNewElement) {
+            this.setEmptyMathML();
+            this.lastImageWasNew = true;
+        }
+        else {
+            this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
+            this.lastImageWasNew = false;
+        }
+        this.updateToolbar(modalObject);
+        this.onFocus();
+    }
 
-    }, {
-        key: "setEmptyMathML",
-        value: function setEmptyMathML() {
-            // As second argument we pass
-            if (this.deviceProperties.isAndroid || this.deviceProperties.isIOS) {
-                // We need to set a empty annotation in order to maintain editor in Hand mode.
-                this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
-            } else {
-                this.setMathML('<math/>', true);
+    /**
+     * Sets the correct toolbar depending if exist other custom toolbars at the same time (e.g: Chemistry)
+     * @ignore
+     */
+    updateToolbar(modalObject) {
+        this.updateTitle(modalObject);
+        var customEditor;
+        if (customEditor = wrs_int_getCustomEditorEnabled()) {
+            var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
+            if (this.toolbar == null || this.toolbar != toolbar) {
+                this.setToolbar(toolbar);
+            }
+        } else {
+            var toolbar = this.getToolbar();
+            if (this.toolbar == null || this.toolbar != toolbar) {
+                this.setToolbar(toolbar);
+                wrs_int_disableCustomEditors();
             }
         }
-
-        /**
-         * Mandatory method: modal object calls this method when is updated, for example re-editing a formula when the
-         * editor is open with another formula. This method updates the editor content (with an empty MathML or an exising formula),
-         * updates - if needed - the editor toolbar (math --> chem or chem --> math) and recover the focus.
-         * @param {object} modalObject
-         * @ignore
-         */
-
-    }, {
-        key: "onOpen",
-        value: function onOpen(modalObject) {
-            if (_wrs_isNewElement) {
-                this.setEmptyMathML();
-                this.lastImageWasNew = true;
-            } else {
-                this.setMathML(wrs_mathmlDecode(_wrs_temporalImage.getAttribute(_wrs_conf_imageMathmlAttribute)));
-                this.lastImageWasNew = false;
-            }
-            this.updateToolbar(modalObject);
-            this.onFocus();
+    }
+    /**
+     * Updates the modalObject title: if a custom editor (with a custom toolbar) is enabled
+     * picks the custom editor title. Otherwise default title.
+     * @param {object} modalObject
+     * @ignore
+     */
+    updateTitle(modalObject) {
+        var customEditor;
+        if (customEditor = wrs_int_getCustomEditorEnabled()) {
+            modalObject.setTitle(customEditor.title);
+        } else {
+            modalObject.setTitle('MathType');
         }
-
-        /**
-         * Sets the correct toolbar depending if exist other custom toolbars at the same time (e.g: Chemistry)
-         * @ignore
-         */
-
-    }, {
-        key: "updateToolbar",
-        value: function updateToolbar(modalObject) {
-            this.updateTitle(modalObject);
-            var customEditor;
-            if (customEditor = wrs_int_getCustomEditorEnabled()) {
-                var toolbar = customEditor.toolbar ? customEditor.toolbar : _wrs_int_wirisProperties['toolbar'];
-                if (this.toolbar == null || this.toolbar != toolbar) {
-                    this.setToolbar(toolbar);
-                }
-            } else {
-                var toolbar = this.getToolbar();
-                if (this.toolbar == null || this.toolbar != toolbar) {
-                    this.setToolbar(toolbar);
-                    wrs_int_disableCustomEditors();
-                }
-            }
+    }
+    /**
+     * Returns toolbar depending on the configuration local or serverside.
+     * @ignore
+     */
+    getToolbar() {
+        var toolbar = (typeof _wrs_conf_editorParameters == 'undefined' || typeof _wrs_conf_editorParameters['toolbar'] == 'undefined') ? 'general' : _wrs_conf_editorParameters['toolbar'];
+        if(toolbar == 'general'){
+            toolbar = (typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined') ? 'general' : _wrs_int_wirisProperties['toolbar'];
         }
-        /**
-         * Updates the modalObject title: if a custom editor (with a custom toolbar) is enabled
-         * picks the custom editor title. Otherwise default title.
-         * @param {object} modalObject
-         * @ignore
-         */
+        return toolbar;
+    }
 
-    }, {
-        key: "updateTitle",
-        value: function updateTitle(modalObject) {
-            var customEditor;
-            if (customEditor = wrs_int_getCustomEditorEnabled()) {
-                modalObject.setTitle(customEditor.title);
-            } else {
-                modalObject.setTitle('MathType');
-            }
-        }
-        /**
-         * Returns toolbar depending on the configuration local or serverside.
-         * @ignore
-         */
+    /**
+     * Set a toolbar into editor.
+     * @param {string} toolbar toolbar name.
+     * @ignore
+     */
+    setToolbar(toolbar) {
+        this.toolbar = toolbar;
+        this.editor.setParams({'toolbar': this.toolbar});
+    }
 
-    }, {
-        key: "getToolbar",
-        value: function getToolbar() {
-            var toolbar = typeof _wrs_conf_editorParameters == 'undefined' || typeof _wrs_conf_editorParameters['toolbar'] == 'undefined' ? 'general' : _wrs_conf_editorParameters['toolbar'];
-            if (toolbar == 'general') {
-                toolbar = typeof _wrs_int_wirisProperties == 'undefined' || typeof _wrs_int_wirisProperties['toolbar'] == 'undefined' ? 'general' : _wrs_int_wirisProperties['toolbar'];
-            }
-            return toolbar;
-        }
-
-        /**
-         * Set a toolbar into editor.
-         * @param {string} toolbar toolbar name.
-         * @ignore
-         */
-
-    }, {
-        key: "setToolbar",
-        value: function setToolbar(toolbar) {
-            this.toolbar = toolbar;
-            this.editor.setParams({ 'toolbar': this.toolbar });
-        }
-
-        /**
-         * Returns true if the content of the editor has been changed. The logic of the changes
-         * is delegated to editorListener object.
-         * @ignore
-         */
-
-    }, {
-        key: "hasChanges",
-        value: function hasChanges() {
-            return !this.editor.isFormulaEmpty() && this.editorListener.getIsContentChanged();
-        }
-    }]);
-
-    return contentManager;
-}();
+    /**
+     * Returns true if the content of the editor has been changed. The logic of the changes
+     * is delegated to editorListener object.
+     * @ignore
+     */
+    hasChanges() {
+        return (!this.editor.isFormulaEmpty() && this.editorListener.getIsContentChanged());
+    }
+}
 /**
  * EditorListener class. This class implement EditorListener interface
  * and contains the logic to determine if editor has been changed or not.
  * @ignore
  */
-
-
-var EditorListener = function () {
-    function EditorListener() {
-        _classCallCheck(this, EditorListener);
-
+class EditorListener {
+    constructor() {
         this.isContentChanged = false;
         this.waitingForChanges = false;
     }
@@ -5981,91 +5825,59 @@ var EditorListener = function () {
      * EditorListener method set if content is changed
      * @ignore
      */
-
-
-    _createClass(EditorListener, [{
-        key: "setIsContentChanged",
-        value: function setIsContentChanged(value) {
-            this.isContentChanged = value;
+    setIsContentChanged (value) {
+        this.isContentChanged = value;
+    };
+    /**
+     * EditorListener method to get if content is changed
+     * @ignore
+     */
+    getIsContentChanged (value) {
+        return this.isContentChanged;
+    };
+    /**
+     * EditorListener method to wait changes
+     * @ignore
+     */
+    setWaitingForChanges (value) {
+        this.waitingForChanges = value;
+    };
+    /**
+     * EditorListener method to overwrite
+     * @ignore
+     */
+    caretPositionChanged (editor) {};
+    /**
+     * EditorListener method to overwrite
+     * @ignore
+     */
+    clipboardChanged (editor) {};
+    /**
+     * EditorListener method to set if content is changed
+     * @ignore
+     */
+    contentChanged (editor) {
+        if (this.waitingForChanges === true && this.isContentChanged === false) {
+            this.isContentChanged = true;
         }
-    }, {
-        key: "getIsContentChanged",
-
-        /**
-         * EditorListener method to get if content is changed
-         * @ignore
-         */
-        value: function getIsContentChanged(value) {
-            return this.isContentChanged;
-        }
-    }, {
-        key: "setWaitingForChanges",
-
-        /**
-         * EditorListener method to wait changes
-         * @ignore
-         */
-        value: function setWaitingForChanges(value) {
-            this.waitingForChanges = value;
-        }
-    }, {
-        key: "caretPositionChanged",
-
-        /**
-         * EditorListener method to overwrite
-         * @ignore
-         */
-        value: function caretPositionChanged(editor) {}
-    }, {
-        key: "clipboardChanged",
-
-        /**
-         * EditorListener method to overwrite
-         * @ignore
-         */
-        value: function clipboardChanged(editor) {}
-    }, {
-        key: "contentChanged",
-
-        /**
-         * EditorListener method to set if content is changed
-         * @ignore
-         */
-        value: function contentChanged(editor) {
-            if (this.waitingForChanges === true && this.isContentChanged === false) {
-                this.isContentChanged = true;
-            }
-        }
-        /**
-         * EditorListener method to overwrite
-         * @ignore
-         */
-
-    }, {
-        key: "styleChanged",
-        value: function styleChanged(editor) {}
-    }, {
-        key: "transformationReceived",
-
-        /**
-         * EditorListener method to overwrite
-         * @ignore
-         */
-        value: function transformationReceived(editor) {}
-    }]);
-
-    return EditorListener;
-}(); // TODO: Methods to static?
+    }
+    /**
+     * EditorListener method to overwrite
+     * @ignore
+     */
+    styleChanged (editor) {};
+    /**
+     * EditorListener method to overwrite
+     * @ignore
+     */
+    transformationReceived (editor) {}
+}// TODO: Methods to static?
 /**
  * StringManager class to use strings in code correctly with control.
  * @ignore
  */
-
-
-var StringManager = function () {
-    function StringManager() {
-        _classCallCheck(this, StringManager);
-
+class StringManager {
+    constructor() {
         // Strings are empty when it creates, it set when calls load method.
         this.strings = null;
         this.stringsLoaded = false;
@@ -6077,39 +5889,27 @@ var StringManager = function () {
      * @return string A text that you want or key if it doesn't exist.
      * @ignore
      */
-
-
-    _createClass(StringManager, [{
-        key: "getString",
-        value: function getString(key) {
-            // Wait 200ms and recall this method if strings aren't load.
-            if (!this.stringsLoaded) {
-                setTimeout(this.getString.bind(this, key), 100);
-                return;
-            }
-            if (key in this.strings) {
-                return this.strings[key];
-            }
-            return key;
+   getString(key) {
+        // Wait 200ms and recall this method if strings aren't load.
+        if (!this.stringsLoaded) {
+            setTimeout(this.getString.bind(this, key), 100);
+            return;
         }
-        /**
-         * This method load all strings to the manager and unset it for prevent bad usage.
-         * @param  {array} String array of language
-         * @ignore
-         */
-
-    }, {
-        key: "loadStrings",
-        value: function loadStrings(langStrings) {
-            if (!this.stringsLoaded) {
-                this.strings = langStrings;
-                // Activate variable to unlock getStrings
-                this.stringsLoaded = true;
-            }
+        if (key in this.strings) {
+            return this.strings[key];
         }
-    }]);
-
-    return StringManager;
-}();
-
-var _wrs_conf_core_loaded = true;
+        return key;
+    }
+    /**
+     * This method load all strings to the manager and unset it for prevent bad usage.
+     * @param  {array} String array of language
+     * @ignore
+     */
+   loadStrings(langStrings) {
+        if (!this.stringsLoaded) {
+            this.strings = langStrings;
+            // Activate variable to unlock getStrings
+            this.stringsLoaded = true;
+        }
+    }
+}var _wrs_conf_core_loaded = true;

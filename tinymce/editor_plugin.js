@@ -1,6 +1,6 @@
 // Define variables needed by core/core.js.
 var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
-var _wrs_plugin_version = "7.3.0.1389";
+var _wrs_plugin_version = "7.4.0.1390";
 var _wrs_int_conf_async = true;
 var _wrs_baseURL;
 
@@ -220,7 +220,7 @@ var _wrs_int_langCode = 'en';
                         if (!editor.getParam('fullscreen_is_enabled') && content !== ""){
 
                             // We set content in html because other tiny plugins need data-mce
-                            // and this is not posibil with raw format
+                            // and this is not posibil with raw format.
                             editor.setContent(wrs_initParse(content, language), {format: "html"});
                             // This clean undoQueue for prevent onChange and Dirty state.
                             editor.undoManager.clear();
@@ -325,12 +325,12 @@ var _wrs_int_langCode = 'en';
                     }
                 });
             }
-            // We use a mutation to oberseve iframe of tiny and filter to remove data-mce
+            // We use a mutation to oberseve iframe of tiny and filter to remove data-mce.
             const observerConfig = { attributes: true, childList: true, characterData: true, subtree: true };
             function onMutations(mutations) {
                 Array.prototype.forEach.call(mutations,function(mutation) {
                     Array.prototype.forEach.call(mutation.addedNodes,function(node) {
-                        // We search only in element nodes
+                        // We search only in element nodes.
                         if(node.nodeType == 1){
                             Array.prototype.forEach.call(node.getElementsByClassName(_wrs_conf_imageClassName),function(image) {
                                 image.removeAttribute('data-mce-src');
@@ -341,7 +341,7 @@ var _wrs_int_langCode = 'en';
                 });
             }
             var mutationInstance = new MutationObserver(onMutations);
-            // We wait for iframe definition for observe this
+            // We wait for iframe definition for observe this.
             function waitForIframeBody() {
                 if(typeof editor.contentDocument != 'undefined') {
                     mutationInstance.observe(editor.getBody(), observerConfig);
