@@ -1214,10 +1214,6 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
 
         if (node.nodeType == 3) {
             // TEXT_NODE.
-            if (range.startOffset != range.endOffset) {
-                return null;
-            }
-
             return {
                 'node': node,
                 'caretPosition': range.startOffset
@@ -4480,6 +4476,11 @@ var ModalWindow = function () {
 
             this.properties.open = true;
             this.properties.created = true;
+
+            // If actual language is arabic modal starts at left of window browser
+            if (this.isRTL(_wrs_int_langCode)) {
+                this.container.style.right = window.innerWidth - this.scrollbarWidth - this.container.offsetWidth + 'px';
+            }
         }
 
         /**
@@ -4749,6 +4750,20 @@ var ModalWindow = function () {
             return false;
         }
 
+        /**
+         * @param {string} actual language to check if it's rtl
+         * @return {boolean} return true if current language is type RTL
+         * @ignore
+         */
+
+    }, {
+        key: "isRTL",
+        value: function isRTL(language) {
+            if (_wrs_int_langCode == 'ar' || _wrs_int_langCode == 'he') {
+                return true;
+            }
+            return false;
+        }
         /**
          * Adds a class to all modal DOM elements.
          * @param {string} cls
@@ -5193,7 +5208,6 @@ var ModalWindow = function () {
                 };
                 // This move modal with hadware acceleration.
                 this.container.style.transform = "translate3d(" + dragX + "," + dragY + ",0)";
-                this.container.style.position = 'absolute';
             }
             if (this.resizeDataObject) {
                 var limitX = Math.min(this.eventClient(ev).X, window.innerWidth - this.scrollbarWidth - 7);
@@ -5312,15 +5326,10 @@ var ModalWindow = function () {
             // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
             if (this.dragDataObject || this.resizeDataObject) {
                 // If modal doesn't change, it's not necessary to set position with interpolation
-                if (this.container.style.position != 'fixed') {
-                    this.container.style.position = 'fixed';
-                    // Fixed position makes the coords relative to the main window. So that, we need to transform
-                    // the absolute coords to relative.
-                    this.container.style.transform = '';
-                    if (this.dragDataObject) {
-                        this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
-                        this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
-                    }
+                this.container.style.transform = '';
+                if (this.dragDataObject) {
+                    this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
+                    this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
                 }
                 // We make focus on editor after drag modal windows to prevent lose focus.
                 this.focus();
@@ -5770,6 +5779,10 @@ var contentManager = function () {
                 this.editor = com.wiris.jsEditor.JsEditor.newInstance(this.editorAttributes);
                 this.editor.insertInto(modalObject.contentContainer);
                 this.editor.focus();
+                // Setting div in rtl in case of it's activated.
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.editor.element.style.direction = 'rtl';
+                }
 
                 // Editor listener: this object manages the changes logic of editor.
                 this.editor.getEditorModel().addEditorListener(this.editorListener);
@@ -5785,7 +5798,6 @@ var contentManager = function () {
                 }
 
                 this.onOpen(modalObject);
-                this.editor.onContentChanged;
             } else {
                 setTimeout(contentManager.prototype.insertEditor.bind(this, modalObject), 100);
             }
@@ -5940,9 +5952,18 @@ var contentManager = function () {
             // As second argument we pass
             if (this.deviceProperties.isAndroid || this.deviceProperties.isIOS) {
                 // We need to set a empty annotation in order to maintain editor in Hand mode.
-                this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                // Adding dir rtl in case of it's activated.
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.setMathML('<math dir="rtl"><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                } else {
+                    this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                }
             } else {
-                this.setMathML('<math/>', true);
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.setMathML('<math dir="rtl"/>', true);
+                } else {
+                    this.setMathML('<math/>', true);
+                }
             }
         }
 
