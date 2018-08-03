@@ -1,6 +1,6 @@
 // Configuration.
 var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
-var _wrs_plugin_version = "7.4.0.1390";
+var _wrs_plugin_version = "7.5.0.1391";
 var _wrs_int_conf_async = true;
 
 // Stats editor (needed by core/editor.js).

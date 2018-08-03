@@ -960,12 +960,12 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
         while (position == -1) {
             currentNode = currentNode.nextSibling;
 
-            if (!currentNode || currentNode.nodeType != 3) {
+            if (!currentNode) {
                 // TEXT_NODE.
                 return null; // Not found.
             }
 
-            position = currentNode.nodeValue.indexOf(latexTags.close);
+            position = currentNode.nodeValue ? currentNode.nodeValue.indexOf(latexTags.close) : -1;
         }
 
         return {
@@ -1027,7 +1027,7 @@ function wrs_getLatexFromTextNode(textNode, caretPosition, latexTags) {
             if (currentNode == end.node) {
                 latex += end.node.nodeValue.substring(0, end.position - tagLength);
             } else {
-                latex += currentNode.nodeValue;
+                latex += currentNode.nodeValue ? currentNode.nodeValue : '';
             }
         } while (currentNode != end.node);
     }
@@ -1214,10 +1214,6 @@ function wrs_getSelectedItem(target, isIframe, forceGetSelection) {
 
         if (node.nodeType == 3) {
             // TEXT_NODE.
-            if (range.startOffset != range.endOffset) {
-                return null;
-            }
-
             return {
                 'node': node,
                 'caretPosition': range.startOffset
@@ -1580,151 +1576,138 @@ function wrs_getElementsByNameFromString(code, name, autoClosed) {
  * @ignore
  */
 function wrs_insertElementOnSelection(element, focusElement, windowTarget) {
-    try {
-        // Integration function
-        // If wrs_int_insertElementOnSelection function exists on
-        // integration script can call focus method from the editor instance.
-        // For example, on CKEditor calls CKEditorInstance.focus() method.
-        // With this method we can call proper focus methods which in some scenarios
-        // help's MathType to focus properly on the current editor window.
-        if (typeof wrs_int_insertElementOnSelection !== 'undefined') {
-            wrs_int_insertElementOnSelection();
-        }
-        if (typeof focusElement.frameElement !== 'undefined') {
-            var get_browser = function get_browser() {
-                var ua = navigator.userAgent;
-                if (ua.search("Edge/") >= 0) {
-                    return "EDGE";
-                } else if (ua.search("Chrome/") >= 0) {
-                    return "CHROME";
-                } else if (ua.search("Trident/") >= 0) {
-                    return "IE";
-                } else if (ua.search("Firefox/") >= 0) {
-                    return "FIREFOX";
-                } else if (ua.search("Safari/") >= 0) {
-                    return "SAFARI";
-                }
-            };
-
-            var browserName = get_browser();
-            // Iexplorer, Edge and Safari can't focus into iframe
-            if (browserName == 'SAFARI' || browserName == 'IE' || browserName == 'EDGE') {
-                focusElement.focus();
-            } else {
-                focusElement.frameElement.focus();
+    if (typeof focusElement.frameElement !== 'undefined') {
+        var get_browser = function get_browser() {
+            var ua = navigator.userAgent;
+            if (ua.search("Edge/") >= 0) {
+                return "EDGE";
+            } else if (ua.search("Chrome/") >= 0) {
+                return "CHROME";
+            } else if (ua.search("Trident/") >= 0) {
+                return "IE";
+            } else if (ua.search("Firefox/") >= 0) {
+                return "FIREFOX";
+            } else if (ua.search("Safari/") >= 0) {
+                return "SAFARI";
             }
-        } else {
+        };
+
+        var browserName = get_browser();
+        // Iexplorer, Edge and Safari can't focus into iframe
+        if (browserName == 'SAFARI' || browserName == 'IE' || browserName == 'EDGE') {
             focusElement.focus();
-        }
-
-        if (_wrs_isNewElement) {
-            if (focusElement.type == "textarea") {
-                wrs_updateTextarea(focusElement, element.textContent);
-            } else if (document.selection && document.getSelection == 0) {
-                var range = windowTarget.document.selection.createRange();
-                windowTarget.document.execCommand('InsertImage', false, element.src);
-
-                if (!('parentElement' in range)) {
-                    windowTarget.document.execCommand('delete', false);
-                    range = windowTarget.document.selection.createRange();
-                    windowTarget.document.execCommand('InsertImage', false, element.src);
-                }
-
-                if ('parentElement' in range) {
-                    var temporalObject = range.parentElement();
-
-                    if (temporalObject.nodeName.toUpperCase() == 'IMG') {
-                        temporalObject.parentNode.replaceChild(element, temporalObject);
-                    } else {
-                        // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
-                        range.pasteHTML(wrs_createObjectCode(element));
-                    }
-                }
-            } else {
-                var selection = windowTarget.getSelection();
-                // We have use wrs_range beacuse IExplorer delete selection when select another part of text.
-                if (_wrs_range) {
-                    var range = _wrs_range;
-                    _wrs_range = null;
-                } else {
-
-                    try {
-                        var range = selection.getRangeAt(0);
-                    } catch (e) {
-                        var range = windowTarget.document.createRange();
-                    }
-                }
-                selection.removeAllRanges();
-
-                range.deleteContents();
-
-                var node = range.startContainer;
-                var position = range.startOffset;
-
-                if (node.nodeType == 3) {
-                    // TEXT_NODE.
-                    node = node.splitText(position);
-                    node.parentNode.insertBefore(element, node);
-                    node = node.parentNode;
-                } else if (node.nodeType == 1) {
-                    // ELEMENT_NODE.
-                    node.insertBefore(element, node.childNodes[position]);
-                }
-                // Fix to set the caret after the inserted image.
-                range.selectNode(element);
-                // Integration function.
-                // If wrs_int_setCaretPosition function exists on
-                // integration script can call caret method from the editor instance.
-                // With this method we can call proper specific editor methods which in some scenarios
-                // help's MathType to set caret position properly on the current editor window.
-                if (typeof wrs_int_selectRange != 'undefined') {
-                    wrs_int_selectRange(range);
-                }
-                // Selection collapse must have to do it after the function 'wrs_int_selectRange' because
-                // can be that the range was changed and the selection needs to be updated.
-                position = range.endOffset;
-                selection.collapse(node, position);
-            }
-        } else if (_wrs_temporalRange) {
-            if (document.selection && document.getSelection == 0) {
-                _wrs_isNewElement = true;
-                _wrs_temporalRange.select();
-                wrs_insertElementOnSelection(element, focusElement, windowTarget);
-            } else {
-                var parentNode = _wrs_temporalRange.startContainer;
-                _wrs_temporalRange.deleteContents();
-                _wrs_temporalRange.insertNode(element);
-            }
-        } else if (focusElement.type == "textarea") {
-            var item;
-            // Wrapper for some integrations that can have special behaviours to show latex.
-            if (typeof wrs_int_getSelectedItem != 'undefined') {
-                item = wrs_int_getSelectedItem(focusElement, false);
-            } else {
-                item = wrs_getSelectedItemOnTextarea(focusElement);
-            }
-            wrs_updateExistingFormulaOnTextarea(focusElement, element.textContent, item.startPosition, item.endPosition);
         } else {
-            var placeCaretAfterNode = function placeCaretAfterNode(node) {
-                if (typeof window.getSelection != "undefined") {
-                    var range = windowTarget.document.createRange();
-                    range.setStartAfter(node);
-                    range.collapse(true);
-                    var selection = windowTarget.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
-                }
-            };
-
-            if (!element) {
-                // Editor empty, formula has been erased on edit.
-                _wrs_temporalImage.parentNode.removeChild(_wrs_temporalImage);
-            }
-            _wrs_temporalImage.parentNode.replaceChild(element, _wrs_temporalImage);
-
-            placeCaretAfterNode(element);
+            focusElement.frameElement.focus();
         }
-    } catch (e) {}
+    } else {
+        focusElement.focus();
+    }
+
+    if (_wrs_isNewElement) {
+        if (focusElement.type == "textarea") {
+            wrs_updateTextarea(focusElement, element.textContent);
+        } else if (document.selection && document.getSelection == 0) {
+            var range = windowTarget.document.selection.createRange();
+            windowTarget.document.execCommand('InsertImage', false, element.src);
+
+            if (!('parentElement' in range)) {
+                windowTarget.document.execCommand('delete', false);
+                range = windowTarget.document.selection.createRange();
+                windowTarget.document.execCommand('InsertImage', false, element.src);
+            }
+
+            if ('parentElement' in range) {
+                var temporalObject = range.parentElement();
+
+                if (temporalObject.nodeName.toUpperCase() == 'IMG') {
+                    temporalObject.parentNode.replaceChild(element, temporalObject);
+                } else {
+                    // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
+                    range.pasteHTML(wrs_createObjectCode(element));
+                }
+            }
+        } else {
+            var selection = windowTarget.getSelection();
+            // We have use wrs_range beacuse IExplorer delete selection when select another part of text.
+            if (_wrs_range) {
+                var range = _wrs_range;
+                _wrs_range = null;
+            } else {
+
+                try {
+                    var range = selection.getRangeAt(0);
+                } catch (e) {
+                    var range = windowTarget.document.createRange();
+                }
+            }
+            selection.removeAllRanges();
+
+            range.deleteContents();
+
+            var node = range.startContainer;
+            var position = range.startOffset;
+
+            if (node.nodeType == 3) {
+                // TEXT_NODE.
+                node = node.splitText(position);
+                node.parentNode.insertBefore(element, node);
+                node = node.parentNode;
+            } else if (node.nodeType == 1) {
+                // ELEMENT_NODE.
+                node.insertBefore(element, node.childNodes[position]);
+            }
+            // Fix to set the caret after the inserted image.
+            range.selectNode(element);
+            // Integration function.
+            // If wrs_int_setCaretPosition function exists on
+            // integration script can call caret method from the editor instance.
+            // With this method we can call proper specific editor methods which in some scenarios
+            // help's MathType to set caret position properly on the current editor window.
+            if (typeof wrs_int_selectRange != 'undefined') {
+                wrs_int_selectRange(range);
+            }
+            // Selection collapse must have to do it after the function 'wrs_int_selectRange' because
+            // can be that the range was changed and the selection needs to be updated.
+            position = range.endOffset;
+            selection.collapse(node, position);
+        }
+    } else if (_wrs_temporalRange) {
+        if (document.selection && document.getSelection == 0) {
+            _wrs_isNewElement = true;
+            _wrs_temporalRange.select();
+            wrs_insertElementOnSelection(element, focusElement, windowTarget);
+        } else {
+            var parentNode = _wrs_temporalRange.startContainer;
+            _wrs_temporalRange.deleteContents();
+            _wrs_temporalRange.insertNode(element);
+        }
+    } else if (focusElement.type == "textarea") {
+        var item;
+        // Wrapper for some integrations that can have special behaviours to show latex.
+        if (typeof wrs_int_getSelectedItem != 'undefined') {
+            item = wrs_int_getSelectedItem(focusElement, false);
+        } else {
+            item = wrs_getSelectedItemOnTextarea(focusElement);
+        }
+        wrs_updateExistingFormulaOnTextarea(focusElement, element.textContent, item.startPosition, item.endPosition);
+    } else {
+        if (!element) {
+            // Editor empty, formula has been erased on edit.
+            _wrs_temporalImage.parentNode.removeChild(_wrs_temporalImage);
+        }
+        _wrs_temporalImage.parentNode.replaceChild(element, _wrs_temporalImage);
+    }
+    function placeCaretAfterNode(node) {
+        if (typeof window.getSelection != "undefined") {
+            var range = windowTarget.document.createRange();
+            range.setStartAfter(node);
+            range.collapse(true);
+            var selection = windowTarget.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+        }
+    };
+    placeCaretAfterNode(element);
 }
 
 /**
@@ -4491,6 +4474,11 @@ var ModalWindow = function () {
 
             this.properties.open = true;
             this.properties.created = true;
+
+            // If actual language is arabic modal starts at left of window browser
+            if (this.isRTL(_wrs_int_langCode)) {
+                this.container.style.right = window.innerWidth - this.scrollbarWidth - this.container.offsetWidth + 'px';
+            }
         }
 
         /**
@@ -4588,6 +4576,9 @@ var ModalWindow = function () {
             this.removeClass('wrs_closed');
             // Hiding keyboard for mobile devices.
             if (this.deviceProperties['isIOS'] || this.deviceProperties['isAndroid'] || this.deviceProperties['isMobile']) {
+                // Restore scale to 1
+                this.restoreWebsiteScale();
+                this.blockWebsiteScroll();
                 // Due to editor wait we need to wait until editor focus.
                 setTimeout(function () {
                     this.hideKeyboard();
@@ -4642,7 +4633,104 @@ var ModalWindow = function () {
             this.removeClass('wrs_stack');
             this.addClass('wrs_closed');
             this.saveModalProperties();
+            this.unblockWebsiteScroll();
             this.properties.open = false;
+        }
+
+        /**
+         * It sets the website scale to one.
+         * @ignore
+         */
+
+    }, {
+        key: "restoreWebsiteScale",
+        value: function restoreWebsiteScale() {
+            var viewportmeta = document.querySelector('meta[name=viewport]');
+            // Let the equal symbols in order to search and make meta's final content.
+            var contentAttrsToUpdate = ['initial-scale=', 'minimum-scale=', 'maximum-scale='];
+            var contentAttrsValuesToUpdate = ['1.0', '1.0', '1.0'];
+            var setMetaAttrFunc = function setMetaAttrFunc(viewportelement, contentAttrsToUpdate) {
+                var contentAttr = viewportelement.getAttribute('content');
+                // If it exists, we need to maintain old values and put our values.
+                if (contentAttr) {
+                    var attrArray = contentAttr.split(',');
+                    var finalContentMeta = "";
+                    var oldAttrs = [];
+                    for (var i = 0; i < attrArray.length; i++) {
+                        var isAttrToUpdate = false;
+                        var j = 0;
+                        while (!isAttrToUpdate && j < contentAttrsToUpdate.length) {
+                            if (attrArray[i].indexOf(contentAttrsToUpdate[j])) {
+                                isAttrToUpdate = true;
+                            }
+
+                            j++;
+                        }
+
+                        if (!isAttrToUpdate) {
+                            oldAttrs.push(attrArray[i]);
+                        }
+                    }
+
+                    for (var _i = 0; _i < contentAttrsToUpdate.length; _i++) {
+                        var attr = contentAttrsToUpdate[_i] + contentAttrsValuesToUpdate[_i];
+                        finalContentMeta += _i == 0 ? attr : ',' + attr;
+                    }
+
+                    for (var _i2 = 0; _i2 < oldAttrs.length; _i2++) {
+                        finalContentMeta += ',' + oldAttrs[_i2];
+                    }
+
+                    viewportelement.setAttribute('content', finalContentMeta);
+                    viewportelement.setAttribute('content', contentAttr);
+                } else {
+                    viewportelement.setAttribute('content', 'initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0');
+                    viewportelement.removeAttribute('content');
+                }
+            };
+
+            if (!viewportmeta) {
+                viewportmeta = document.createElement('meta');
+                document.getElementsByTagName('head')[0].appendChild(viewportmeta);
+                setMetaAttrFunc(viewportmeta, contentAttrsToUpdate, contentAttrsValuesToUpdate);
+                viewportmeta.remove();
+            } else {
+                setMetaAttrFunc(viewportmeta, contentAttrsToUpdate, contentAttrsValuesToUpdate);
+            }
+        }
+
+        /**
+         * Adds an event to avoid touchscrolling.
+         * @ignore
+         */
+
+    }, {
+        key: "blockWebsiteScroll",
+        value: function blockWebsiteScroll() {
+            document.body.addEventListener('touchmove', this.disableTouchMove, { passive: false });
+        }
+
+        /**
+         * Removes the event to avoid touchscrolling.
+         * @ignore
+         */
+
+    }, {
+        key: "unblockWebsiteScroll",
+        value: function unblockWebsiteScroll() {
+            document.body.removeEventListener('touchmove', this.disableTouchMove, { passive: false });
+        }
+
+        /**
+         * Prevents the default event behaviour.
+         * @param {Object} ev javascript event.
+         * @ignore.
+         */
+
+    }, {
+        key: "disableTouchMove",
+        value: function disableTouchMove(ev) {
+            ev.preventDefault();
         }
 
         /**
@@ -4660,6 +4748,20 @@ var ModalWindow = function () {
             return false;
         }
 
+        /**
+         * @param {string} actual language to check if it's rtl
+         * @return {boolean} return true if current language is type RTL
+         * @ignore
+         */
+
+    }, {
+        key: "isRTL",
+        value: function isRTL(language) {
+            if (_wrs_int_langCode == 'ar' || _wrs_int_langCode == 'he') {
+                return true;
+            }
+            return false;
+        }
         /**
          * Adds a class to all modal DOM elements.
          * @param {string} cls
@@ -5104,7 +5206,6 @@ var ModalWindow = function () {
                 };
                 // This move modal with hadware acceleration.
                 this.container.style.transform = "translate3d(" + dragX + "," + dragY + ",0)";
-                this.container.style.position = 'absolute';
             }
             if (this.resizeDataObject) {
                 var limitX = Math.min(this.eventClient(ev).X, window.innerWidth - this.scrollbarWidth - 7);
@@ -5223,15 +5324,10 @@ var ModalWindow = function () {
             // when the user stops to drag and dragDataObject is not null (the object to drag is attached).
             if (this.dragDataObject || this.resizeDataObject) {
                 // If modal doesn't change, it's not necessary to set position with interpolation
-                if (this.container.style.position != 'fixed') {
-                    this.container.style.position = 'fixed';
-                    // Fixed position makes the coords relative to the main window. So that, we need to transform
-                    // the absolute coords to relative.
-                    this.container.style.transform = '';
-                    if (this.dragDataObject) {
-                        this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
-                        this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
-                    }
+                this.container.style.transform = '';
+                if (this.dragDataObject) {
+                    this.container.style.right = parseInt(this.container.style.right) - parseInt(this.lastDrag.x) + pageXOffset + "px";
+                    this.container.style.bottom = parseInt(this.container.style.bottom) - parseInt(this.lastDrag.y) + pageYOffset + "px";
                 }
                 // We make focus on editor after drag modal windows to prevent lose focus.
                 this.focus();
@@ -5681,6 +5777,10 @@ var contentManager = function () {
                 this.editor = com.wiris.jsEditor.JsEditor.newInstance(this.editorAttributes);
                 this.editor.insertInto(modalObject.contentContainer);
                 this.editor.focus();
+                // Setting div in rtl in case of it's activated.
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.editor.element.style.direction = 'rtl';
+                }
 
                 // Editor listener: this object manages the changes logic of editor.
                 this.editor.getEditorModel().addEditorListener(this.editorListener);
@@ -5696,7 +5796,6 @@ var contentManager = function () {
                 }
 
                 this.onOpen(modalObject);
-                this.editor.onContentChanged;
             } else {
                 setTimeout(contentManager.prototype.insertEditor.bind(this, modalObject), 100);
             }
@@ -5851,9 +5950,18 @@ var contentManager = function () {
             // As second argument we pass
             if (this.deviceProperties.isAndroid || this.deviceProperties.isIOS) {
                 // We need to set a empty annotation in order to maintain editor in Hand mode.
-                this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                // Adding dir rtl in case of it's activated.
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.setMathML('<math dir="rtl"><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                } else {
+                    this.setMathML('<math><semantics><annotation encoding="application/json">[]</annotation></semantics></math>"', true);
+                }
             } else {
-                this.setMathML('<math/>', true);
+                if (this.editor.getEditorModel().isRTL()) {
+                    this.setMathML('<math dir="rtl"/>', true);
+                } else {
+                    this.setMathML('<math/>', true);
+                }
             }
         }
 
