@@ -1,6 +1,6 @@
 {
   "name": "mathtype-js-lib",
-  "description": "MathType Web Integration API",
+  "description": "MathType Web Integration API for TinyMCe 4.x editor",
   "main": "core.src.js",
   "scripts": {
     "webpack": "webpack"

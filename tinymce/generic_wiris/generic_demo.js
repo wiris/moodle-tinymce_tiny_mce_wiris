@@ -2,7 +2,7 @@
 // so coding standars are ignored on this file.
 //@codingStandardsIgnoreFile
 // Configuration
-var _wrs_int_conf_file = "" + M.cfg.wwwroot + "/filter/wiris/integration/configurationjs.php";
+var _wrs_int_conf_file = "' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php";
 var _wrs_int_conf_async = true;
 
 // Get _wrs_conf_path (plugin URL)
