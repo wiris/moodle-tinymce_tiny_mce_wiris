@@ -702,8 +702,8 @@ var WirisPlugin =
 	            } else {
 	                // Is needed focus the target first.
 	                target.focus();
-	                var selection = getSelection();
-	                this.editionProperties.range = selection.getRangeAt(0);
+	                var _selection = getSelection();
+	                this.editionProperties.range = _selection.getRangeAt(0);
 	            }
 	        } catch (e) {
 	            this.editionProperties.range = null;
@@ -716,7 +716,7 @@ var WirisPlugin =
 	        this.editionProperties.latexRange = null;
 
 	        if (target) {
-	            var selectedItem;
+	            var selectedItem = void 0;
 	            if (typeof this.integrationModel.getSelectedItem !== 'undefined') {
 	                selectedItem = this.integrationModel.getSelectedItem(target, isIframe);
 	            } else {
@@ -724,45 +724,52 @@ var WirisPlugin =
 	            }
 
 	            // Check LaTeX if and only if the node is a text node (nodeType==3).
-	            if (selectedItem !== null && selectedItem.node.nodeType === 3) {
-	                if (!!this.integrationModel.getMathmlFromTextNode) {
-	                    // If integration has this function it isn't set range due to we don't
-	                    // know if it will be put into a textarea as a text or image.
-	                    var mathml = this.integrationModel.getMathmlFromTextNode(selectedItem.node, selectedItem.caretPosition);
-	                    if (mathml) {
-	                        this.editMode = 'latex';
-	                        this.editionProperties.isNewElement = false;
-	                        this.editionProperties.temporalImage = document.createElement('img');
-	                        this.editionProperties.temporalImage.setAttribute(_configuration2.default.get('imageMathmlAttribute'), _mathml3.default.safeXmlEncode(mathml));
-	                    }
-	                } else {
-	                    var latexResult = _latex2.default.getLatexFromTextNode(selectedItem.node, selectedItem.caretPosition);
-	                    if (latexResult) {
-	                        var _mathml = _latex2.default.getMathMLFromLatex(latexResult.latex);
-	                        this.editMode = 'latex';
-	                        this.editionProperties.isNewElement = false;
-	                        this.editionProperties.temporalImage = document.createElement('img');
-	                        this.editionProperties.temporalImage.setAttribute(_configuration2.default.get('imageMathmlAttribute'), _mathml3.default.safeXmlEncode(_mathml));
-	                        var windowTarget = isIframe ? target.contentWindow : window;
+	            if (selectedItem) {
+	                // Case when image was selected and button pressed.
+	                if (!selectedItem.caretPosition && _util2.default.containsClass(selectedItem.node, _configuration2.default.get('imageClassName'))) {
+	                    this.editionProperties.temporalImage = selectedItem.node;
+	                    this.editionProperties.isNewElement = false;
+	                } else if (selectedItem.node.nodeType === 3) {
+	                    // If it's a text node means that editor is working with LaTeX.
+	                    if (!!this.integrationModel.getMathmlFromTextNode) {
+	                        // If integration has this function it isn't set range due to we don't
+	                        // know if it will be put into a textarea as a text or image.
+	                        var mathml = this.integrationModel.getMathmlFromTextNode(selectedItem.node, selectedItem.caretPosition);
+	                        if (mathml) {
+	                            this.editMode = 'latex';
+	                            this.editionProperties.isNewElement = false;
+	                            this.editionProperties.temporalImage = document.createElement('img');
+	                            this.editionProperties.temporalImage.setAttribute(_configuration2.default.get('imageMathmlAttribute'), _mathml3.default.safeXmlEncode(mathml));
+	                        }
+	                    } else {
+	                        var latexResult = _latex2.default.getLatexFromTextNode(selectedItem.node, selectedItem.caretPosition);
+	                        if (latexResult) {
+	                            var _mathml = _latex2.default.getMathMLFromLatex(latexResult.latex);
+	                            this.editMode = 'latex';
+	                            this.editionProperties.isNewElement = false;
+	                            this.editionProperties.temporalImage = document.createElement('img');
+	                            this.editionProperties.temporalImage.setAttribute(_configuration2.default.get('imageMathmlAttribute'), _mathml3.default.safeXmlEncode(_mathml));
+	                            var windowTarget = isIframe ? target.contentWindow : window;
 
-	                        if (target.tagName.toLowerCase() !== 'textarea') {
-	                            if (document.selection) {
-	                                var leftOffset = 0;
-	                                var previousNode = latexResult.startNode.previousSibling;
+	                            if (target.tagName.toLowerCase() !== 'textarea') {
+	                                if (document.selection) {
+	                                    var leftOffset = 0;
+	                                    var previousNode = latexResult.startNode.previousSibling;
 
-	                                while (previousNode) {
-	                                    leftOffset += _util2.default.getNodeLength(previousNode);
-	                                    previousNode = previousNode.previousSibling;
+	                                    while (previousNode) {
+	                                        leftOffset += _util2.default.getNodeLength(previousNode);
+	                                        previousNode = previousNode.previousSibling;
+	                                    }
+
+	                                    this.editionProperties.latexRange = windowTarget.document.selection.createRange();
+	                                    this.editionProperties.latexRange.moveToElementText(latexResult.startNode.parentNode);
+	                                    this.editionProperties.latexRange.move('character', leftOffset + latexResult.startPosition);
+	                                    this.editionProperties.latexRange.moveEnd('character', latexResult.latex.length + 4); // Plus 4 for the '$$' characters.
+	                                } else {
+	                                    this.editionProperties.latexRange = windowTarget.document.createRange();
+	                                    this.editionProperties.latexRange.setStart(latexResult.startNode, latexResult.startPosition);
+	                                    this.editionProperties.latexRange.setEnd(latexResult.endNode, latexResult.endPosition);
 	                                }
-
-	                                this.editionProperties.latexRange = windowTarget.document.selection.createRange();
-	                                this.editionProperties.latexRange.moveToElementText(latexResult.startNode.parentNode);
-	                                this.editionProperties.latexRange.move('character', leftOffset + latexResult.startPosition);
-	                                this.editionProperties.latexRange.moveEnd('character', latexResult.latex.length + 4); // Plus 4 for the '$$' characters.
-	                            } else {
-	                                this.editionProperties.latexRange = windowTarget.document.createRange();
-	                                this.editionProperties.latexRange.setStart(latexResult.startNode, latexResult.startPosition);
-	                                this.editionProperties.latexRange.setEnd(latexResult.endNode, latexResult.endPosition);
 	                            }
 	                        }
 	                    }
@@ -5825,6 +5832,9 @@ var WirisPlugin =
 	        // TODO: Detect isMobile without using editor metrics.
 	        var isMobile = landscape && this.attributes.height > deviceHeight || portrait && this.attributes.width > deviceWidth ? true : false;
 
+	        // Obtain number of current instance
+	        this.instanceId = document.getElementsByClassName("wrs_modal_dialogContainer").length;
+
 	        // Device object properties.
 
 	        this.deviceProperties = {
@@ -5845,80 +5855,82 @@ var WirisPlugin =
 
 	        var attributes = {};
 	        attributes.class = 'wrs_modal_overlay';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.overlay = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_title_bar';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.titleBar = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_title';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.title = _util2.default.createElement('div', attributes);
 	        this.title.innerHTML = '';
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_close_button';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        attributes.title = _coreSrc2.default.getStringManager().getString('close');
 	        this.closeDiv = _util2.default.createElement('a', attributes);;
 	        this.closeDiv.setAttribute('role', 'button');
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_stack_button';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        attributes.title = "Exit full-screen";
 	        this.stackDiv = _util2.default.createElement('a', attributes);
 	        this.stackDiv.setAttribute('role', 'button');
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_maximize_button';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        attributes.title = _coreSrc2.default.getStringManager().getString('fullscreen');
 	        this.maximizeDiv = _util2.default.createElement('a', attributes);
 	        this.maximizeDiv.setAttribute('role', 'button');
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_minimize_button';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        attributes.title = _coreSrc2.default.getStringManager().getString('minimise');
 	        this.minimizeDiv = _util2.default.createElement('a', attributes);
 	        this.minimizeDiv.setAttribute('role', 'button');
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_dialogContainer';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.container = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_wrapper';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.wrapper = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_content_container';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.contentContainer = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_controls';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.controls = _util2.default.createElement('div', attributes);
 
 	        attributes = {};
 	        attributes.class = 'wrs_modal_buttons_container';
-	        attributes.id = attributes.class + '_id';
+	        attributes.id = this.getElementId(attributes.class);
 	        this.buttonContainer = _util2.default.createElement('div', attributes);
 
 	        // Buttons: all button must be created using createSubmitButton method.
 	        this.submitButton = this.createSubmitButton({
+	            id: this.getElementId('wrs_modal_button_accept'),
 	            class: 'wrs_modal_button_accept',
 	            innerHTML: _coreSrc2.default.getStringManager().getString('accept')
 	        }, this.submitAction.bind(this));
 
 	        this.cancelButton = this.createSubmitButton({
+	            id: this.getElementId('wrs_modal_button_cancel'),
 	            class: 'wrs_modal_button_cancel',
 	            innerHTML: _coreSrc2.default.getStringManager().getString('cancel')
 	        }, this.cancelAction.bind(this));
@@ -6030,7 +6042,7 @@ var WirisPlugin =
 	    ModalDialog.prototype.createSubmitButton = function createSubmitButton(properties, callback) {
 	        function SubmitButton(properties, callback) {
 	            this.element = document.createElement('button');
-	            this.element.id = properties.class + '_id';
+	            this.element.id = properties.id;
 	            this.element.className = properties.class;
 	            this.element.innerHTML = properties.innerHTML;
 	            _util2.default.addEvent(this.element, 'click', callback);
@@ -6768,7 +6780,7 @@ var WirisPlugin =
 	        if (this.properties.state == 'minimized') {
 	            return;
 	        }
-	        if (ev.target.className == 'wrs_modal_title') {
+	        if (ev.target === this.title) {
 	            if (typeof this.dragDataObject === 'undefined' || this.dragDataObject === null) {
 	                ev = ev || event;
 	                // Save first click mouse point on screen
@@ -7177,6 +7189,18 @@ var WirisPlugin =
 
 	    ModalDialog.prototype.setTitle = function setTitle(title) {
 	        this.title.innerHTML = title;
+	    };
+
+	    /**
+	     * Get id formated name with class name as input.
+	     *
+	     * @param {string} Class name of html element passed.
+	     * @ignore
+	     */
+
+
+	    ModalDialog.prototype.getElementId = function getElementId(className) {
+	        return className + "[" + this.instanceId + "]";
 	    };
 
 	    return ModalDialog;
