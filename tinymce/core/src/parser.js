@@ -61,7 +61,7 @@ export default class Parser {
         // Performance enabled.
         if (Configuration.get('wirisPluginPerformance') && (Configuration.get('saveMode') == 'xml' || Configuration.get('saveMode') == 'safeXml')) {
 
-            var result = JSON.parse(Parser.createShowImageSrc(mathml, data, language));
+            var result = JSON.parse(Parser.createShowImageSrc( data, language));
             if (result["status"] == 'warning') {
                 // POST call.
                 // if the mathml is malformed, this function will throw an exception.
