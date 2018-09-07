@@ -327,7 +327,6 @@ export default class Parser {
     static endParseSaveMode(code) {
         if (Configuration.get('saveMode')) {
             if (Configuration.get('saveMode') == 'safeXml') {
-                convertToSafeXml = true;
                 code = Parser.codeImgTransform(code, 'img2mathml');
             }
             else if (Configuration.get('saveMode') == 'xml') {
