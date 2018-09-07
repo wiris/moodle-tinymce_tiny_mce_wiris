@@ -18,8 +18,8 @@ window.wrs_int_init = function(target,toolbar) {
      */
     var genericIntegrationProperties = {};
     genericIntegrationProperties.target = target;
-    genericIntegrationProperties.configurationService = 'integration/configurationjs.php';
-    genericIntegrationProperties.version = '7.5.0.1498';
+    genericIntegrationProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
+    genericIntegrationProperties.version = '7.5.0.1391';
     genericIntegrationProperties.scriptName = "wirisplugin-generic.js";
     genericIntegrationProperties.environment = {};
     genericIntegrationProperties.environment.editor = "GenericHTML";
