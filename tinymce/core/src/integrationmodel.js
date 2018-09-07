@@ -5,7 +5,7 @@ import Util from './util.js';
 import Configuration from './configuration';
 
 /**
- * @typedef {Object} integrationModelAttributes
+ * @typedef {Object} integrationModelProperties
  * @property {string} configurationService - configuration service path.
  * @property {string} integrationModelProperties.version - integration version number.
  * @property {HTMLElement} integrationModelProperties.target - HTML target.
@@ -25,9 +25,9 @@ export default class IntegrationModel {
     /**
      * IntegrationModel constructor.
      *
-     * @param {integrationModelAttributes} integrationModelAttributes
+     * @param {integrationModelProperties} integrationModelProperties
      */
-     constructor(integrationModelAttributes) {
+     constructor(integrationModelProperties) {
         /**
          * Language. Needed for accessibility and locales. English by default.
          */
@@ -39,8 +39,8 @@ export default class IntegrationModel {
          * of all services (all services lives in the same route). Mandatory property.
          */
         this.configurationService = '';
-        if ('configurationService' in integrationModelAttributes) {
-            this.configurationService = integrationModelAttributes.configurationService;
+        if ('configurationService' in integrationModelProperties) {
+            this.configurationService = integrationModelProperties.configurationService;
         }
         else {
             throw new Error('IntegrationModel constructor error: configurationService property missed.')
@@ -50,15 +50,15 @@ export default class IntegrationModel {
          * Plugin version. Needed to stats and caching.
          * @type {string}
          */
-        this.version = ('version' in integrationModelAttributes ? integrationModelAttributes.version : '');
+        this.version = ('version' in integrationModelProperties ? integrationModelProperties.version : '');
 
         /**
          * DOM target in which the plugin works. Needed to associate events, insert formulas, etc.
          * Mandatory property.
          */
         this.target = null;
-        if ('target' in integrationModelAttributes) {
-            this.target = integrationModelAttributes.target;
+        if ('target' in integrationModelProperties) {
+            this.target = integrationModelProperties.target;
         }
         else {
             throw new Error('IntegrationModel constructor error: target property missed.')
@@ -67,8 +67,8 @@ export default class IntegrationModel {
         /**
          * Integration script name. Needed to know the plugin path.
          */
-        if ('scriptName' in integrationModelAttributes) {
-            this.scriptName = integrationModelAttributes.scriptName;
+        if ('scriptName' in integrationModelProperties) {
+            this.scriptName = integrationModelProperties.scriptName;
         }
         else {
             throw new Error('IntegrationModel constructor error: scriptName property missed.')
@@ -78,24 +78,24 @@ export default class IntegrationModel {
          * Object containing the arguments needed by the callback function.
          */
         this.callbackMethodArguments = {};
-        if ('callbackMethodArguments' in integrationModelAttributes) {
-            this.callbackMethodArguments = integrationModelAttributes.callbackMethodArguments;
+        if ('callbackMethodArguments' in integrationModelProperties) {
+            this.callbackMethodArguments = integrationModelProperties.callbackMethodArguments;
         }
 
         /**
          * Contains information about the integration environment: like the name of the editor, the version, etc.
          */
         this.environment = {};
-        if ('environment' in integrationModelAttributes) {
-            this.environment = integrationModelAttributes.environment;
+        if ('environment' in integrationModelProperties) {
+            this.environment = integrationModelProperties.environment;
         }
 
         /**
          * Language folder path. 'lang' by default. the lang folder path could change for some HTML editors.
          */
         this.langFolderName = 'lang';
-        if ('langFolderName' in integrationModelAttributes) {
-            this.langFolderName = integrationModelAttributes.langFolderName;
+        if ('langFolderName' in integrationModelProperties) {
+            this.langFolderName = integrationModelProperties.langFolderName;
         }
 
         /**
@@ -111,16 +111,16 @@ export default class IntegrationModel {
          * of a HTML editor.
          */
         this.editorObject = null;
-        if ('editorObject' in integrationModelAttributes) {
-            this.editorObject = integrationModelAttributes.editorObject;
+        if ('editorObject' in integrationModelProperties) {
+            this.editorObject = integrationModelProperties.editorObject;
         }
 
         /**
          * Specifies if the direction of the text is RTL. false by default.
          */
         this.rtl = false;
-        if ('rtl' in integrationModelAttributes) {
-            this.rtl = integrationModelAttributes.rtl;
+        if ('rtl' in integrationModelProperties) {
+            this.rtl = integrationModelProperties.rtl;
         }
 
         /**
