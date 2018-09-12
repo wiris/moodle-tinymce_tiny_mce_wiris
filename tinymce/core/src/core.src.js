@@ -370,7 +370,7 @@ export default class Core {
             afterUpdateEvent.latex = Latex.getLatexFromMathML(mathml);
             // this.integrationModel.getNonLatexNode is an integration wrapper to have special behaviours for nonLatex.
             // Not all the integrations have special behaviours for nonLatex.
-            if (!!this.integrationModel.fillNonLatexNode && !afterUpdateEvent.latex) {
+            if (!!this.integrationModel.fillNonLatexNode && typeof afterUpdateEvent.latex === 'undefined') {
                 this.integrationModel.fillNonLatexNode(afterUpdateEvent, windowTarget, mathml);
             }
             else {
