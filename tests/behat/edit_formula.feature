@@ -18,7 +18,7 @@ Feature: MathType for TinyMCE
     And I click on "MathType" "button"
     And I wait "5" seconds
     And I set mathtype formula to "1+2"
-    And I click on "//button[@id='wrs_modal_button_accept_id']" "xpath_element"
+    And I click on "//button[@id='wrs_modal_button_accept[0]']" "xpath_element"
     And I click on "Update profile" "button"
     And I follow "Profile" in the user menu
     # Checking formula image outside edit element.
