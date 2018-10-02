@@ -2,6 +2,7 @@ import TextCache from './cache.js';
 import MathML from './mathml.js';
 import ServiceProvider from './serviceprovider.js';
 import Constants from './constants.js';
+import Util from './util.js';
 
 /**
  * This class represents a LaTeX parser. Manages the services which allows to convert
@@ -28,17 +29,17 @@ export default class Latex {
         var jsonResponse = JSON.parse(ServiceProvider.getService('service', data));
 
         //TODO: Error handling.
-        var latex='';
+        let latex = '';
 
         if (jsonResponse.status == "ok") {
             latex = jsonResponse.result.text;
+            const latexHtmlEntitiesEncoded = Util.htmlEntities(latex);
             // Inserting LaTeX semantics.
-            mathml = MathML.insertSemanticsMathml(mathml, latex, 'LaTeX');
+            mathml = MathML.insertSemanticsMathml(mathml, latexHtmlEntitiesEncoded, 'LaTeX');
             cache.populate(latex, mathml);
         }
 
         return latex;
-
     }
 
     /**

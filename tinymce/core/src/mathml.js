@@ -337,5 +337,4 @@ export default class MathML {
             }
         }
     }
-
 }
