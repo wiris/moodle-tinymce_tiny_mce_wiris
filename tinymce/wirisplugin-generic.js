@@ -24,7 +24,7 @@
     window.wrs_int_init = function(target,toolbar) {
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = getPath() + '/core/core.js?v=' +  '7.6.1.1393';
+        script.src = getPath() + '/core/core.js?v=' +  '7.7.0.1394';
         document.getElementsByTagName('head')[0].appendChild(script);
         script.onload = function() {
             createIntegrationModel(target, toolbar);
@@ -54,7 +54,7 @@
         var integrationModelProperties = {};
         integrationModelProperties.target = target;
         integrationModelProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
-        integrationModelProperties.version = '7.6.1.1393';
+        integrationModelProperties.version = '7.7.0.1394';
         integrationModelProperties.scriptName = "wirisplugin-generic.js";
         integrationModelProperties.environment = {};
         integrationModelProperties.environment.editor = "GenericHTML";
