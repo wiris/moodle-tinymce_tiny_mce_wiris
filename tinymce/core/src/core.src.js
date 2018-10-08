@@ -12,6 +12,7 @@ import jsProperties from './jsvariables.js';
 import Event from './event.js';
 import Listeners from './listeners.js';
 import IntegrationModel from './integrationmodel.js';
+import Image from './image.js';
 
 /**
  * Class representing MathType integration Core. This class is the integration entry point. Manages integration
@@ -363,14 +364,14 @@ export default class Core {
         afterUpdateEvent.windowTarget = windowTarget;
         afterUpdateEvent.focusElement = focusElement;
 
-        if (mathml.length == 0) {
+        if (!mathml) {
             this.insertElementOnSelection(null, focusElement, windowTarget);
         }
         else if (this.editMode == 'latex') {
             afterUpdateEvent.latex = Latex.getLatexFromMathML(mathml);
             // this.integrationModel.getNonLatexNode is an integration wrapper to have special behaviours for nonLatex.
             // Not all the integrations have special behaviours for nonLatex.
-            if (!!this.integrationModel.fillNonLatexNode && typeof afterUpdateEvent.latex === 'undefined') {
+            if (!!this.integrationModel.fillNonLatexNode && !afterUpdateEvent.latex) {
                 this.integrationModel.fillNonLatexNode(afterUpdateEvent, windowTarget, mathml);
             }
             else {
@@ -403,7 +404,7 @@ export default class Core {
     placeCaretAfterNode(node) {
         this.integrationModel.getSelection();
         const nodeDocument = node.ownerDocument;
-        if (typeof nodeDocument.getSelection !== 'undefined') {
+        if (typeof nodeDocument.getSelection !== 'undefined' && !!node.parentElement) {
             const range = nodeDocument.createRange();
             range.setStartAfter(node);
             range.collapse(true);
@@ -422,58 +423,73 @@ export default class Core {
      */
     insertElementOnSelection(element, focusElement, windowTarget) {
         if (this.editionProperties.isNewElement) {
-            if (focusElement.type == "textarea") {
-                Util.updateTextArea(focusElement, element.textContent);
-            }
-            else if (document.selection && document.getSelection == 0) {
-                var range = windowTarget.document.selection.createRange();
-                windowTarget.document.execCommand('InsertImage', false, element.src);
-
-                if (!('parentElement' in range)) {
-                    windowTarget.document.execCommand('delete', false);
-                    range = windowTarget.document.selection.createRange();
-                    windowTarget.document.execCommand('InsertImage', false, element.src);
+            if (element) {
+                if (focusElement.type == 'textarea') {
+                    Util.updateTextArea(focusElement, element.textContent);
                 }
+                else if (document.selection && document.getSelection == 0) {
+                    var range = windowTarget.document.selection.createRange();
+                    windowTarget.document.execCommand('InsertImage', false, element.src);
 
-                if ('parentElement' in range) {
-                    var temporalObject = range.parentElement();
+                    if (!('parentElement' in range)) {
+                        windowTarget.document.execCommand('delete', false);
+                        range = windowTarget.document.selection.createRange();
+                        windowTarget.document.execCommand('InsertImage', false, element.src);
+                    }
 
-                    if (temporalObject.nodeName.toUpperCase() == 'IMG') {
-                        temporalObject.parentNode.replaceChild(element, temporalObject);
+                    if ('parentElement' in range) {
+                        var temporalObject = range.parentElement();
+
+                        if (temporalObject.nodeName.toUpperCase() == 'IMG') {
+                            temporalObject.parentNode.replaceChild(element, temporalObject);
+                        }
+                        else {
+                            // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
+                            range.pasteHTML(Util.createObjectCode(element));
+                        }
+                    }
+                }
+                else {
+                    const editorSelection = this.integrationModel.getSelection();
+                    let range;
+                    // In IE is needed keep the range due to after focus the modal window it can't be retrieved the last selection.
+                    if (this.editionProperties.range) {
+                        range = this.editionProperties.range;
+                        this.editionProperties.range = null;
                     }
                     else {
-                        // IE9 fix: parentNode() does not return the IMG node, returns the parent DIV node. In IE < 9, pasteHTML does not work well.
-                        range.pasteHTML(Util.createObjectCode(element));
+                        range = editorSelection.getRangeAt(0);
                     }
+
+                    // Delete if something was surrounded.
+                    range.deleteContents();
+
+                    let node = range.startContainer;
+                    const position = range.startOffset;
+
+                    if (node.nodeType == 3) { // TEXT_NODE.
+                        node = node.splitText(position);
+                        node.parentNode.insertBefore(element, node);
+                    }
+                    else if (node.nodeType == 1) { // ELEMENT_NODE.
+                        node.insertBefore(element, node.childNodes[position]);
+                    }
+
+                    this.placeCaretAfterNode(element);
                 }
+            }
+            else if (focusElement.type == 'textarea') {
+                focusElement.focus();
             }
             else {
                 const editorSelection = this.integrationModel.getSelection();
-                let range;
-                // In IE is needed keep the range due to after focus the modal window it can't be retrieved the last selection.
+                editorSelection.removeAllRanges();
+
                 if (this.editionProperties.range) {
-                    range = this.editionProperties.range;
+                    const range = this.editionProperties.range;
                     this.editionProperties.range = null;
+                    editorSelection.addRange(range);
                 }
-                else {
-                    range = editorSelection.getRangeAt(0);
-                }
-
-                // Delete if something was surrounded.
-                range.deleteContents();
-
-                let node = range.startContainer;
-                const position = range.startOffset;
-
-                if (node.nodeType == 3) { // TEXT_NODE.
-                    node = node.splitText(position);
-                    node.parentNode.insertBefore(element, node);
-                }
-                else if (node.nodeType == 1) { // ELEMENT_NODE.
-                    node.insertBefore(element, node.childNodes[position]);
-                }
-
-                this.placeCaretAfterNode(element);
             }
         }
         else if (this.editionProperties.latexRange) {
@@ -483,7 +499,6 @@ export default class Core {
                 this.insertElementOnSelection(element, focusElement, windowTarget);
             }
             else {
-                var parentNode = this.editionProperties.latexRange.startContainer;
                 this.editionProperties.latexRange.deleteContents();
                 this.editionProperties.latexRange.insertNode(element);
                 this.placeCaretAfterNode(element);
@@ -501,11 +516,15 @@ export default class Core {
             Util.updateExistingTextOnTextarea(focusElement, element.textContent, item.startPosition, item.endPosition);
         }
         else {
-            if (!element) { // Editor empty, formula has been erased on edit.
-                this.editionProperties.temporalImage.parentNode.removeChild(this.editionProperties.temporalImage);
+            if (element && element.nodeName.toLowerCase() === 'img') { // Editor empty, formula has been erased on edit.
+                // Clone is needed to maintain event references to temporalImage.
+                Image.clone(element, this.editionProperties.temporalImage);
             }
-            this.editionProperties.temporalImage.parentNode.replaceChild(element, this.editionProperties.temporalImage);
-            this.placeCaretAfterNode(element);
+            else {
+                this.editionProperties.temporalImage.remove();
+            }
+
+            this.placeCaretAfterNode(this.editionProperties.temporalImage);
         }
     }
 
