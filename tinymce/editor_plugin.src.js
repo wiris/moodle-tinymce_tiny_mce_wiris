@@ -204,7 +204,7 @@ export var currentInstance = null;
              */
             var integrationModelProperties = {};
             integrationModelProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
-            integrationModelProperties.version = '7.7.1.1395';
+            integrationModelProperties.version = '7.7.2.1396';
             integrationModelProperties.isMoodle = true;
             if (typeof(editor.getParam('wiriscontextpath')) !== 'undefined') {
                 integrationModelProperties.configurationService = Util.concatenateUrl(editor.getParam('wiriscontextpath'), integrationModelProperties.configurationService);
@@ -384,7 +384,7 @@ export var currentInstance = null;
                 author : 'Maths for More',
                 authorurl : 'http://www.wiris.com',
                 infourl : 'http://www.wiris.com',
-                version : '7.7.1.1395'
+                version : '7.7.2.1396'
             };
         }
     });
