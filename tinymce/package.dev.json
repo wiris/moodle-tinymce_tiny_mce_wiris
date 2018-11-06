@@ -1,6 +1,6 @@
 {
   "name": "@wiris/mathtype-tinymce4-dev",
-  "version": "7.7.2",
+  "version": "@version@",
   "description": "MathType web Integration API for TinyMCE4 editor",
   "main": "editor_plugin.src.js",
   "scripts": {
