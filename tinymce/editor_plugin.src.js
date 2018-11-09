@@ -111,7 +111,7 @@ export class TinyMceIntegration extends IntegrationModel {
         // Avoid filter formulas with performance enabled.
         dataImgFiltered[this.editorObject.id] = this.editorObject.settings.images_dataimg_filter;
         this.editorObject.settings.images_dataimg_filter = function(img) {
-            if (img.hasAttribute('class') && img.getAttribute('class').indexOf(Configuration.get(imageClassName)) != -1) {
+            if (img.hasAttribute('class') && img.getAttribute('class').indexOf(Configuration.get('imageClassName')) != -1) {
                 return img.hasAttribute('internal-blob');
             }
             else {
@@ -204,7 +204,7 @@ export var currentInstance = null;
              */
             var integrationModelProperties = {};
             integrationModelProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
-            integrationModelProperties.version = '7.7.2.1396';
+            integrationModelProperties.version = '7.8.0.1397';
             integrationModelProperties.isMoodle = true;
             if (typeof(editor.getParam('wiriscontextpath')) !== 'undefined') {
                 integrationModelProperties.configurationService = Util.concatenateUrl(editor.getParam('wiriscontextpath'), integrationModelProperties.configurationService);
@@ -346,7 +346,10 @@ export var currentInstance = null;
 
             // MathType button.
             editor.addCommand('tiny_mce_wiris_openFormulaEditor', function () {
-                WirisPlugin.instances[editor.id].openNewFormulaEditor();
+                const tinyMceIntegrationInstance = WirisPlugin.instances[editor.id];
+                // Disable previous custom editors.
+                tinyMceIntegrationInstance.core.getCustomEditors().disable();
+                tinyMceIntegrationInstance.openNewFormulaEditor();
             });
 
             editor.addButton('tiny_mce_wiris_formulaEditor', {
@@ -384,7 +387,7 @@ export var currentInstance = null;
                 author : 'Maths for More',
                 authorurl : 'http://www.wiris.com',
                 infourl : 'http://www.wiris.com',
-                version : '7.7.2.1396'
+                version : '7.8.0.1397'
             };
         }
     });

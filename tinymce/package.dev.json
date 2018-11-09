@@ -1,6 +1,6 @@
 {
   "name": "@wiris/mathtype-tinymce4-dev",
-  "version": "7.8.0",
+  "version": "@version@",
   "description": "MathType API for TinyMCE4 editor",
   "keywords": [
     "chem",
@@ -17,12 +17,12 @@
     "tinymce4",
     "wiris"
   ],
-  "homepage": "http://www.wiris.com/",
-  "bugs": {
-    "email": "support@wiris.com"
+  "homepage" : "http://www.wiris.com/",
+  "bugs" : {
+    "email" : "support@wiris.com"
   },
-  "author": "WIRIS Team (http://www.wiris.com)",
-  "license": "GPL-3.0",
+  "author" : "WIRIS Team (http://www.wiris.com)",
+  "license" : "GPL-3.0",
   "scripts": {
     "build-dev": "webpack --mode development",
     "build": "webpack --mode production"
