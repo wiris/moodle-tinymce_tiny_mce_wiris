@@ -362,11 +362,10 @@ function createEditorInstance(lang, wiriseditorparameters) {
 		wiriseditorparameters = {};
 	}
 
-	tinymce.init({
+	let tinyMCEConfiguration = {
 		selector: '#example',
 		height : 300,
 		auto_focus:true,
-		language: lang,
 		directionality : dir,
 		menubar : false,
 		plugins: 'tiny_mce_wiris',
@@ -381,8 +380,15 @@ function createEditorInstance(lang, wiriseditorparameters) {
 			});
 		},
 		
-	});
-}
+	 };
+
+	// This is done to test when the user doesn't initialize the editor with the language property.
+	if (lang !== 'en') {
+		tinyMCEConfiguration.language = lang;
+	}
+
+ 	tinymce.init(tinyMCEConfiguration);
+ }
 
 function updateFunctionTimeOut() {
 	setTimeout(function(){ updateFunction();}, 500);
@@ -413,9 +419,9 @@ function setParametersSpecificPlugin(wiriseditorparameters) {
 	//var lang = tinyMCE.activeEditor.settings.langCode;
 	//resetEditor(lang, wiriseditorparameters);
 	tinyMCE.activeEditor.settings.wiriseditorparameters = wiriseditorparameters;
-   var currentSettings = tinyMCE.activeEditor.settings;
-   tinyMCE.activeEditor.destroy();
-   tinyMCE.init(currentSettings);
+	var currentSettings = tinyMCE.activeEditor.settings;
+	tinyMCE.activeEditor.destroy();
+	tinyMCE.init(currentSettings);
 }
 
 function resetEditor(lang){
