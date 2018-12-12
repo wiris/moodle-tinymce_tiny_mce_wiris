@@ -32,7 +32,7 @@ export default class GenericIntegration extends IntegrationModel {
         if (typeof(integrationModelProperties.configurationService) === 'undefined') {
             integrationModelProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
         }
-        integrationModelProperties.version = '7.8.0.1397';
+        integrationModelProperties.version = '7.9.0.1398';
         integrationModelProperties.scriptName = "wirisplugin-generic.js";
         integrationModelProperties.environment = {};
         integrationModelProperties.environment.editor = "GenericHTML";
