@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<libraries>
+    <library>
+        <location>tinymce/core</location>
+        <name>MathType JavaScript engine</name>
+        <version>7.9.0.1398</version>
+        <license>GPL</license>
+        <licenseversion>3.0+</licenseversion>
+    </library>
+</libraries>

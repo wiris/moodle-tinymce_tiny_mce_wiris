@@ -16,11 +16,9 @@ Feature: MathType for TinyMCE
     And I click on "On" "option" in the "MathType by WIRIS" "table_row"
     And I open my profile in edit mode
     And I click on "MathType" "button"
-    And I switch to "wrs_modal_iframe_id" iframe
     And I wait "5" seconds
     And I set mathtype formula to "1+2"
-    And I click on "//input[@class='wrs_button_accept']" "xpath_element"
-    And I switch to the main frame
+    And I click on "//button[@id='wrs_modal_button_accept[0]']" "xpath_element"
     And I click on "Update profile" "button"
     And I follow "Profile" in the user menu
     # Checking formula image outside edit element.
