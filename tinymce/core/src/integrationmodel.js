@@ -6,13 +6,12 @@ import Configuration from './configuration';
 
 /**
  * @typedef {Object} integrationModelProperties
- * @property {string} configurationService - configuration service path.
+ * @property {string} configurationService - Configuration service path. This parameter is needed to determine all services paths.
  * @property {HTMLElement} integrationModelProperties.target - HTML target.
- * @property {string} integrationModelProperties.scriptName integrationModelProperties.scriptName - integration script name.
+ * @property {string} integrationModelProperties.scriptName - Integration script name. Usually the name of the integration script.
  * @property {Object} integrationModelProperties.environment - integration environment properties.
  * @property {Object} [integrationModelProperties.callbackMethodArguments] - object containing callback method arguments.
  * @property {string} [integrationModelProperties.version] - integration version number.
- * @property {string} [integrationModelProperties.langFolderName] - integration lang folder name. 'lang' by default.
  * @property {Object} [integrationModelProperties.editorObject] - object containing the integration editor instance.
  * @property {boolean} [integrationModelProperties.rtl] - true if the editor is in RTL mode. false otherwise.
  */
@@ -23,6 +22,7 @@ import Configuration from './configuration';
  */
 export default class IntegrationModel {
     /**
+     * @constructs
      * IntegrationModel constructor.
      * @param {integrationModelProperties} integrationModelProperties
      */
@@ -69,9 +69,6 @@ export default class IntegrationModel {
         if ('scriptName' in integrationModelProperties) {
             this.scriptName = integrationModelProperties.scriptName;
         }
-        else {
-            throw new Error('IntegrationModel constructor error: scriptName property missed.')
-        }
 
         /**
          * Object containing the arguments needed by the callback function.
@@ -87,14 +84,6 @@ export default class IntegrationModel {
         this.environment = {};
         if ('environment' in integrationModelProperties) {
             this.environment = integrationModelProperties.environment;
-        }
-
-        /**
-         * Language folder path. 'lang' by default. the lang folder path could change for some HTML editors.
-         */
-        this.langFolderName = 'lang';
-        if ('langFolderName' in integrationModelProperties) {
-            this.langFolderName = integrationModelProperties.langFolderName;
         }
 
         /**
@@ -120,6 +109,14 @@ export default class IntegrationModel {
         this.rtl = false;
         if ('rtl' in integrationModelProperties) {
             this.rtl = integrationModelProperties.rtl;
+        }
+
+        /**
+         * Specifies if the integration model exposes the locale strings. false by default.
+         */
+        this.managesLanguage = false;
+        if ('managesLanguage' in integrationModelProperties) {
+            this.managesLanguage = integrationModelProperties.managesLanguage;
         }
 
         /**
@@ -167,6 +164,9 @@ export default class IntegrationModel {
      * @return {string} - Absolute path for the integration script.
      */
     getPath() {
+        if (typeof this.scriptName === 'undefined') {
+            throw new Error('scriptName property needed for getPath.')
+        }
         var col = document.getElementsByTagName("script");
         var path = '';
         for (var i = 0; i < col.length; i++) {
@@ -246,11 +246,49 @@ export default class IntegrationModel {
      * @param {string} editMode - Edit Mode (LaTeX or images).
      */
     updateFormula(mathml) {
+
+        let
+            focusElement,
+            windowTarget, 
+            wirisProperties = null;
+
         if (this.isIframe) {
-            this.core.updateFormula(this.target.contentWindow, this.target.contentWindow, mathml, null);
+            focusElement = this.target.contentWindow;
+            windowTarget = this.target.contentWindow;
         } else {
-            this.core.updateFormula(this.target, window, mathml, null);
+            focusElement = this.target;
+            windowTarget = window;
         }
+
+        let obj = this.core.beforeUpdateFormula(mathml, wirisProperties);
+
+        if (!obj) {
+            return;
+        }
+
+        obj = this.insertFormula(focusElement, windowTarget, obj.mathml, obj.wirisProperties);
+
+        if (!obj) {
+            return;
+        }
+
+        return this.core.afterUpdateFormula(obj.focusElement, obj.windowTarget, obj.node, obj.latex);
+
+
+        // this.core.before
+        // this.insert
+        // this.core.after
+    }
+
+    /**
+     * Wrapper to Core.insertFormula method.
+     * Inserts the formula in the specified target, creating
+     * a new image (new formula) or updating an existing one.
+     * @param {string} mathml - MathML to generate the formula.
+     * @param {string} editMode - Edit Mode (LaTeX or images).
+     */
+    insertFormula(focusElement, windowTarget, mathml, wirisProperties) {
+        return this.core.insertFormula(focusElement, windowTarget, mathml, wirisProperties);
     }
 
     /**
@@ -301,8 +339,9 @@ export default class IntegrationModel {
     doubleClickHandler(element) {
         if (element.nodeName.toLowerCase() == 'img') {
             this.core.getCustomEditors().disable();
-            if (element.hasAttribute('data-custom-editor')) {
-                var customEditor = element.getAttribute('data-custom-editor');
+            const customEditorAttributeName = Configuration.get('imageCustomEditorName');
+            if (element.hasAttribute(customEditorAttributeName)) {
+                var customEditor = element.getAttribute(customEditorAttributeName);
                 this.core.getCustomEditors().enable(customEditor);
             }
             if (Util.containsClass(element, Configuration.get('imageClassName'))) {
@@ -368,8 +407,8 @@ export default class IntegrationModel {
     }
 
     /**
-     * Callback function. This function will be called once the Core is loaded. IntegrationModel class
-     * will fire this method once the 'onLoad' Core event is fired. This function should content all the logic to init
+     * This function is called once the {@link Core} is loaded. IntegrationModel class
+     * will fire this method when {@link Core} 'onLoad' event is fired. This method should content all the logic to init
      * the integration.
      */
     callbackFunction() {

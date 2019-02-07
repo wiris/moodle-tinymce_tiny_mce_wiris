@@ -13,27 +13,39 @@ import Event from './event.js';
 import Listeners from './listeners.js';
 import IntegrationModel from './integrationmodel.js';
 import Image from './image.js';
+import '../styles.css';
 
 /**
- * Class representing MathType integration Core. This class is the integration entry point. Manages integration
- * initialization (services, languages), events, and the insertion of the formulas in the edit area.
+ * This class represents MathType integration Core, managing the following:
+ * - Integration initialization.
+ * - Event managing.
+ * - Insertion of formulas into the edit area.
+ * ```js
+ *       let core = new Core();
+ *       core.addListener(listener);
+ *       core.language = 'en';
+ *
+ *       // Initializing Core class.
+ *       core.init(configurationService);
+ * ```
  */
 export default class Core {
+
     /**
-     * Core class constructor. Admits a string containing the configurationjs service
-     * which loads all JavaScript configuration generated in the backend. This file is needed
-     * to instantiate the serviceProvider class (all services lives in the same path).
+     * Class constructor.
      */
     constructor() {
         /**
          * Language. Needed for accessibility and locales. 'en' by default.
-         * @type {string}
+         * @type {String}
          */
         this.language = 'en';
 
         /**
-         * Edit mode. Admit 'images' and 'latex' values.
-         * @type {string}
+         * Edit mode, 'images' by default. Admits the following values:
+         * - images
+         * - latex
+         * @type {String}
          */
         this.editMode = 'images';
 
@@ -44,11 +56,17 @@ export default class Core {
         this.modalDialog = null;
 
         /**
-         * Core custom editors. By default only chemistry editor.
+         * The instance of {@link CustomEditors}. By default
+         * the only custom editor is the Chemistry editor.
          * @type {CustomEditors}
          */
         this.customEditors = new CustomEditors();
-        var chemEditorParams = {
+
+        /**
+         * Chemistry editor.
+         * @type {CustomEditor}
+         */
+        const chemEditorParams = {
             name: 'Chemistry',
             toolbar: 'chemistry',
             icon: 'chem.png',
@@ -56,52 +74,63 @@ export default class Core {
             title: 'ChemType',
             tooltip: 'Insert a chemistry formula - ChemType' // TODO: Localize tooltip.
         }
+
         this.customEditors.addEditor('chemistry', chemEditorParams);
 
         /**
          * Environment properties. This object contains data about the integration platform.
-         * @type {Object}
-         * @property {string} editor - Editor name. Usually the HTML editor.
-         * @property {string} mode - Save mode. Xml by default
-         * @property {string} version - Plugin version.
+         * @typedef IntegrationEnvironment
+         * @property {String} IntegrationEnvironment.editor - Editor name. For example the HTML editor.
+         * @property {String} IntegrationEnvironment.mode - Integration save mode.
+         * @property {String} IntegrationEnvironment.version - Integration version.
+         *
+         */
+
+        /**
+         * The environment properties object.
+         * @type {IntegrationEnvironment}
          */
         this.environment = {};
 
         /**
-         * Edit properties.
-         * @type {Object}
-         * @property {boolean} isNewElement - Indicates if the edit formula is a new one or not.
-         * @property {Img} temporalImage - Image of the formula edited. Null if the formula is a new one.
-         * @property {Range} latexRange - LaTeX formula range.
-         * @property {Range} range - Image range.
-         * @property {string} editMode - Edition mode. Images by default.
+         * @typedef EditionProperties
+         * @property {Boolean} editionProperties.isNewElement - True if the formula is a new one. False otherwise.
+         * @property {HTMLImageElement} editionProperties.temporalImage- The image element. Null if the formula is new.
+         * @property {Range} editionProperties.latexRange - Tha range that contains the LaTeX formula.
+         * @property {Range} editionProperties.range - The range that contains the image element.
+         * @property {String} editionProperties.editMode - The edition mode. 'images' by default.
          */
-        this.editionProperties = {
-            isNewElement: true,
-            temporalImage: null,
-            latexRange: null,
-            range: null
-        }
 
         /**
-         * Integration model instance.
+         * The properties of the current edition process.
+         * @type {EditionProperties}
+         */
+        this.editionProperties = {}
+
+        this.editionProperties.isNewElement = true;
+        this.editionProperties.temporalImage = null;
+        this.editionProperties.latexRange = null;
+        this.editionProperties.range = null;
+
+        /**
+         * The {@link IntegrationModel} instance.
          * @type {IntegrationModel}
          */
         this.integrationModel = null;
 
         /**
-         * ContentManager instance.
+         * The {@link ContentManager} instance.
          * @type {ContentManager}
          */
         this.contentManager = null;
 
         /**
-         * Information about the current browser.
-         * @type {string}
+         * The current browser.
+         * @type {String}
          */
         this.browser = (
             function get_browser() {
-                var ua = navigator.userAgent;
+                let ua = navigator.userAgent;
                 if (ua.search("Edge/") >= 0) {
                     return "EDGE";
                 } else if (ua.search("Chrome/") >= 0) {
@@ -118,212 +147,177 @@ export default class Core {
 
         /**
          * Plugin listeners.
-         * @type {Object[]}
+         * @type {Array.<Object>}
          */
         this.listeners = new Listeners();
     }
 
     /**
-     * Initializes the core.
-     * @param {string} integrationPath - integration root folder path.
+     * Static property.
+     * Core listeners.
+     * @private
+     * @type {Listeners}
      */
-    init(integrationPath) {
-        this.load(integrationPath);
+    static get globalListeners() {
+        return Core._globalListeners;
     }
 
     /**
-     * Sets the instance of the integration model object.
-     * @param {IntegrationModel} integrationModel - integrationModel instance.
+     * Static property setter.
+     * Set core listeners.
+     * @param {Listeners} value - The property value.
+     * @ignore
+     */
+    static set globalListeners(value) {
+        Core._globalListeners = value;
+    }
+
+    /**
+     * Core state. Says if it was loaded previously.
+     * True when Core.init was called. Otherwise, false.
+     * @private
+     * @type {Boolean}
+     */
+    static get initialized() {
+        return Core._initialized;
+    }
+
+    /**
+     * Core state. Says if it was loaded previously.
+     * @param {Boolean} value - True to say that Core.init was called. Otherwise, false.
+     * @ignore
+     */
+    static set initialized(value) {
+        Core._initialized = value;
+    }
+
+    /**
+     * Sets the {@link Core.integrationModel} property.
+     * @param {IntegrationModel} integrationModel - The {@link IntegrationModel} property.
      */
     setIntegrationModel(integrationModel) {
         this.integrationModel = integrationModel;
     }
 
     /**
-     * This method set an object containing environment properties. The structure for the an
-     * environment object is the following:
-     * @param {Object} environmentObject - And object containing environment properties.
-     * @param {string} environmentObject.editor - Integration editor (usually HTML editor).
-     * @param {string} environmentObject.mode - Save mode.
-     * @param {string} environmentObject.version - Integration version.
+     * Sets the {@link Core.environment} property.
+     * @param {IntegrationEnvironment} integrationEnvironment - The {@link IntegrationEnvironment} object.
      */
-    setEnvironment(environmentObject) {
-        if ('editor' in environmentObject) {
-            this.environment.editor = environmentObject.editor;
+    setEnvironment(integrationEnvironment) {
+        if ('editor' in integrationEnvironment) {
+            this.environment.editor = integrationEnvironment.editor;
         }
-        if ('mode' in environmentObject) {
-            this.environment.mode = environmentObject.mode;
+        if ('mode' in integrationEnvironment) {
+            this.environment.mode = integrationEnvironment.mode;
         }
-        if ('version' in environmentObject) {
-            this.environment.version = environmentObject.version;
+        if ('version' in integrationEnvironment) {
+            this.environment.version = integrationEnvironment.version;
         }
     }
 
     /**
-     * Get modal dialog
-     * @returns {ModalDialog} Modal Window core instance.
+     * Returns the current {@link ModalDialog} instance.
+     * @returns {ModalDialog} The current {@link ModalDialog} instance.
      */
     getModalDialog() {
         return this.modalDialog;
     }
 
     /**
-     * This method inits the Core class doing the following:
-     * - Calls (async) to configurationjs service, converting the response JSON into javascript variables.
-     * - Updates Configuration class with the previous configuration properties.
-     * - Updates the ServiceProvider class using configurationjs service path as reference.
-     * - Load lang strings and CSS.
-     * - Once the previous is ready fires 'onLoad' event.
+     * Inits the {@link Core} class, doing the following:
+     * - Calls asynchronously configuration service, retrieving the backend configuration in a JSON.
+     * - Updates {@link Configuration} class with the previous configuration properties.
+     * - Updates the {@link ServiceProvider} class using the configuration service path as reference.
+     * - Loads language strings.
+     * - Fires onLoad event.
+     * @param {String} configurationService - The integration configuration service path.
      */
-    load(integrationPath) {
-        var httpRequest = typeof XMLHttpRequest != 'undefined' ? new XMLHttpRequest() : new ActiveXObject('Microsoft.XMLHTTP');
-        this.integrationPath = integrationPath.indexOf("/") == 0 || integrationPath.indexOf("http") == 0 ? integrationPath : Util.concatenateUrl(this.integrationModel.getPath(), integrationPath);
-        httpRequest.open('GET', this.integrationPath, false);
-        // Async request.
-        httpRequest.onload = function (e) {
-            if (httpRequest.readyState === 4) {
-                // Loading configuration variables.
-                var jsonConfiguration = JSON.parse(httpRequest.responseText);
-                var variables = Object.keys(jsonConfiguration);
+    init(configurationService) {
+        if (!Core.initialized) {
+            const integrationPath = configurationService.indexOf("/") == 0 || configurationService.indexOf("http") == 0 ? configurationService : Util.concatenateUrl(this.integrationModel.getPath(), configurationService);
+
+            const serviceProviderListener = Listeners.newListener('onInit', function () {
+                const jsConfiguration = ServiceProvider.getService('configurationjs', '', 'get');
+                const jsonConfiguration = JSON.parse(jsConfiguration);
                 Configuration.addConfiguration(jsonConfiguration);
                 // Adding JavaScript (not backend) configuration variables.
                 Configuration.addConfiguration(jsProperties);
-                // Load service paths.
-                this.loadServicePaths();
-                // Load lang file.
-                this.loadLangFile();
-                this.loadCSS();
                 // Fire 'onLoad' event. All integration must listen this event in order to know if the plugin has been properly loaded.
-                // We need to wait until stringManager has been loaded.
-                if (Core.stringManager === null) {
-                    var stringManagerListener = Listeners.newListener('onLoad', () => {
-                        this.listeners.fire('onLoad', {});
-                    })
-                    Core.stringManager.addListener(stringManagerListener);
-                }
-                else {
-                    this.listeners.fire('onLoad', {});
-                }
+                StringManager.language = this.language;
+                this.listeners.fire('onLoad', {});
+            }.bind(this));
 
-            }
-        }.bind(this);
-        httpRequest.send(null);
-    }
+            ServiceProvider.addListener(serviceProviderListener);
+            ServiceProvider.init({ integrationPath });
 
-    /**
-     * Instantiate a new ServiceProvider path (static) and calculate all the backend services
-     * paths using Core integrationPath as base path.
-     */
-    loadServicePaths() {
-        // Services path (tech dependant).
-        var createImagePath = this.integrationPath.replace('configurationjs', 'createimage');
-        var showImagePath = this.integrationPath.replace('configurationjs', 'showimage');
-        var createImagePath = this.integrationPath.replace('configurationjs', 'createimage');
-        var getMathMLPath = this.integrationPath.replace('configurationjs', 'getmathml');
-        var servicePath = this.integrationPath.replace('configurationjs', 'service');
-
-        // Some backend integrations (like Java o Ruby) have an absolute backend path,
-        // for example: /app/service. For them we calculate the absolute URL path, i.e
-        // protocol://domain:port/app/service
-        if (this.integrationPath.indexOf("/") == 0) {
-            var serverPath = this.getServerPath();
-            showImagePath = serverPath + showImagePath;
-            createImagePath = serverPath + createImagePath;
-            getMathMLPath = serverPath + getMathMLPath;
-            servicePath = serverPath + servicePath;
+            Core.initialized = true;
         }
-
-        ServiceProvider.setServicePath('showimage', showImagePath);
-        ServiceProvider.setServicePath('createimage', createImagePath);
-        ServiceProvider.setServicePath('service', servicePath);
-        ServiceProvider.setServicePath('getmathml', getMathMLPath);
-    }
-
-    /**
-     * Returns the client side server path on integration script lives.
-     * @return {string} client side server path.
-     */
-    getServerPath() {
-        var url = this.integrationModel.getPath();
-        var hostNameIndex = url.indexOf("/", url.indexOf("/") + 2);
-        return url.substr(0, hostNameIndex);
-    }
-
-    /**
-     * Loads language file using integration script path as base path. Then
-     * load the string into the core StringManager instance.
-     */
-    loadLangFile() {
-        // Translated languages.
-        var languages = 'ar,ca,cs,da,de,en,es,et,eu,fi,fr,gl,he,hr,hu,it,ja,ko,nl,no,pl,pt,pt_br,ru,sv,tr,zh,el';
-
-        var langArray = languages.split(',');
-        var lang = this.language;
-
-        if (langArray.indexOf(lang) == -1) {
-            lang = lang.substr(0, 2);
+        else {
+            // Case when there are more than two editor instances.
+            // After the first editor all the other editors don't need to load any file or service.
+            this.listeners.fire('onLoad', {});
         }
-
-        if (langArray.indexOf(lang) == -1) {
-            lang = 'en';
-        }
-
-        var script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = this.integrationModel.getPath() + '/' + this.integrationModel.langFolderName + '/' + lang + '/strings.js';
-        // When strings are loaded, it loads into stringManager
-        script.onload = function () {
-            Core.getStringManager().loadStrings(wrs_strings);
-        };
-        document.getElementsByTagName('head')[0].appendChild(script);
     }
 
     /**
-     * Appends CSS file to header.
+     * Sets the {@link Core.integrationModel} property.
+     * @param {IntegrationModel} integrationModel - The {@link IntegrationModel} property.
      */
-    loadCSS() {
-        var fileRef = document.createElement("link");
-        fileRef.setAttribute("rel", "stylesheet");
-        fileRef.setAttribute("type", "text/css");
-        fileRef.setAttribute("href", Util.concatenateUrl(this.integrationModel.getPath(), '/core/styles.css'));
-        document.getElementsByTagName("head")[0].appendChild(fileRef);
+    setIntegrationModel(integrationModel) {
+        this.integrationModel = integrationModel;
     }
 
     /**
-     * Adds a listener to Listeners core property.
-     * @param {Object} listener - listener to be added.
+     * Sets the {@link Core.environment} property.
+     * @param {IntegrationEnvironment} integrationEnvironment - The {@link IntegrationEnvironment} object.
+     */
+    setEnvironment(integrationEnvironment) {
+        if ('editor' in integrationEnvironment) {
+            this.environment.editor = integrationEnvironment.editor;
+        }
+        if ('mode' in integrationEnvironment) {
+            this.environment.mode = integrationEnvironment.mode;
+        }
+        if ('version' in integrationEnvironment) {
+            this.environment.version = integrationEnvironment.version;
+        }
+    }
+
+    /**
+     * Returns the current {@link ModalDialog} instance.
+     * @returns {ModalDialog} The current {@link ModalDialog} instance.
+     */
+    getModalDialog() {
+        return this.modalDialog;
+    }
+
+    /**
+     * Adds a {@link Listener} to the current instance of the {@link Core} class.
+     * @param {Listener} listener - The listener object.
      */
     addListener(listener) {
         this.listeners.add(listener);
     }
 
     /**
-     * Adds a listener to global core listeners.
-     * @param {Object} listener - listener to be added.
+     * Adds the global {@link Listener} instance to {@link Core} class.
+     * @param {Listener} listener - The event listener to be added.
      * @static
      */
     static addGlobalListener(listener) {
         Core.globalListeners.add(listener);
     }
 
-    /**
-     * Transform a MathML into a image formula. Then the image formula is inserted in the specified target, creating
-     * a new image (new formula) or updating an existing one.
-     * @param {Object} focusElement - element to be focused
-     * @param {Object} windowTarget - window where the editable content is
-     * @param {string} mathml - Mathml code
-     * @param {Object[]} wirisProperties - extra attributes for the formula (like background color or font size).
-     */
-    updateFormula(focusElement, windowTarget, mathml, wirisProperties) {
+    beforeUpdateFormula(mathml, wirisProperties) {
         /**
-         * This event is fired after update the formula.
+         * This event is fired before updating the formula.
          * @type {Object}
-         * @property {string} mathml - MathML to be transformed.
-         * @property {string} editMode - edit mode.
-         * @property {Object} wirisProperties - extra attributes for the formula.
-         * @property {string} language - formula language.
+         * @property {String} mathml - MathML to be transformed.
+         * @property {String} editMode - Edit mode.
+         * @property {Object} wirisProperties - Extra attributes for the formula.
+         * @property {String} language - Formula language.
          */
-        var beforeUpdateEvent = new Event();
+        let beforeUpdateEvent = new Event();
 
         beforeUpdateEvent.mathml = mathml;
 
@@ -331,7 +325,7 @@ export default class Core {
         // We don't want wirisProperties object modified.
         beforeUpdateEvent.wirisProperties = {};
 
-        for (var attr in wirisProperties) {
+        for (let attr in wirisProperties) {
             beforeUpdateEvent.wirisProperties[attr] = wirisProperties[attr];
         }
 
@@ -347,46 +341,73 @@ export default class Core {
             return;
         }
 
-        mathml = beforeUpdateEvent.mathml;
-        wirisProperties = beforeUpdateEvent.wirisProperties;
+        return {
+            mathml: beforeUpdateEvent.mathml,
+            wirisProperties: beforeUpdateEvent.wirisProperties,
+        };
+    }
 
-        /**
-         * This event is fired after update the formula.
-         * @type {Object}
-         * @param {string} editMode - edit mode.
-         * @param {Object} windowTarget - target window.
-         * @param {Object} focusElement - target element to be focused after update.
-         * @param {string} latex - LaTeX generated by the formula (editMode=latex).
-         * @param {Object} node - node generated after update the formula (text if LaTeX img otherwise).
-         */
-        var afterUpdateEvent = new Event();
-        afterUpdateEvent.editMode = this.editMode;
-        afterUpdateEvent.windowTarget = windowTarget;
-        afterUpdateEvent.focusElement = focusElement;
+    /**
+     * Converts a MathML into it's correspondent image and inserts the image is inserted in a HTMLElement target by creating
+     * a new image or updating an existing one.
+     * @param {HTMLElement} focusElement - The HTMLElement to be focused after the insertion.
+     * @param {Window} windowTarget - The window element where the editable content is.
+     * @param {String} mathml - The MathML.
+     * @param {Array.<Object>} wirisProperties - The extra attributes for the formula.
+     */
+    insertFormula(focusElement, windowTarget, mathml, wirisProperties) {
+
+        let returnObject = {};
 
         if (!mathml) {
             this.insertElementOnSelection(null, focusElement, windowTarget);
         }
         else if (this.editMode == 'latex') {
-            afterUpdateEvent.latex = Latex.getLatexFromMathML(mathml);
+            returnObject.latex = Latex.getLatexFromMathML(mathml);
             // this.integrationModel.getNonLatexNode is an integration wrapper to have special behaviours for nonLatex.
             // Not all the integrations have special behaviours for nonLatex.
-            if (!!this.integrationModel.fillNonLatexNode && !afterUpdateEvent.latex) {
+            if (!!this.integrationModel.fillNonLatexNode && !returnObject.latex) {
+                let afterUpdateEvent = new Event();
+                afterUpdateEvent.editMode = this.editMode;
+                afterUpdateEvent.windowTarget = windowTarget;
+                afterUpdateEvent.focusElement = focusElement;
+                afterUpdateEvent.latex = returnObject.latex;
                 this.integrationModel.fillNonLatexNode(afterUpdateEvent, windowTarget, mathml);
             }
             else {
-                afterUpdateEvent.node = windowTarget.document.createTextNode('$$' + afterUpdateEvent.latex + '$$');
+                returnObject.node = windowTarget.document.createTextNode('$$' + returnObject.latex + '$$');
             }
-            this.insertElementOnSelection(afterUpdateEvent.node, focusElement, windowTarget);
+            this.insertElementOnSelection(returnObject.node, focusElement, windowTarget);
         }
         else if (this.editMode == 'iframes') {
-            var iframe = wrs_mathmlToIframeObject(windowTarget, mathml);
+            const iframe = wrs_mathmlToIframeObject(windowTarget, mathml);
             this.insertElementOnSelection(iframe, focusElement, windowTarget);
         }
         else {
-            afterUpdateEvent.node = Parser.mathmlToImgObject(windowTarget.document, mathml, wirisProperties, this.language);
-            this.insertElementOnSelection(afterUpdateEvent.node, focusElement, windowTarget);
+            returnObject.node = Parser.mathmlToImgObject(windowTarget.document, mathml, wirisProperties, this.language);
+            this.insertElementOnSelection(returnObject.node, focusElement, windowTarget);
         }
+
+        return returnObject;
+
+    }
+
+    afterUpdateFormula(focusElement, windowTarget, node, latex) {
+        /**
+         * This event is fired after update the formula.
+         * @type {Event}
+         * @param {String} editMode - edit mode.
+         * @param {Object} windowTarget - target window.
+         * @param {Object} focusElement - target element to be focused after update.
+         * @param {String} latex - LaTeX generated by the formula (editMode=latex).
+         * @param {Object} node - node generated after update the formula (text if LaTeX img otherwise).
+         */
+        let afterUpdateEvent = new Event();
+        afterUpdateEvent.editMode = this.editMode;
+        afterUpdateEvent.windowTarget = windowTarget;
+        afterUpdateEvent.focusElement = focusElement;
+        afterUpdateEvent.node = node;
+        afterUpdateEvent.latex = latex;
 
         if (this.listeners.fire('onAfterFormulaInsertion', afterUpdateEvent)) {
             return;
@@ -398,8 +419,8 @@ export default class Core {
     }
 
     /**
-     * Sets the caret after 'node' and focus node owner document.
-     * @param {Object} node - node that it will be behind the caret after the execution.
+     * Sets the caret after a given Node and set the focus to the owner document.
+     * @param {Node} node - The Node element.
      */
     placeCaretAfterNode(node) {
         this.integrationModel.getSelection();
@@ -408,7 +429,7 @@ export default class Core {
             const range = nodeDocument.createRange();
             range.setStartAfter(node);
             range.collapse(true);
-            var selection = nodeDocument.getSelection();
+            let selection = nodeDocument.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
             nodeDocument.body.focus();
@@ -416,10 +437,10 @@ export default class Core {
     }
 
     /**
-     * Replaces a selection with an element.
-     * @param {Object} element - element to replace the selection.
-     * @param {Object} focusElement - element to be focused after the replace.
-     * @param {Object} windowTarget - target window.
+     * Replaces a Selection object with an HTMLElement.
+     * @param {HTMLElement} element - The HTMLElement to replace the selection.
+     * @param {HTMLElement} focusElement - The HTMLElement to be focused after the replace.
+     * @param {Window} windowTarget - The window target.
      */
     insertElementOnSelection(element, focusElement, windowTarget) {
         if (this.editionProperties.isNewElement) {
@@ -428,7 +449,7 @@ export default class Core {
                     Util.updateTextArea(focusElement, element.textContent);
                 }
                 else if (document.selection && document.getSelection == 0) {
-                    var range = windowTarget.document.selection.createRange();
+                    let range = windowTarget.document.selection.createRange();
                     windowTarget.document.execCommand('InsertImage', false, element.src);
 
                     if (!('parentElement' in range)) {
@@ -438,7 +459,7 @@ export default class Core {
                     }
 
                     if ('parentElement' in range) {
-                        var temporalObject = range.parentElement();
+                        let temporalObject = range.parentElement();
 
                         if (temporalObject.nodeName.toUpperCase() == 'IMG') {
                             temporalObject.parentNode.replaceChild(element, temporalObject);
@@ -530,9 +551,9 @@ export default class Core {
 
 
     /**
-     * Opens a new modal dialog.
-     * @param {object} target - target element.
-     * @param {boolean} isIframe - specifies if the target is an iframe.
+     * Opens a modal dialog containing MathType editor..
+     * @param {HTMLElement} target - The target HTMLElement where formulas should be inserted.
+     * @param {Boolean} isIframe - True if the target HTMLElement is an iframe. False otherwise.
      */
     openModalDialog(target, isIframe) {
         // Textarea elements don't have normal document ranges. It only accepts latex edit.
@@ -543,13 +564,13 @@ export default class Core {
             if (isIframe) {
                 // Is needed focus the target first.
                 target.contentWindow.focus()
-                let selection = target.contentWindow.getSelection();
+                const selection = target.contentWindow.getSelection();
                 this.editionProperties.range = selection.getRangeAt(0);
             }
             else {
                 // Is needed focus the target first.
                 target.focus()
-                let selection = getSelection();
+                const selection = getSelection();
                 this.editionProperties.range = selection.getRangeAt(0);
             }
         }
@@ -669,21 +690,21 @@ export default class Core {
 
         // The backend send the default editor attributes in a coma separated with the following structure:
         // key1=value1,key2=value2...
-        var defaultEditorAttributesArray = Configuration.get('editorAttributes').split(", ");
-        var defaultEditorAttributes = {};
-        for (var i = 0, len = defaultEditorAttributesArray.length; i < len; i++) {
-            var tempAttribute = defaultEditorAttributesArray[i].split('=');
-            var key = tempAttribute[0];
-            var value = tempAttribute[1];
+        const defaultEditorAttributesArray = Configuration.get('editorAttributes').split(", ");
+        let defaultEditorAttributes = {};
+        for (let i = 0, len = defaultEditorAttributesArray.length; i < len; i++) {
+            const tempAttribute = defaultEditorAttributesArray[i].split('=');
+            const key = tempAttribute[0];
+            const value = tempAttribute[1];
             defaultEditorAttributes[key] = value;
         }
         // Custom editor parameters.
-        var editorAttributes = {};
+        let editorAttributes = {};
         Object.assign(editorAttributes, defaultEditorAttributes, Configuration.get('editorParameters'));
         editorAttributes.language = this.language;
         editorAttributes.rtl = this.integrationModel.rtl;
 
-        var contentManagerAttributes = {}
+        let contentManagerAttributes = {}
         contentManagerAttributes.editorAttributes = editorAttributes;
         contentManagerAttributes.language = this.language;
         contentManagerAttributes.customEditors = this.customEditors;
@@ -694,12 +715,12 @@ export default class Core {
             this.contentManager = new ContentManager(contentManagerAttributes);
             // When an instance of ContentManager is created we need to wait until the ContentManager is ready
             // by listening 'onLoad' event.
-            var listener = Listeners.newListener(
+            const listener = Listeners.newListener(
                 'onLoad',
                 function() {
                     this.contentManager.isNewElement = this.editionProperties.isNewElement;
                     if (this.editionProperties.temporalImage != null) {
-                        var mathML = MathML.safeXmlDecode(this.editionProperties.temporalImage.getAttribute(Configuration.get('imageMathmlAttribute')));
+                        const mathML = MathML.safeXmlDecode(this.editionProperties.temporalImage.getAttribute(Configuration.get('imageMathmlAttribute')));
                         this.contentManager.mathML = mathML;
                     }
                 }.bind(this)
@@ -711,7 +732,7 @@ export default class Core {
         } else {
             this.contentManager.isNewElement = this.editionProperties.isNewElement;
             if (this.editionProperties.temporalImage != null) {
-                var mathML = MathML.safeXmlDecode(this.editionProperties.temporalImage.getAttribute(Configuration.get('imageMathmlAttribute')));
+                const mathML = MathML.safeXmlDecode(this.editionProperties.temporalImage.getAttribute(Configuration.get('imageMathmlAttribute')));
                 this.contentManager.mathML = mathML;
             }
         }
@@ -720,41 +741,42 @@ export default class Core {
     }
 
     /**
-     * Returns the instance of the ServiceProvider class.
-     * @returns {ServiceProvider} ServiceProvider instance.
-     * @static
-     */
-    static getServiceProvider() {
-        return Core.serviceProvider;
-    }
-
-    /**
-     * Returns the instance of the StringManager class.
-     * @returns {StringManager} StringManager instance
-     */
-    static getStringManager() {
-        return Core.stringManager;
-    }
-
-    /**
-     * Return an object with all instance custom editors.
-     * @return {CustomEditors}
+     * Returns the {@link CustomEditors} instance.
+     * @return {CustomEditors} The current {@link CustomEditors} instance.
      */
     getCustomEditors() {
         return this.customEditors;
     }
+
+    /**
+     * The global {@link Listeners} instance. {@link Core} class uses it to fire global events.
+     * @type {Listeners}
+     */
+    static get globalListeners() {
+        return Core._globalListeners;
+    }
+
+    /**
+     * Sets the {@link Core.globalListeners} property.
+     * @param {Listener} - A {@link Listener} instance.
+     * @ignore
+     */
+    static set globalListeners(listener) {
+        Core._globalListeners = listener;
+    }
+
 }
 
 /**
- * Plugin static listeners.
- * @type {Object[]}
- * @static
+ * Core static listeners.
+ * @type {Listeners}
+ * @private
  */
-Core.globalListeners = new Listeners();
+Core._globalListeners = new Listeners();
 
 /**
- * Class to manage plugin locales.
- * @type {StringManager}
- * @static
+ * Resources state. Says if they were loaded or not.
+ * @type {Boolean}
+ * @private
  */
-Core.stringManager = new StringManager();
+Core._initialized = false;

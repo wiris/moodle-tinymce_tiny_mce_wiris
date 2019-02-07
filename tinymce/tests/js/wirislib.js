@@ -12,11 +12,11 @@ document.head.appendChild(js);
 
 // Specifies how the formulas are stored in the database.
 // On configuration.ini the name of the variable is wiriseditorsavemode.
-var _wrs_conf_saveMode;
+var saveMode;
 
 // Specifies how the images are displayed on the editor.
 // On configuration.ini the name of variable is wiriseditoreditmode.
-var _wrs_conf_editMode;
+var editMode;
 
 /**
  * This method simulates how the formula rendering on a non editable area using JsPluginViewer (Preview tab)
@@ -58,7 +58,7 @@ function updateHTMLCode(){
 	// Is text not javascript.
 	// For demo purposes only.
 	var jsExampleScript = '';
-	if (_wrs_conf_saveMode == "xml") {
+	if (saveMode == "xml") {
 		jsExampleScript += 'var js = document.createElement("script");\n';
 		jsExampleScript += 'js.type = "text/javascript";\n';
 		jsExampleScript += 'js.src = "WIRISplugins.js?viewer=image";\n';
@@ -84,18 +84,18 @@ function updateHTMLCode(){
  function changeMode(mode) {
 	// Mathml mode.
 	if (mode == 'xml') {
-		_wrs_conf_saveMode = 'xml';
+		saveMode = 'xml';
 	}
 	// Image mode.
 	else if (mode == 'image') {
-		_wrs_conf_saveMode = 'image';
+		saveMode = 'image';
 	}
 	// Base64 mode.
 	else if (mode == 'base64') {
-		_wrs_conf_saveMode = 'base64';
+		saveMode = 'base64';
 		// With this variable, formulas are stored as a base64 image on the database but showed with
 		// a showimage src on the editor.
-		_wrs_conf_editMode = "image";
+		editMode = "image";
 	}
 	// Updating Preview and HTML tabs.
 	updateFunction();
@@ -262,7 +262,7 @@ window.addEventListener('DOMContentLoaded', function() {
  	var open_highlight = "<pre class='language-xml wrs_inline' style='word-wrap:break-word;background-color:white'><code>";
  	var close_highlight = "</code></pre>";
 
- 	if (_wrs_conf_saveMode == "xml") {
+ 	if (saveMode == "xml") {
 
  		/* Format the MATH tags */
 
@@ -282,7 +282,7 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
  	}
- 	else if (_wrs_conf_saveMode == "image" || _wrs_conf_saveMode == "base64") {
+ 	else if (saveMode == "image" || saveMode == "base64") {
 
  		/* Format the IMG and BASE64 */
  		console.log("IMAGE MODE");

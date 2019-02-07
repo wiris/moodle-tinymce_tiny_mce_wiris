@@ -1,6 +1,6 @@
 {
   "name": "@wiris/mathtype-tinymce4-dev",
-  "version": "7.9.0",
+  "version": "7.10.0",
   "description": "MathType API for TinyMCE4 editor",
   "keywords": [
     "chem",
@@ -38,7 +38,12 @@
     "url-loader": "^1.1.1",
     "uglifyjs-webpack-plugin": "^1.2.8",
     "webpack": "^4.17.2",
-    "webpack-cli": "^3.1.0"
+    "webpack-cli": "^3.1.0",
+    "esdoc": "^1.1.0",
+    "esdoc-inject-script-plugin": "^1.0.0",
+    "esdoc-inject-style-plugin": "^1.0.0",
+    "esdoc-standard-plugin": "^1.0.0",
+    "jsdoc-export-default-interop": "^0.3.1"
   },
   "main": "editor_plugin.src.js"
 }

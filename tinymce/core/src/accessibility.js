@@ -1,21 +1,45 @@
-import TextCache from './cache';
+import TextCache from './textcache';
 import Core from './core.src';
 import ServiceProvider from './serviceprovider';
 import MathML from './mathml.js';
+import StringManager from './stringmanager';
 
 /**
- * Class representing MathType accessible class. This class converts MathML into accessible text.
+ * This class represents MathType accessible class. Converts MathML to accessible text and manages
+ * the associated client-side cache.
  */
 export default class Accessibility {
 
     /**
-     * Gets the accessible text of a given MathML calling mathml2accessible service.
-     * @param {string} mathML - MathML to be converted to accessible text.
-     * @param {string} language - language of the accessible text.
-     * @param {Object[]} data - object containing parameters to send to textService service.
-     * @return {string} Accessibility from mathml string on language string.
+    * Static property.
+    * Accessibility cache, each entry contains a MathML and its correspondent accessibility text.
+    * @type {TextCache}
+    */
+    static get cache() {
+        return Accessibility._cache;
+    }
+
+    /**
+     * Static property setter.
+     * Set accessibility cache.
+     * @param {TextCahe} value - The property value.
+     * @ignore
+     */
+    static set cache(value) {
+        Accessibility._cache = value;
+    }
+
+    /**
+     * Converts MathML strings to its accessible text representation.
+     * @param {String} mathML - MathML to be converted to accessible text.
+     * @param {String} [language] - Language of the accessible text. 'en' by default.
+     * @param {Array.<String>} [data] - Parameters to send to mathml2accessible service.
+     * @return {String} Accessibility text.
      */
     static mathMLToAccessible(mathML, language, data) {
+        if (typeof(language) === 'undefined') {
+            language = 'en';
+        }
         // Check MathML class. If the class is chemistry,
         // we add chemistry to data to force accessibility service
         // to load chemistry grammar.
@@ -25,7 +49,7 @@ export default class Accessibility {
         var accessibleText;
 
         if (Accessibility.cache.get(mathML)) {
-            accessibleText = Accessibility.cache.get[mathML];
+            accessibleText = Accessibility.cache.get(mathML);
         }
         else {
             data['service'] = 'mathml2accessible';
@@ -36,7 +60,7 @@ export default class Accessibility {
                 Accessibility.cache.populate(mathML, accessibleText);
             }
             else {
-                accessibleText = Core.getStringManager().getString('error_convert_accessibility');
+                accessibleText = StringManager.get('error_convert_accessibility');
             }
         }
 
@@ -45,8 +69,9 @@ export default class Accessibility {
 }
 
 /**
- * Static property. This property contains an instance of TextCache class to manage the JavaScript accessible cache.
+ * Contains an instance of TextCache class to manage the JavaScript accessible cache.
  * Each entry of the cache object contains the MathML and it's correspondent accessibility text.
+ * @private
  * @type {TextCache}
  */
-Accessibility.cache = new TextCache();
+Accessibility._cache = new TextCache();

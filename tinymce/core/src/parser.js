@@ -24,9 +24,6 @@ export default class Parser {
      * @static
      */
     static mathmlToImgObject(creator, mathml, wirisProperties, language) {
-        var width;
-        var height;
-        var baseline;
         var imgObject = creator.createElement('img');
         imgObject.align = 'middle';
         imgObject.style.maxWidth = 'none';
@@ -51,11 +48,11 @@ export default class Parser {
 
         if (mathml.indexOf('class="') != -1) {
             // We check here if the MathML has been created from a customEditor (such chemistry)
-            // to add data-custom-editor attribute to img object (if necessary).
+            // to add custom editor name attribute to img object (if necessary).
             var mathmlSubstring = mathml.substring(mathml.indexOf('class="') + 'class="'.length, mathml.length);
             mathmlSubstring = mathmlSubstring.substring(0, mathmlSubstring.indexOf('"'));
             mathmlSubstring = mathmlSubstring.substring(4, mathmlSubstring.length);
-            imgObject.setAttribute('data-custom-editor', mathmlSubstring);
+            imgObject.setAttribute(Configuration.get('imageCustomEditorName'), mathmlSubstring);
         }
 
         // Performance enabled.
@@ -124,7 +121,7 @@ export default class Parser {
 
         if (result.indexOf('@BASE@') != -1) {
             // Replacing '@BASE@' with the base URL of createimage.
-            var baseParts = Core.getServiceProvider().getServicePath('createimage').split('/');
+            let baseParts = ServiceProvider.getServicePath('createimage').split('/');
             baseParts.pop();
             result = result.split('@BASE@').join(baseParts.join('/'));
         }
@@ -537,7 +534,7 @@ export default class Parser {
 
             if (!MathML.isMathmlInAttribute(content, start) && imageMathmlAtrribute == -1){
                 var mathml = content.substring(start, end);
-                mathml = (characters == Constants.safeXmlCharacters) ? MathML.safeXmlDecode(mathml) : MathML.mathMLEntities(mathml);
+                mathml = (characters.id == Constants.safeXmlCharacters.id) ? MathML.safeXmlDecode(mathml) : MathML.mathMLEntities(mathml);
                 output += Util.createObjectCode(Parser.mathmlToImgObject(document, mathml, null, language));
             }
             else {
