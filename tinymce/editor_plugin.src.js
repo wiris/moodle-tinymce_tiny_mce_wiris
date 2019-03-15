@@ -205,13 +205,22 @@ export var currentInstance = null;
              * @property {String} editor - Editor name.
              */
             var integrationModelProperties = {};
-            integrationModelProperties.configurationService = '' + M.cfg.wwwroot + '/filter/wiris/integration/configurationjs.php';
-            integrationModelProperties.version = '7.10.0.1403';
+            integrationModelProperties.serviceProviderProperties= {};
+            integrationModelProperties.serviceProviderProperties.URI = '' + M.cfg.wwwroot + '/filter/wiris/integration/';
+            integrationModelProperties.serviceProviderProperties.server = 'php';
+            integrationModelProperties.version = '7.11.0.1407';
             integrationModelProperties.isMoodle = true;
             if (typeof(editor.getParam('wiriscontextpath')) !== 'undefined') {
                 integrationModelProperties.configurationService = Util.concatenateUrl(editor.getParam('wiriscontextpath'), integrationModelProperties.configurationService);
                 editor.getParam('wiriscontextpath') + '/' + integrationModelProperties.configurationService;
+                console.warn('Deprecated property wiriscontextpath. Use mathTypeParameters on instead.', editor.opts.wiriscontextpath)
             }
+
+            // Overriding MathType integration parameters.
+            if (typeof(editor.getParam('mathTypeParameters')) !== 'undefined') {
+                integrationModelProperties.integrationParameters = editor.getParam('mathTypeParameters');
+            }
+
             integrationModelProperties.scriptName = "plugin.min.js";
             integrationModelProperties.environment = {};
 
@@ -416,7 +425,7 @@ export var currentInstance = null;
                 author : 'Maths for More',
                 authorurl : 'http://www.wiris.com',
                 infourl : 'http://www.wiris.com',
-                version : '7.10.0.1403'
+                version : '7.11.0.1407'
             };
         }
     });
