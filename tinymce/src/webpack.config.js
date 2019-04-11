@@ -7,7 +7,7 @@ module.exports = {
     },
     output: {
         path: path.resolve(__dirname, ''),
-        filename: '../plugin.min.js'
+        filename: '../editor_plugin.js'
     },
     // Set watch to true for dev purposes.
     watch: false,
@@ -36,7 +36,8 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                exclude: /node_modules/,
+                include: /node_modules\\(.)*\\mathtype-integration-js-dev/,
+                // exclude: /node_modules/,
                 use: ['style-loader', 'css-loader']
             },
             {

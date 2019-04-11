@@ -1,8 +1,8 @@
-import IntegrationModel from './integration-js/src/integrationmodel.js';
-import Configuration from './integration-js/src/configuration.js';
-import Parser from './integration-js/src/parser.js';
-import Util from './integration-js/src/util';
-import Listeners from './integration-js/src/listeners';
+import IntegrationModel from '@wiris/mathtype-integration-js-dev/src/integrationmodel.js';
+import Configuration from '@wiris/mathtype-integration-js-dev/src/configuration.js';
+import Parser from '@wiris/mathtype-integration-js-dev/src/parser.js';
+import Util from '@wiris/mathtype-integration-js-dev/src/util';
+import Listeners from '@wiris/mathtype-integration-js-dev/src/listeners';
 
 /**
  * TinyMCE integration class. This class extends IntegrationModel class.
