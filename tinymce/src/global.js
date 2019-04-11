@@ -1,14 +1,14 @@
-import Core from './integration-js/src/core.src.js';
-import Parser from './integration-js/src/parser.js';
-import Util from './integration-js/src/util.js';
-import Image from './integration-js/src/image.js';
-import Configuration from './integration-js/src/configuration.js';
-import Listeners from './integration-js/src/listeners';
-import IntegrationModel from './integration-js/src/integrationmodel.js';
-import { TinyMceIntegration, currentInstance, instances } from './editor_plugin.src.js';
-import Latex from './integration-js/src/latex';
-import backwardsLib from './integration-js/src/backwardsLib';
-import Test from './integration-js/src/test';
+import Core from '@wiris/mathtype-integration-js-dev/src/core.src'
+import Parser from '@wiris/mathtype-integration-js-dev/src/parser';
+import Util from '@wiris/mathtype-integration-js-dev/src/util';
+import Image from '@wiris/mathtype-integration-js-dev/src/image';
+import Configuration from '@wiris/mathtype-integration-js-dev/src/configuration';
+import Listeners from '@wiris/mathtype-integration-js-dev/src/listeners';
+import IntegrationModel from '@wiris/mathtype-integration-js-dev/src/integrationmodel';
+import { TinyMceIntegration, currentInstance, instances } from './editor_plugin.src';
+import Latex from '@wiris/mathtype-integration-js-dev/src/latex';
+import backwardsLib from '@wiris/mathtype-integration-js-dev/src/backwardsLib';
+import Test from '@wiris/mathtype-integration-js-dev/src/test';
 
 // Expose WirisPlugin variable to the window.
 window.WirisPlugin = {
