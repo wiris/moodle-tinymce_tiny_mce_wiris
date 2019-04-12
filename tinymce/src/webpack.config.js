@@ -36,7 +36,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                include: /node_modules\\(.)*\\mathtype-integration-js-dev/,
+                include: /node_modules\/\@wiris\/mathtype-integration-js-dev/,
                 // exclude: /node_modules/,
                 use: ['style-loader', 'css-loader']
             },
