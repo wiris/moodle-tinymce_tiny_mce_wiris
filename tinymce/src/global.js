@@ -7,7 +7,6 @@ import Listeners from '@wiris/mathtype-integration-js-dev/src/listeners';
 import IntegrationModel from '@wiris/mathtype-integration-js-dev/src/integrationmodel';
 import { TinyMceIntegration, currentInstance, instances } from './editor_plugin.src';
 import Latex from '@wiris/mathtype-integration-js-dev/src/latex';
-import backwardslib from '@wiris/mathtype-integration-js-dev/src/backwardsLib';
 import Test from '@wiris/mathtype-integration-js-dev/src/test';
 
 // Expose WirisPlugin variable to the window.
