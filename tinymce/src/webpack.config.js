@@ -36,11 +36,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-<<<<<<< HEAD
                 include: /node_modules\/\@wiris\/mathtype-integration-js-dev/,
-=======
-                include: /node_modules\\(.)*\\mathtype-integration-js-dev/,
->>>>>>> 8bf9a561d679bb5d54122b32d5ea5a892a465699
                 // exclude: /node_modules/,
                 use: ['style-loader', 'css-loader']
             },
