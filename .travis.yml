@@ -6,9 +6,8 @@ addons:
   postgresql: "9.3"
   apt:
     packages:
+      - openjdk-8-jre-headless
       - chromium-chromedriver
-      - oracle-java8-installer
-      - oracle-java8-set-default
 
 cache:
   directories:
