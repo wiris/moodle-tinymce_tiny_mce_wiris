@@ -26,7 +26,7 @@ module.exports = {
             {
                 // Rule to translate ES5 javascript files to ES6.
                 test: /\.js$/,
-                exclude: /node_modules/,
+                include: path.resolve('node_modules', '\@wiris', 'mathtype-integration-js-dev'),
                 use: {
                     loader: 'babel-loader',
                     options: {
@@ -36,7 +36,7 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                include: /node_modules\/\@wiris\/mathtype-integration-js-dev/,
+                include: path.resolve('node_modules', '\@wiris', 'mathtype-integration-js-dev'),
                 // exclude: /node_modules/,
                 use: ['style-loader', 'css-loader']
             },
