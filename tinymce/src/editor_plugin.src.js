@@ -125,6 +125,17 @@ export class TinyMceIntegration extends IntegrationModel {
             }
         }
     }
+
+    /**
+     * Fires the event ExecCommand and transform a MathML into an image formula.
+     * @param {string} mathml - MathML to generate the formula and can be caught with the event.
+     */
+    updateFormula(mathml) {
+        if (typeof this.editorObject.fire != 'undefined') {
+            this.editorObject.fire('ExecCommand',{command: 'updateFormula', value: mathml});
+        }
+        super.updateFormula(mathml);
+    }
 }
 
 /**
@@ -208,7 +219,7 @@ export var currentInstance = null;
             integrationModelProperties.serviceProviderProperties= {};
             integrationModelProperties.serviceProviderProperties.URI = '' + M.cfg.wwwroot + '/filter/wiris/integration/';
             integrationModelProperties.serviceProviderProperties.server = 'php';
-            integrationModelProperties.version = '7.12.0.1412';
+            integrationModelProperties.version = '7.12.0.1419';
             integrationModelProperties.isMoodle = true;
             if (typeof(editor.getParam('wiriscontextpath')) !== 'undefined') {
                 integrationModelProperties.configurationService = Util.concatenateUrl(editor.getParam('wiriscontextpath'), integrationModelProperties.configurationService);
@@ -425,7 +436,7 @@ export var currentInstance = null;
                 author : 'Maths for More',
                 authorurl : 'http://www.wiris.com',
                 infourl : 'http://www.wiris.com',
-                version : '7.12.0.1412'
+                version : '7.12.0.1419'
             };
         }
     });
