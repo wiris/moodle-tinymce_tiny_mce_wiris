@@ -1,13 +1,15 @@
 language: php
 
 sudo: required
+dist: trusty
+
+#branches:
+#  only:
+#    - master
 
 addons:
-  postgresql: "9.3"
-  apt:
-    packages:
-      - openjdk-8-jre-headless
-      - chromium-chromedriver
+  firefox: "47.0.1"
+  postgresql: "9.4"
 
 cache:
   directories:
@@ -15,24 +17,41 @@ cache:
     - $HOME/.npm
 
 php:
- - 5.6
- - 7.0
- - 7.1
+  - 7.0
+  - 7.1
+  - 7.2
 
 env:
- global:
-  - MOODLE_BRANCH=MOODLE_32_STABLE IGNORE_PATHS=integration
-  - MOODLE_BRANCH=MOODLE_33_STABLE IGNORE_PATHS=integration
- matrix:
-  - DB=pgsql
-  - DB=mysqli
+  global:
+    - COVERAGE=false
+  matrix:
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+
+matrix:
+  exclude:
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
+  - composer selfupdate
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
@@ -45,8 +64,8 @@ script:
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
+  - moodle-plugin-ci phpunit
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
   - moodle-plugin-ci grunt
-  - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat --profile chrome
+  - moodle-plugin-ci behat
