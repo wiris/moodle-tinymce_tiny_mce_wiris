@@ -1,9 +1,9 @@
 MathTpe for TinyMCE
 ==========
+### Stable Build Status
+[![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=stable)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
 ### Master Build Status
 [![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=master)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
-### Development Build Status
-[![Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=development)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris)
 
 MathType for TinyMCE adds [MathType](http://www.wiris.com/editor) to TinyMCE editor.
 
