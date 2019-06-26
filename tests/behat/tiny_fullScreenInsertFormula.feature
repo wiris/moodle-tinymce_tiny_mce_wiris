@@ -1,5 +1,5 @@
 @editor @editor_tiny @tiny @tiny_wiris @_bug_phantomjs
-Feature: Checks if data-mce is set on setContent
+Feature: Checks if formula can be inserted correctly in full screen
 
   Background:
     Given the following "courses" exist:
@@ -10,7 +10,7 @@ Feature: Checks if data-mce is set on setContent
       | admin  | C1     | editingteacher |
 
   @javascript
-  Scenario: Checks if data-mce is set on setContent
+  Scenario: Checks if formula can be inserted correctly in full screen
     And I log in as "admin"
     And I follow "Preferences" in the user menu
     And I follow "Editor preferences"
@@ -27,12 +27,19 @@ Feature: Checks if data-mce is set on setContent
     And I follow "News Forum"
     And I press "Add a new discussion topic"
     And I set the following fields to these values:
-      | Subject | Test WIRIS local labels |
+      | Subject | Test MathType for Atto on Moodle |
     And I press "Toolbar Toggle"
-    And I press "MathType"
+    And I press "Toggle full screen mode"
+    And I press "mce_fullscreen_tiny_mce_wiris_formulaEditor"
     And I set MathType formula to '<math><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></math>'
     And I press accept button in MathType Editor
+    Then Wirisformula should has width 39 with error of 4 in full screen mode
+    And I press "mce_fullscreen_fullscreen"
     And I press "Post to forum"
-    And I follow "Test WIRIS local labels"
+    And I follow "Test MathType for Atto on Moodle"
+    Then a Wirisformula containing "square root of 2 pi end root" should exist
     And I follow "Edit"
-    Then a Wirisformula containing "square root of 2 pi end root" should exist in Message field
+    Then Wirisformula should has width 39 with error of 4 in Message field
+
+
+

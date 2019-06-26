@@ -1,4 +1,4 @@
-@editor @editor_atto @atto @atto_wiris @_bug_phantomjs
+@editor @editor_tiny @tiny @tiny_wiris @_bug_phantomjs
 Feature: Check if editor can be reopened
 
   Background:
