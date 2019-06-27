@@ -1,4 +1,4 @@
-@editor @editor_tiny @tiny @tiny_wiris @_bug_phantomjs
+@editor @tinymce @tinymce_tiny_mce_wiris
 Feature: Checks if formula can be displayed correctly in full screen
 
   Background:

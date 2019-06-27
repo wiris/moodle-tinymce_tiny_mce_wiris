@@ -1,4 +1,4 @@
-@editor @editor_tiny @tiny @tiny_wiris @_bug_phantomjsx
+@editor @tinymce @tinymce_tiny_mce_wiris
 Feature: Use tiny to post with a chemistry formula
 
   Background:
