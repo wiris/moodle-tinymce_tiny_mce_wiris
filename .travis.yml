@@ -55,7 +55,7 @@ before_install:
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
 
 install:
-  - moodle-plugin-ci add-plugin wiris/moodle-filter_wiris
+  - moodle-plugin-ci add-plugin --branch PLUGINS-1206 wiris/moodle-filter_wiris
   - moodle-plugin-ci install
 
 script:
