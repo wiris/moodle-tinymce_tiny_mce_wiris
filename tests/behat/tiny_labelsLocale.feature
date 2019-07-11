@@ -13,18 +13,17 @@ Feature: Checks labes altering lang tag
   @javascript
   Scenario: Checks labes altering lang tag
     And I log in as "admin"
+    And I enable Mathtype filter
     And I follow "Preferences" in the user menu
     And I follow "Editor preferences"
-    And I set the field "Text editor" to "TinyMCE HTML editor"
+    And I set the following fields to these values:
+      | Text editor | TinyMCE HTML editor |
     And I press "Save changes"
-    And I navigate to "Plugins" in site administration
-    And I follow "Manage filters"
-    And I click on "On" "option" in the "MathType by WIRIS" "table_row"
     And I navigate to "Language packs" node in "Site administration"
     And I press "Update all installed language packs"
     And I follow "Preferences" in the user menu
     And I follow "Preferred language"
-    And I click on "Español - Internacional ‎(es)‎" "option" in the "#id_lang" "css_element"
+    And I select spanish
     And I press "Save changes"
     And I am on "Course 1" course homepage
     And I navigate to "Activar edición" in current page administration
