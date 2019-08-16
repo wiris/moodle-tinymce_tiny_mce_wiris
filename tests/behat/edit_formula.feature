@@ -1,15 +1,17 @@
 @editor @tinymce @tinymce_tiny_mce_wiris
 Feature: MathType for TinyMCE
+  In order to check if formula can be created correctly in tiny
+  I need to create a formula in the user profile
 
   Background:
     Given the following config values are set as admin:
       | config | value | plugin |
       | customtoolbar | tiny_mce_wiris_formulaEditor | editor_tinymce |
+    And the "wiris" filter is "on"
+    And I log in as "admin"
 
   @javascript
   Scenario: Create a formulas
-    And I log in as "admin"
-    And I enable Mathtype filter
     And I follow "Preferences" in the user menu
     And I follow "Editor preferences"
     And I set the following fields to these values:
