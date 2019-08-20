@@ -10,6 +10,9 @@ dist: trusty
 addons:
   firefox: "47.0.1"
   postgresql: "9.4"
+  apt:
+    packages:
+      - chromium-chromedriver
 
 cache:
   directories:
@@ -68,4 +71,4 @@ script:
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
   - moodle-plugin-ci grunt
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat --profile chrome
