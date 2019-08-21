@@ -30,8 +30,7 @@ Check if MathType is enabled
     And I add a "Page" to section "0"
     Then "MathType" "button" should not exist
     And I navigate to "Plugins" in site administration
-    And I follow "Manage filters"
-    And I go to MathType filter settings
+    And I follow "MathType by WIRIS"
     And I check editor always active
     And I press "Save changes"
     And I am on "Course 1" course homepage
