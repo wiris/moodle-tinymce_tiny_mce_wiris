@@ -1,5 +1,5 @@
 @editor @tinymce @tinymce_tiny_mce_wiris
-Feature: Check MathType enabled  if filter disabled at course level but allow_editorplugin_active_course setting is enabled
+Feature: Check MathType enabled if filter disabled at course level but allow_editorplugin_active_course setting is enabled
 In order to check that MathType is enabled if allow_editorplugin_active_course setting is active
 I need to disable MathType at course level
 Enable allow_editorplugin_active_course setting

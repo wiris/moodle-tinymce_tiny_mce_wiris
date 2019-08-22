@@ -32,6 +32,6 @@ Check the formula
     And I press accept button in MathType Editor
     And I press "Full screen" in "Page content" field in TinyMCE editor
     Then Wirisformula should has width 39 with error of 4 in full screen mode
-    And I press "mce_fullscreen_fullscreen"
+    And I press "Full screen" in full screen mode
     And I press "Save and display"
     Then a Wirisformula containing "square root of 2 pi end root" should exist
