@@ -15,7 +15,6 @@ Open the editor again
     And the "wiris" filter is "on"
     And I log in as "admin"
 
-
   @javascript
   Scenario: Reopen the editor
     And I follow "Preferences" in the user menu
