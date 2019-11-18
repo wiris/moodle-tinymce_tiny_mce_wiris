@@ -28,8 +28,8 @@ env:
   global:
     - COVERAGE=false
   matrix:
-    - MOODLE_BRANCH=master DB=mysqli
-    - MOODLE_BRANCH=master DB=pgsql
+    - MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
+    - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
     - MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     - MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
@@ -40,9 +40,9 @@ env:
 matrix:
   exclude:
     - php: 7.0
-      env: MOODLE_BRANCH=master DB=mysqli
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
     - php: 7.0
-      env: MOODLE_BRANCH=master DB=pgsql
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
     - php: 7.0
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     - php: 7.0
