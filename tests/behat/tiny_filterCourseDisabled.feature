@@ -13,7 +13,7 @@ I need to disable filter at activity course level
     And the "wiris" filter is "on"
     And I log in as "admin"
 
-    @javascript
+  @javascript
   Scenario: Disable MathType at course level
     And I follow "Preferences" in the user menu
     And I follow "Editor preferences"
