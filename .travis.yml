@@ -79,6 +79,8 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_35_STABLE
     - php: 7.4
       env: MOODLE_BRANCH=MOODLE_35_STABLE
+    - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_37_STABLE
 
 
 before_install:
