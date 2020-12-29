@@ -1,33 +1,40 @@
-# MathTpe for TinyMCE
+# ![MathType](http://www.wiris.com/portal/themes/wiris_com/img/logos/mathtype/png/MY_office24.png) MathType for TinyMCE
 
-MathType for TinyMCE adds [MathType](http://www.wiris.com/editor) to TinyMCE editor.
+[![Build Status](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=master)](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris) [![Build Status](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=stable)](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris)
 
-[MathType](http://www.wiris.com/editor) is a mathematical **visual (WYSIWYG) editor** containing a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content.
 
-MathType offers a **chemistry** toolbar. Maths and chemistry toolbars are available from different icons in TinyMCE toolbar.
+Type and handwrite mathematical notation in Moodle with [MathType](http://www.wiris.com/editor) for TinyMCE editor.
+
+![Wiris mathtype plugin example](pix/snapshot.png)
+
+[MathType](http://www.wiris.com/editor) is a mathematical **visual (WYSIWYG) editor** containing a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. Maths and chemistry toolbars are available from different icons in TinyMCE toolbar.
 
 MathType for TinyMCE can be used for **free** up to a certain level of uses per natural year. Please read **license** conditions and prices at [WIRIS Store](http://www.wiris.com/store).
-
-**[MathType filter](https://github.com/wiris/moodle-filter_wiris)** is required in order to use MathType for TinyMCE
-
-**Build status**
-
-| Dev.  | Stable |
-|---|---|
-| [![Master Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=master)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris) | [![Stable Build Status](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=stable)](https://travis-ci.org/wiris/moodle-tinymce_tiny_mce_wiris) |
 
 
 ## Install instructions
 
-To install it using git, type this command in the root of your Moodle install:
+To install this plugin using git, type this command in the root of your Moodle installation:
 
 ```sh
-    $ git clone https://github.com/wiris/moodle-tinymce_tiny_mce_wiris.git lib/editor/tinymce/plugins/tiny_mce_wiris
+$ git clone https://github.com/wiris/moodle-tinymce_tiny_mce_wiris.git lib/editor/tinymce/plugins/tiny_mce_wiris
 ```
 
-Then add `/filter/wiris` to your `.gitignore` file.
+Then add `lib/editor/tinymce/plugins/tiny_mce_wiris` to the Moodle's root `.gitignore` file.
 
-Alternatively, download the zip from <https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/archive/master.zip> it into the TinyMCE plugins folder, and then rename the new folder to "tiny_mce_wiris".
+Alternatively, you can [download the plugin](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/archive/stable.zip) and unzip the file into the Atto plugins folder, and then rename the new folder to "tiny_mce_wiris".
+
+**[MathType plugin filter](https://github.com/wiris/moodle-filter_wiris)** is required in order to use MathType for TinyMCE.
+
+## Release information
+
+You can download any release of this plugin from the [Official Moodle's page](https://moodle.org/plugins/tinymce_tiny_mce_wiris).
+
+Since version 7.24.0, all notable changes to this project are documented in the [CHANGES.md](CHANGES.md) file.
+
+## Technical Support or Questions
+
+If you have questions or need help integrating MathType, please contact us (support@wiris.com) instead of opening an issue.
 
 ## Privacy policy
 
