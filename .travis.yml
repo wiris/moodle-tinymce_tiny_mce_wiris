@@ -4,10 +4,8 @@ notifications:
 language: php
 
 sudo: required
-#dist: trusty
 
 addons:
-  # firefox: "47.0.1"
   postgresql: "9.6"
   apt:
     packages:
@@ -84,8 +82,6 @@ matrix:
 
 
 before_install:
-  # - nvm install 14.0.0
-  # - nvm use 14.0.0
   - if [ "$NODEJS" = 14 ]; then
       nvm install 14.0.0;
       nvm use 14.0.0;
@@ -114,7 +110,7 @@ script:
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
-  # - moodle-plugin-ci grunt -t eslint
+  - moodle-plugin-ci grunt -t eslint
   - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat --profile $PROFILE
