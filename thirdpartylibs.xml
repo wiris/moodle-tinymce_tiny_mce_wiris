@@ -4,7 +4,7 @@
         <location>tinymce/plugin.min.js</location>
         <name>MathType for TinyMCE4</name>
         <version>7.12.0.1412</version>
-        <license>MIT</license>
-        <licenseversion>1.0</licenseversion>
+        <license>GPL</license>
+        <licenseversion>3.0+</licenseversion>
     </library>
 </libraries>
