@@ -71,6 +71,6 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
         $added = $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditorChemistry', '', false);
 
         // Add JS file, which uses default name.
-        $this->add_js_plugin($params);
+        $this->add_js_plugin($params, '', 'plugin.min.js');
     }
 }
