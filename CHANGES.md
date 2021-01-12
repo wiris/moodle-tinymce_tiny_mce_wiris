@@ -14,6 +14,7 @@ Last release of this plugin is 7.24.0.
   - Support for Moodle3_10 and Moodle3_11.
   - Enable `fast_finish` option.
   - Don't use the `blackboard-open-source` distro until it's fixed.
-  - Add linting.
+  - Add `Contributing` section to the README file.
+- Add a npm command that updates the MathType TinyMCE library. 
 - Update project documentation by improving the main `README` file.
 - Start using `CHANGES` file as changelog.

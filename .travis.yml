@@ -30,9 +30,9 @@ cache:
 
 php:
   - 7.0
-  - 7.1
-  - 7.2
-  - 7.3
+  # - 7.1
+  # - 7.2
+  # - 7.3
   - 7.4
 
 env:
@@ -46,8 +46,8 @@ env:
     - DB=pgsql
 
   matrix:
-    - MOODLE_BRANCH=MOODLE_311_STABLE
-    - MOODLE_BRANCH=MOODLE_310_STABLE
+    # - MOODLE_BRANCH=MOODLE_311_STABLE
+    # - MOODLE_BRANCH=MOODLE_310_STABLE
     - MOODLE_BRANCH=MOODLE_39_STABLE
     - MOODLE_BRANCH=MOODLE_38_STABLE
     - MOODLE_BRANCH=MOODLE_37_STABLE
@@ -111,6 +111,5 @@ script:
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
   - moodle-plugin-ci grunt -t eslint
-  - moodle-plugin-ci grunt
   - moodle-plugin-ci phpunit
   - moodle-plugin-ci behat --profile $PROFILE

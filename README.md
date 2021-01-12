@@ -41,6 +41,21 @@ The library's source code can be found at [@wiris/html-integrations](https://git
 
 **Note:** More details on the `thirdpartylibs.xml` file.
 
+
+## Contributing
+
+The MathType for TinyMCE4 library (@wiris/mathtype-tinymce4) is located at `tinymce` folder following TinyMCE development conventions.
+
+You can update `@wiris/mathtype-tinymce4` library to its latest version, using these commands:
+
+```sh
+# Install project dependencies.
+$ npm install
+# Update MathType for TinyMCE4 to its latests version.
+$ npm run update-mathtype
+```
+
+
 ## Further information
 
 - [Official plugin in Moodle's website](https://moodle.org/plugins/tinymce_tiny_mce_wiris).
