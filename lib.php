@@ -30,7 +30,7 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
 
     protected function update_init_params(array &$params, context $context,
                                           array $options = null) {
-        global $PAGE, $CFG, $COURSE;
+        global $PAGE, $COURSE;
         // We need to know if MathType filter are active in the context of the course.
         // If not MathTYPe filter should be disabled.
 
@@ -67,8 +67,8 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
         $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/baseURL.js', false);
 
         // Add button after emoticon button in advancedbuttons3.
-        $added = $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditor', '', false);
-        $added = $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditorChemistry', '', false);
+        $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditor', '', false);
+        $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditorChemistry', '', false);
 
         // Add JS file using 'plugin.min.js' instead of default name.
         $this->add_js_plugin($params, '', 'plugin.min.js');

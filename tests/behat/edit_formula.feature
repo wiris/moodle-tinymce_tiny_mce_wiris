@@ -8,6 +8,7 @@ Feature: MathType for TinyMCE
       | config | value | plugin |
       | customtoolbar | tiny_mce_wiris_formulaEditor | editor_tinymce |
     And the "wiris" filter is "on"
+    And the "urltolink" filter is "off"
     And I log in as "admin"
 
   @javascript
