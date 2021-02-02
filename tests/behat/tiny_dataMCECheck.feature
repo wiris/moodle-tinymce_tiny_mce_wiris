@@ -13,6 +13,7 @@ Check the formula
       | user     | course | role           |
       | admin  | C1     | editingteacher |
     And the "wiris" filter is "on"
+    And the "urltolink" filter is "off"
     And I log in as "admin"
 
   @javascript
@@ -28,8 +29,8 @@ Check the formula
       | Name | Test WIRIS local labels |
     And I press "Toggle" in "Page content" field in TinyMCE editor
     And I press "MathType" in "Page content" field in TinyMCE editor
-    And I set MathType formula to '<math><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></math>'
+    And I set MathType formula to '<math><msqrt><mn>2</mn></msqrt></math>'
     And I press accept button in MathType Editor
     And I press "Save and display"
     And I navigate to "Edit settings" in current page administration
-    Then a Wirisformula containing "square root of 2 pi end root" should exist in "Page content" field
+    Then a Wirisformula containing "square root of 2" should exist in "Page content" field
