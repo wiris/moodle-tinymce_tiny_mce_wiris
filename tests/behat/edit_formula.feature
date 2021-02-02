@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: MathType for TinyMCE
   In order to check if formula can be created correctly in tiny
   I need to create a formula in the user profile
@@ -8,7 +8,10 @@ Feature: MathType for TinyMCE
       | config | value | plugin |
       | customtoolbar | tiny_mce_wiris_formulaEditor | editor_tinymce |
     And the "wiris" filter is "on"
+    And the "mathjaxloader" filter is "off"
+    And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Create a formulas

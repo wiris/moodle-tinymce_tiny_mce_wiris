@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Check MathType disabled if filter disabled at activity forum level
 In order to check if MathType will be disabled if filter is disabled at activity level
 I need to disable filter at activity page level
@@ -11,7 +11,10 @@ I need to disable filter at activity page level
       | user     | course | role           |
       | admin  | C1     | editingteacher |
     And the "wiris" filter is "on"
+    And the "mathjaxloader" filter is "off"    
+    And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Disable MathType at page level
