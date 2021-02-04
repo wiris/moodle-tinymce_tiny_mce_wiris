@@ -4,11 +4,13 @@
   "homepage": "https://moodle.org/plugins/tinymce_tiny_mce_wiris",
   "private": true,
   "scripts": {
-    "update-mathtype": "npx copyfiles -fVE node_modules/@wiris/mathtype-tinymce4/*.* tinymce"
+    "preupdate-mathtype": "npx del tinymce/plugin.min.js ",
+    "update-mathtype": "npx cpy 'node_modules/@wiris/mathtype-tinymce4/plugin.min.js' 'tinymce'"
   },
   "devDependencies": {
     "@wiris/mathtype-tinymce4": ">=7.24.0",
-    "copyfiles": "^2.4.1"
+    "cpy-cli": "^3.1.1",
+    "del-cli": "^3.0.1"
   },
   "bugs": {
     "email": "support@wiris.com"

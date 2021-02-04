@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Use tiny to post with modal window
 In order to check if MathType formula can be displayed correctly
 I need to post a MathType formula
@@ -30,5 +30,6 @@ I need to post a MathType formula
     And I set MathType formula to '<math><mfrac><mn>1</mn><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></mfrac></math>'
     And I press accept button in MathType Editor
     And I press "Save and display"
+    Then I wait until Wirisformula formula exists
     Then a Wirisformula containing 'square root' should exist
     And Wirisformula should has height 48 with error of 2

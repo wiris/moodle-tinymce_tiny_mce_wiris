@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Checks if formula can be inserted correctly in full screen
 In order to check if formula can be inserted correctly in full screen
 I need to open full screen mode
@@ -35,6 +35,7 @@ Check the formula
     Then Wirisformula should has width 39 with error of 4 in full screen mode
     And I press "Full screen" in full screen mode
     And I press "Save and display"
+    Then I wait until Wirisformula formula exists
     Then a Wirisformula containing "square root of 2 pi end root" should exist
     And I navigate to "Edit settings" in current page administration
     Then Wirisformula should has width 39 with error of 4 in "Page content" field

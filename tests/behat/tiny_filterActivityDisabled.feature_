@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Check MathType disabled if filter disabled at activity forum level
 In order to check if MathType will be disabled if filter is disabled at activity level
 I need to disable filter at activity page level
