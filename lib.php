@@ -68,8 +68,6 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
         ),
         'tinymce_tiny_mce_wiris');
 
-        $PAGE->requires->js('/lib/editor/tinymce/plugins/tiny_mce_wiris/baseURL.js', false);
-
         // Add button after emoticon button in advancedbuttons3.
         if ($editorisactive) {
             $added = $this->add_button_after($params, 3, 'tiny_mce_wiris_formulaEditor', '', false);

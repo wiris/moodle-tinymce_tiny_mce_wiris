@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Checks if data-mce is set on setContent
 In order to check if the formula remains in the content field
 I need to post
@@ -15,6 +15,7 @@ Check the formula
     And the "wiris" filter is "on"
     And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Post a formula and edit the post to check

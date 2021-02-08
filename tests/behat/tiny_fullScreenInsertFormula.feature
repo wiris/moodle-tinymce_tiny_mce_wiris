@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Checks if formula can be inserted correctly in full screen
 In order to check if formula can be inserted correctly in full screen
 I need to open full screen mode
@@ -15,6 +15,7 @@ Check the formula
     And the "wiris" filter is "on"
     And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Checks if formula can be inserted correctly in full screen

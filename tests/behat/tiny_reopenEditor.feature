@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
 Feature: Check if editor can be reopened
 In order to check if the MathType editor can be reopened
 I need to open the editor
@@ -15,6 +15,7 @@ Open the editor again
     And the "wiris" filter is "on"
     And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Reopen the editor
