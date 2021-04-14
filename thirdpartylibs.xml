@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <libraries>
     <library>
-        <location>tinymce/plugin.min.js</location>
+        <location>tinymce/editor_plugin.js</location>
         <name>MathType for TinyMCE4</name>
-        <version>7.12.0.1412</version>
+        <version>7.26.0.0</version>
         <license>GPL</license>
         <licenseversion>3.0+</licenseversion>
     </library>

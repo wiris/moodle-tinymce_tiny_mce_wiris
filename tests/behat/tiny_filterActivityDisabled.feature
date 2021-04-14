@@ -11,6 +11,7 @@ I need to disable filter at activity page level
       | user     | course | role           |
       | admin  | C1     | editingteacher |
     And the "wiris" filter is "on"
+    And the "mathjaxloader" filter is "off"    
     And the "urltolink" filter is "off"
     And I log in as "admin"
     And the MathType buttons visibility is set to "1"
