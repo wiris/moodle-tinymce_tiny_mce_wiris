@@ -1,16 +1,23 @@
 # Changelog
 
+## MathType Moodle plugin for TinyMCE
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Last release of this plugin is 7.26.0.
+Last release of this plugin is 7.26.1 - YYYYMMDD.
 
 ## [Unreleased]
 - ...
 
-## v7.26.0
+## v7.26.1 - YYYYMMDD
+- Fix node.js third-party vulnerabilities.
+- Upgrade Third-Party Library 'MathType for TinyMCE4' to latest version, v7.26.1.
+- Added 'composer.json' file.
+
+## v7.26.0 - 20210506
 - Add a test to validate button visibility settings.
 - [KB-7506]: Fix & upgrade TravisCI job configuration.
   - Support for PHP7_3 and PHP7_4.
