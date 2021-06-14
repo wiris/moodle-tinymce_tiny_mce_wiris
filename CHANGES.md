@@ -9,7 +9,7 @@ Last release of this plugin is 7.26.0.
 
 ## [Unreleased]
 - Feature: 'Migrate MathType plugins suite from TravisCI to Github Actions'.
-
+- Fixed 'Plugin not loading when Moodle install folder is different from the root' (KB-13266)
 
 ## v7.26.0
 - Add a test to validate button visibility settings.
