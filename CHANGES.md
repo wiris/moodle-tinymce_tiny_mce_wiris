@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Last release of this plugin is 7.26.0.
 
 ## [Unreleased]
-- ...
+- Feature: 'Migrate MathType plugins suite from TravisCI to Github Actions'.
+
 
 ## v7.26.0
 - Add a test to validate button visibility settings.

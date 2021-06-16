@@ -10,7 +10,7 @@
   "devDependencies": {
     "@wiris/mathtype-tinymce4": ">=7.26.0",
     "cpy-cli": "^3.1.1",
-    "del-cli": "^3.0.1"
+    "del-cli": "^4.0.0"
   },
   "bugs": {
     "email": "support@wiris.com"
