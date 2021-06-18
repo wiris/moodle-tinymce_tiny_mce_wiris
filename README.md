@@ -1,6 +1,6 @@
 # ![MathType](./pix/logo-mathtype.png) MathType Moodle plugin for TinyMCE
 
-[![Build Status](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris.svg?branch=stable)](https://travis-ci.com/wiris/moodle-tinymce_tiny_mce_wiris)
+[![Moodle Plugin CI](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/actions/workflows/moodle-ci.yml/badge.svg)](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/actions/workflows/moodle-ci.yml)
 
 Type and handwrite mathematical notation in Moodle with [MathType](https://www.wiris.com/en/mathtype/) for TinyMCE editor.
 
