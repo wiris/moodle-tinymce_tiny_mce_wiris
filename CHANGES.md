@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Last release of this plugin is 7.27.0.
 
+## Unrealeased
+
+- Fix "missing ['privacy:metadata']" from @christina-roperto contribution #61
+
 ## v7.27.0
 - Bump 'MathType for TinyMCE4' to 7.27.0.
 
