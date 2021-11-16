@@ -16,4 +16,4 @@
 
 $string['pluginname'] = 'MathType by WIRIS';
 $string['error_connection'] = 'An error occurred while loading MathType for TinyMCE';
-$string['privacy:null_reason'] = 'MathType for TinyMCE does not effect or store any data itself.';
+$string['privacy:metadata'] = 'MathType for TinyMCE does not effect or store any data itself.';

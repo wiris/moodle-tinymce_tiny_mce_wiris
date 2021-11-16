@@ -13,8 +13,10 @@ Check the formula
       | user     | course | role           |
       | admin  | C1     | editingteacher |
     And the "wiris" filter is "on"
+    And the "mathjaxloader" filter is "off"
     And the "urltolink" filter is "off"
     And I log in as "admin"
+    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Checks if formula can be inserted correctly in full screen
@@ -35,7 +37,6 @@ Check the formula
     Then Wirisformula should has width 39 with error of 4 in full screen mode
     And I press "Full screen" in full screen mode
     And I press "Save and display"
-    Then I wait until Wirisformula formula exists
     Then a Wirisformula containing "square root of 2 pi end root" should exist
     And I navigate to "Edit settings" in current page administration
     Then Wirisformula should has width 39 with error of 4 in "Page content" field
