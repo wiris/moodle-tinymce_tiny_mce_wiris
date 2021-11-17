@@ -12,9 +12,7 @@ I need to post a MathType formula
       | admin  | C1     | editingteacher |
     And the "wiris" filter is "on"
     And the "urltolink" filter is "off"
-    And the "mathjaxloader" filter is "off"
     And I log in as "admin"
-    And the MathType buttons visibility is set to "1"
 
   @javascript
   Scenario: Post with tiny
