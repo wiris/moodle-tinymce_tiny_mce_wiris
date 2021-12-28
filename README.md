@@ -35,14 +35,19 @@ Since version 7.24.0, all notable changes to this project are documented in the 
 
 ## Libraries
 
-This plugin uses the **MathType for TinyMCE4** ([@wiris/mathtype-tinymce4](https://www.npmjs.com/package/@wiris/mathtype-tinymce4)), released under GNU GPLv3 license. 
+This plugin uses the **MathType for TinyMCE4** ([@wiris/mathtype-tinymce4](https://www.npmjs.com/package/@wiris/mathtype-tinymce4)), released under GNU GPLv3 license.
 
 The library's source code can be found at [@wiris/html-integrations](https://github.com/wiris/html-integrations) repository.
 
 **Note:** More details on the `thirdpartylibs.xml` file.
 
-
 ## Contributing
+
+We would love for you to contribute to this project and help make it better.
+
+As a contributor, the guidelines we would like you to follow are documented in the [CONTRIBUTING.md](CONTRIBUTING.md) file.
+
+### Source code
 
 The MathType for TinyMCE4 library (@wiris/mathtype-tinymce4) is located at `tinymce` folder following TinyMCE development conventions.
 
@@ -54,7 +59,6 @@ $ npm install
 # Update MathType for TinyMCE4 to its latests version.
 $ npm run update-mathtype
 ```
-
 
 ## Further information
 
@@ -72,5 +76,4 @@ The [MathType Privacy Policy](http://www.wiris.com/mathtype/privacy-policy) cove
 
 ## License
 
-**MathType for TinyMCE**  by [WIRIS](https://www.wiris.com) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
-
+**MathType for TinyMCE** by [WIRIS](https://www.wiris.com) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
