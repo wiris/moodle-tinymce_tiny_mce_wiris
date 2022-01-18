@@ -24,8 +24,6 @@
 
 namespace tinymce_tiny_mce_wiris\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Privacy Subsystem for MathType TinyMCE plugin implementing null_provider.
  *
