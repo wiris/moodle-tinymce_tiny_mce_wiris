@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
     protected $buttons = array('tiny_mce_wiris_formulaEditor', 'tiny_mce_wiris_CAS');
 
