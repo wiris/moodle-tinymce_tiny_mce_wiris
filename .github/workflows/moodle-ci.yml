@@ -29,7 +29,7 @@ jobs:
     services:
       # The test will be scoped to postgres only.
       postgres:
-        image: postgres:9.6
+        image: postgres:10
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -49,7 +49,7 @@ jobs:
       fail-fast: false
       matrix:
         php: ['7.1','7.4']
-        moodle-branch: ['MOODLE_35_STABLE', 'MOODLE_36_STABLE', 'MOODLE_37_STABLE', 'MOODLE_38_STABLE', 'MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE']
+        moodle-branch: ['MOODLE_35_STABLE', 'MOODLE_36_STABLE', 'MOODLE_37_STABLE', 'MOODLE_38_STABLE', 'MOODLE_39_STABLE', 'MOODLE_310_STABLE', 'MOODLE_311_STABLE', 'master']
         database: [pgsql]
         # browser: ['firefox', 'chrome']
         exclude:
@@ -63,24 +63,14 @@ jobs:
             php: '7.1'
           - moodle-branch: 'MOODLE_311_STABLE'
             php: '7.1'
+          - moodle-branch: 'master'
+            php: '7.1'
           - moodle-branch: 'MOODLE_35_STABLE'
             php: '7.4'
           - moodle-branch: 'MOODLE_36_STABLE'
             php: '7.4'
           - moodle-branch: 'MOODLE_37_STABLE'
             php: '7.4'
-          - moodle-branch: 'MOODLE_35_STABLE'
-            php: '8.0'
-          - moodle-branch: 'MOODLE_36_STABLE'
-            php: '8.0'
-          - moodle-branch: 'MOODLE_37_STABLE'
-            php: '8.0'
-          - moodle-branch: 'MOODLE_38_STABLE'
-            php: '8.0'
-          - moodle-branch: 'MOODLE_39_STABLE'
-            php: '8.0'
-          - moodle-branch: 'MOODLE_310_STABLE'
-            php: '8.0'
 
 
     steps:
@@ -130,7 +120,6 @@ jobs:
           CODECHECKER_IGNORE_PATHS: classes/privacy,ignore,node_modules,integration,render
           PHPUNIT_IGNORE_PATHS: classes/privacy,ignore,node_modules,integration,render
           MOODLE_DOCKER_BEHAT_FAILDUMP: /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/behatfaildumps
-
 
       # 3. Install Filter plugin ( and Quizzes ?)
       - name: Add MathtType filter plugin
