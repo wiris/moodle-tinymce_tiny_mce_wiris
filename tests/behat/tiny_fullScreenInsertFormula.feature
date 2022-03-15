@@ -38,5 +38,5 @@ Check the formula
     And I press "Full screen" in full screen mode
     And I press "Save and display"
     Then a Wirisformula containing "square root of 2 pi end root" should exist
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     Then Wirisformula should has width 39 with error of 4 in "Page content" field
