@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @wiris_bug1
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @wiris_bug1 @3.x
 Feature: Checks if data-mce is set on setContent
 In order to check if the formula remains in the content field
 I need to post
@@ -35,6 +35,6 @@ Check the formula
     And I press accept button in MathType Editor
     And I press "Save and display"
     # Since the formula is inside an iframe, it's not working anymore. 
-    # And I navigate to "Edit settings" in current page administration
+    # And I navigate to "Settings" in current page administration
     # Then I wait until Wirisformula formula exists
     # And a Wirisformula containing "square root of 2" should exist in "Page content" field

@@ -35,6 +35,5 @@ I need to disable filter at activity page level
     And I navigate to "Filters" in current page administration
     And I turn MathType filter off
     And I press "Save changes"
-    And I follow "Test MathType for Atto on Moodle"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     Then "MathType" "button" should not exist
