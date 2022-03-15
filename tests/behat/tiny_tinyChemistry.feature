@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @3.x
 Feature: Use tiny to post with a chemistry formula
 In order to check whether a chemistry formula can be displayed correctly
 I need to post a chemistry formula

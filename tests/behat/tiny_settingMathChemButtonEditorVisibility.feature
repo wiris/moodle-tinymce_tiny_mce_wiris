@@ -1,4 +1,4 @@
-@filter @filter_wiris @filter_wiris_settings @wiris_settings @wiris_mathtype @tinymce @tinymce_tiny_mce_wiris
+@filter @filter_wiris @filter_wiris_settings @wiris_settings @wiris_mathtype @tinymce @tinymce_tiny_mce_wiris @3.x
 Feature: Check the Mathtype and chemtype buttons visibility on text editors
 In order to check the buttons visibility in tinymce editor
 As an admin

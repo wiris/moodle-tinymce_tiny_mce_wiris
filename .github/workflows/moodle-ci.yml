@@ -184,10 +184,18 @@ jobs:
       - name: PHPUnit tests
         if: ${{ always() }}
         run: moodle-plugin-ci phpunit
-      # Run Behat tests on all Moodle branches.
+      # Run Behat tests on latest Moodle branch
       - name: Behat features
-        if: ${{ always() }}
+        if: ${{ matrix.moodle-branch == 'master' }}
         run: moodle-plugin-ci behat --profile default -vvv
+      # Run Behat Legacy test on the rest Moodle branchs
+      - name: Behat legacy features
+        if: ${{ matrix.moodle-branch != 'master' }}
+        run: |
+          docker run -d --rm --name=selenium --net=host --shm-size=2g -v /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle:/home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle selenium/standalone-chrome:3
+          nohup php -S localhost:8000 -t /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle > phpd.log 2>&1 &
+          php moodle/admin/tool/behat/cli/run.php --tags=@3.x --profile=chrome --suite=default --auto-rerun=2 --verbose -vvv
+          docker stop selenium
 
       # 5.5. Upload snapshots of errors ( NOT Working )
       # Save videos and screenshots as test artifacts
