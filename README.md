@@ -2,15 +2,15 @@
 
 [![Moodle Plugin CI](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/actions/workflows/moodle-ci.yml/badge.svg)](https://github.com/wiris/moodle-tinymce_tiny_mce_wiris/actions/workflows/moodle-ci.yml)
 
-Type and handwrite mathematical notation in Moodle with [MathType](https://www.wiris.com/en/mathtype/) for TinyMCE editor.
+Type and handwrite mathematical notation in Moodle with [MathType](https://www.wiris.com/en/mathtype/?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) for TinyMCE editor.
 
 ![Wiris mathtype plugin example](pix/snapshot.png)
 
 ## Introduction
 
-[MathType](https://www.wiris.com/en/mathtype/) is a mathematical **visual (WYSIWYG) editor** containing a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. **Maths and chemistry** toolbars are available from different icons in TinyMCE toolbar.
+[MathType](https://www.wiris.com/en/mathtype/?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) is a mathematical **visual (WYSIWYG) editor** containing a large collection of icons nicely organized in thematic tabs in order to create formulas or equations for any web content. **Maths and chemistry** toolbars are available from different icons in TinyMCE toolbar.
 
-**Note**: MathType can be used for free up to a certain level of uses per natural year. Read [license conditions and prices](https://www.wiris.com/en/pricing/) on our website.
+**Note**: MathType can be used for free up to a certain level of uses per natural year. Read [license conditions and prices](https://www.wiris.com/en/pricing/?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) on our website.
 
 ## Requirements
 
@@ -64,7 +64,7 @@ $ npm run update-mathtype
 
 - [Official plugin in Moodle's website](https://moodle.org/plugins/tinymce_tiny_mce_wiris).
 - [TinyMCE page at Moodle's documentation website](https://docs.moodle.org/dev/TinyMCE_plugins).
-- [MathType Tutorials](https://docs.wiris.com/en/mathtype/mathtype_web/intro_tutorials).
+- [MathType Tutorials](https://docs.wiris.com/mathtype/en/user-interfaces/mathtype-web-interface/introductory-tutorials.html?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE).
 
 ## Technical Support
 
@@ -72,8 +72,8 @@ If you have questions or need help integrating MathType, please contact us (supp
 
 ## Privacy policy
 
-The [MathType Privacy Policy](http://www.wiris.com/mathtype/privacy-policy) covers the data processing operations for the MathType users. It is an addendum of the company’s general Privacy Policy and the [general Privacy Policy](https://wiris.com/en/privacy-policy) still applies to MathType users.
+The [MathType Privacy Policy](https://www.wiris.com/en/mathtype-privacy-policy/?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) covers the data processing operations for the MathType users. It is an addendum of the company’s general Privacy Policy and the [general Privacy Policy](https://www.wiris.com/en/privacy-policy?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) still applies to MathType users.
 
 ## License
 
-**MathType for TinyMCE** by [WIRIS](https://www.wiris.com) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+**MathType for TinyMCE** by [WIRIS](http://www.wiris.com/?utm_source=npmjs&utm_medium=referral) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
