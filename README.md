@@ -76,4 +76,4 @@ The [MathType Privacy Policy](https://www.wiris.com/en/mathtype-privacy-policy/?
 
 ## License
 
-**MathType for TinyMCE** by [WIRIS](http://www.wiris.com/?utm_source=npmjs&utm_medium=referral) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
+**MathType for TinyMCE** by [WIRIS](https://www.wiris.com/en/terms-of-use/?utm_source=github&utm_medium=referral&utm_campaign=readme&utm_content=TinyMCE) is licensed under the [GNU General Public, License Version 3](https://www.gnu.org/licenses/gpl-3.0.en.html).
