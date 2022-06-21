@@ -122,9 +122,15 @@ jobs:
           MOODLE_DOCKER_BEHAT_FAILDUMP: /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/behatfaildumps
 
       # 3. Install Filter plugin ( and Quizzes ?)
-      - name: Add MathtType filter plugin
+      - name: Add MathType filter plugin
+        id: install-plugin-filter
+        continue-on-error: true
         run: |
           moodle-plugin-ci add-plugin --branch ${GITHUB_REF##*/} wiris/moodle-filter_wiris
+      - name: Add MathType filter plugin using the stable branch
+        if: steps.install-plugin-filter.outcome != 'success'
+        run: |
+          moodle-plugin-ci add-plugin --branch stable wiris/moodle-filter_wiris
 
       # 4. Install Moodle-plugin-ci
       - name: Install moodle-plugin-ci
