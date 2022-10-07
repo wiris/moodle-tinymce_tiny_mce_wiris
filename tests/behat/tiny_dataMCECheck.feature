@@ -31,6 +31,7 @@ Check the formula
       | Name | Test WIRIS local labels |
     And I press "Toggle" in "Page content" field in TinyMCE editor
     And I press "MathType" in "Page content" field in TinyMCE editor
+    And I wait "1" seconds
     And I set MathType formula to '<math><msqrt><mn>2</mn></msqrt></math>'
     And I press accept button in MathType Editor
     And I press "Save and display"

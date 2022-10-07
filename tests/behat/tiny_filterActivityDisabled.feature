@@ -30,6 +30,7 @@ I need to disable filter at activity page level
     And I press "Toggle" in "Page content" field in TinyMCE editor
     And I press "MathType" in "Page content" field in TinyMCE editor
     And I set MathType formula to '<math><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></math>'
+    And I wait "1" seconds
     And I press accept button in MathType Editor
     And I press "Save and display"
     And I navigate to "Filters" in current page administration

@@ -29,7 +29,9 @@ I need to post a chemistry formula
       | Name | Test MathType for Atto on Moodle |
     And I press "Toggle" in "Page content" field in TinyMCE editor
     And I press "ChemType" in "Page content" field in TinyMCE editor
+    And I wait "1" seconds
     And I set MathType formula to '<math><mi mathvariant="normal">H</mi><mn>2</mn><mi mathvariant="normal">O</mi></math>'
+    And I wait "1" seconds
     And I press accept button in MathType Editor
     And I press "Save and display"
     Then I wait until ChemTypeformula formula exists
