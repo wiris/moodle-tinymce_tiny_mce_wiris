@@ -33,6 +33,7 @@ Check the formula
     And I press "Full screen" in "Page content" field in TinyMCE editor
     And I press "MathType" in full screen mode
     And I set MathType formula to '<math><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></math>'
+    And I wait "1" seconds
     And I press accept button in MathType Editor
     Then Wirisformula should has width 39 with error of 4 in full screen mode
     And I press "Full screen" in full screen mode

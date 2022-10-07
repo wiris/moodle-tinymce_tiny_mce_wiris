@@ -22,7 +22,9 @@ Feature: MathType for TinyMCE
     And I press "Save changes"
     And I open my profile in edit mode
     And I press "MathType"
+    And I wait "1" seconds
     And I set mathtype formula to "1+2"
+    And I wait "1" seconds
     And I press accept button in MathType Editor
     And I press "Update profile"
     And I follow "Profile" in the user menu

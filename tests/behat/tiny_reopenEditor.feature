@@ -31,6 +31,7 @@ Open the editor again
       | Name | Test MathType for Atto on Moodle |
     And I press "Toggle" in "Page content" field in TinyMCE editor
     And I press "MathType" in "Page content" field in TinyMCE editor
+    And I wait "1" seconds
     And I press cancel button in MathType Editor
     And I press "MathType" in "Page content" field in TinyMCE editor
     And I set MathType formula to '<math><mfrac><mn>1</mn><msqrt><mn>2</mn><mi>&#x3c0;</mi></msqrt></mfrac></math>'
