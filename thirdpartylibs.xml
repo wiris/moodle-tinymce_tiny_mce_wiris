@@ -2,7 +2,7 @@
 <libraries>
     <library>
         <location>tinymce/editor_plugin.js</location>
-        <name>MathType for TinyMCE4</name>
+        <name>MathType for TinyMCE5</name>
         <version>8.0.0</version>
         <license>GPL</license>
         <licenseversion>3.0+</licenseversion>

@@ -5,10 +5,10 @@
   "private": true,
   "scripts": {
     "preupdate-mathtype": "npx del tinymce/editor_plugin.js",
-    "update-mathtype": "npx cpy 'node_modules/@wiris/mathtype-tinymce4/plugin.min.moodle.js' 'tinymce/editor_plugin.js'"
+    "update-mathtype": "npx cpy 'node_modules/@wiris/mathtype-tinymce5/plugin.moodle.js' 'tinymce/editor_plugin.js'"
   },
   "devDependencies": {
-    "@wiris/mathtype-tinymce4": ">=7.26.0",
+    "@wiris/mathtype-tinymce5": ">=7.26.0",
     "cpy-cli": "^3.1.1",
     "del-cli": "^4.0.0"
   },
