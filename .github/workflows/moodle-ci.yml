@@ -202,7 +202,7 @@ jobs:
         run: |
           docker run -d --rm --name=selenium --net=host --shm-size=2g -v /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle:/home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle selenium/standalone-chrome:3
           nohup php -S localhost:8000 -t /home/runner/work/moodle-tinymce_tiny_mce_wiris/moodle-tinymce_tiny_mce_wiris/moodle > phpd.log 2>&1 &
-          php moodle/admin/tool/behat/cli/run.php --tags=@3.x --profile=chrome --suite=default --auto-rerun=2 --verbose -vvv
+          php moodle/admin/tool/behat/cli/run.php --tags=@3.x.tiny --profile=chrome --suite=default --auto-rerun=2 --verbose -vvv
           docker stop selenium
 
       # 5.5. Upload snapshots of errors ( NOT Working )

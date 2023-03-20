@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @3.x
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @3.x.tiny
 Feature: MathType for TinyMCE
   In order to check if formula can be created correctly in tiny
   I need to create a formula in the user profile

@@ -1,4 +1,4 @@
-@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @wiris_bug1 @3.x
+@editor @tinymce @tinymce_tiny_mce_wiris @wiris_mathtype @wiris_bug1 @3.x.tiny
 Feature: Checks if data-mce is set on setContent
 In order to check if the formula remains in the content field
 I need to post
