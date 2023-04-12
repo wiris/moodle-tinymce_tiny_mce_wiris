@@ -32,6 +32,11 @@ class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
         // We need to know if MathType filter are active in the context of the course.
         // If not MathTYPe filter should be disabled.
 
+        // Set Course parameters to be retrieved by Telemetry.
+        $params['moodleCourseCategory'] = $COURSE->category;
+        $params['moodleCourseName'] = $COURSE->fullname;
+        $params['moodleVersion'] = $CFG->branch;
+
         // Get MathType and Chemistry buttons enabled configuration.
         $editorisactive = get_config('filter_wiris', 'editor_enable');
         $chemistryisactive = get_config('filter_wiris', 'chem_editor_enable');
