@@ -22,10 +22,16 @@
  * @copyright  WIRIS Europe (Maths for more S.L)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class tinymce_tiny_mce_wiris extends editor_tinymce_plugin {
     protected $buttons = array('tiny_mce_wiris_formulaEditor', 'tiny_mce_wiris_CAS');
 
+    /**
+     * Set plugin init parameters.
+     *
+     * @param array $params The parameters to be updated.
+     * @param context $context The context that the editor is used within.
+     * @param array $options The options passed in when requesting the editor.
+     */
     protected function update_init_params(array &$params, context $context,
                                           array $options = null) {
         global $PAGE, $CFG, $COURSE;
