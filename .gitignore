@@ -126,3 +126,6 @@ dist
 
 # custom
 sandbox/
+
+# packages json
+package-lock.json
