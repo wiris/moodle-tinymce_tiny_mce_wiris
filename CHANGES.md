@@ -5,7 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Last release of this plugin is 8.3.0 (12th of jun. 2023).
+Last release of this plugin is 8.4.0 (31th of aug. 2023).
+
+## v8.4.0 - 31th aug. 2023
+- ci: Update how steps output are stored in Github actions.
+- fix: Moodle badge Certification Issues
 
 ## v8.3.0 - 12th jun. 2023
 - fix: Improve data reporting
