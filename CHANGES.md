@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Last release of this plugin is 8.6.0 (october, 9th 2023).
 
+## v8.6.1 - 10 oct. 2023
+- fix: revert to old Viewer
+
 ## v8.6.0 - 9th oct. 2023
 - feat: Update devkit & telemeter
 
